@@ -1,0 +1,139 @@
+Revision history for Perl extension Text::vCard.
+
+2.03 Sun Mar 16 10:10:54 GMT 2008
+	- added 'moniker' and marked 'name' as depreciated
+
+2.02 Sat Mar 15 17:15:16 GMT 2008
+	- http://rt.cpan.org/Ticket/Display.html?id=34044 
+	  Clean up tests so they pass in perl 5.10
+      thanks to Neil Williams
+
+2.01 Sun Sep 2 2007
+	- Stop empty TYPE= being set on export when not needed
+	thanks to Vadim for the suggestion
+
+2.00 Sat Oct 21 2006
+	- export now gives 'TYPE=x,y' instead of the incorrect 'x;y'
+	
+1.99 Wed 30th Aug 2006
+	- Added 'quoted-printable' fix [rt.cpan.org #17790]
+	this requires MIME::QuotedPrint
+
+1.98 Mon Jul 17 2006
+	- Test fix
+
+1.97 Sun Jul  2 2006
+	- removed test because I don't think Test::More::is_deaply
+	works correctly on: perl 5.8.0 on Solaris x86 9
+
+1.96 Sun 3rd July 2005
+	- Removed String::ShellQuote - forgot to PREREQ and not using it
+
+1.95 Sun 26th June 2005
+	- Made export() work for address book, still missing encoding
+	  though.
+	- Added basic test for export()
+	- A few little clean up things
+
+1.94 Sun 24th April 2005
+        - Made check for 'VCARD' tag case insensative,
+        probably won't help until Text::vFile::asData does as well.
+
+1.93 Mon 31st Jan 2005
+	- Restructured object so all nodes are stored in a hashref
+	  $self->{nodes} so I can get get_group to work, all other
+	  methods updated to reflect this.
+	- added get_group() to vcard
+
+1.92	- Added group() to Node and extract that info
+	  from the vcard if it is there.
+
+1.91
+	- Doc bug, said 'tels', should have been 'tel'.
+
+1.9 
+	- removed import() from docs as not used now
+	- changed Node so excepts data with less than field order elements 
+	e.g. N, accepts 'Jon;Smith', As well as 'Jon;Smith;Dr;' this means
+	we work better according to the RFC
+	- ORGs' 'unit' method requires and returns an array ref as it is
+	unlimited in the number of elements it has
+
+1.8 Fri 15th Oct 2004
+	- Applied patch from Aaron Cope for version stuff, can
+	  now access it as lowercase version().
+
+1.7 Wed 13th Oct 2004
+	- remembered to update module versions as well as makefile!
+
+1.6 Wed 13th Oct 2004
+	- removed import() and made anonsub again
+	- removed version() as was conflicting with $VERSION, 
+	  info can be accessed through other methods in anycase
+
+1.5 Wed  Oct 6th 2004
+	- Change to support asData change for 'type=home;type=pref'
+	- Change to support escaped ; (\;) in data - 'note' now works
+
+1.4 Tue  Oct 5th 2004
+	- Patches from Arron for XML::Generator::vCard
+	- put auto methods in sub rather than closure for vCard.pm
+	- change read_file() to scalar read_file() in address
+
+1.3 Tue Oct 5th 2004
+	- Added missing File::Slurp dependency
+	- Renamed 'element_type' to 'node_type' as well
+	- doc updates with help from binary
+
+1.2 Sat Oct 2nd 2004
+	- Changed so can parse group.NODE, the group is ignored for now
+	- Added test for apple vcard version 3
+	- emailed asData author about small buy with types (home/pref)
+	- added autogen methods; $vcard->fn(), $vcard->fullname($value)
+
+1.1 Wed Sept 15th 2003
+	- Lots of tests added
+	- Restructured (it's Tom's fault) so we use Addressbook as the main
+	interface, and Text::vCard is a single card, in the Addressbook object
+	- Renamed add_type to add_types
+	- Renamed remove_type to remove_types
+	- Created Text::vCard::Node to replace all Text::vCard::Part*
+	- Dropped requirement for Text::vFile
+	- Created new and load methods, dropped iterator
+	- Renamed update_value to export_data and changed returned value
+
+1.0  Wed July  23rd 11:18:00 2003
+	- More doc fixing
+	- Fixed bug in UID and TZ
+	- test 02-evolution.t ready for Jay's 'type' fix to support v2.1
+	- test 03-phone_v1.t ready for Jay's 'type' fix to support v1.0
+
+0.9  Sat July  07 10:19:00 2003
+	- Fixed major doc error!
+
+
+0.8  Sat May  17 21:19:00 2003
+	- Added ability to specify types and tests
+	- Altered add_type() and remove_type() to accept array ref as well
+
+0.7  Tue May  13 08:00:00 2003
+	- Added emails, tels, lables. Started Binary API
+
+0.6  Fri May  9 18:10:00 2003
+	- More accessor methods added, added the version to everything as well
+
+0.5  Fri May  9 08:30:00 2003
+	- More accessor methods added, docs and tests
+
+0.4  Wed May  7 14:48:20 2003
+	- Lots of new stuff, it's starting to take shape
+
+0.3  Wed May  7 10:20:20 2003
+	- Cleaned up the docs, structure (now in lib/) and Makefile.PL
+
+0.2  Tue May  6 12:30:20 2003
+	- Release for Jay to see
+
+0.1  Mon May  5 11:50:20 2003
+	- original version
+

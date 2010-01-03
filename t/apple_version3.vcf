@@ -1,0 +1,11 @@
+BEGIN:VCARD
+VERSION:3.0
+N:T-surname;T-first;;;
+FN:T-firstname T-surname
+TEL;type=HOME;type=pref:020 666 6666
+TEL;CELL:0777 777 7777
+item1.ADR;type=HOME;type=pref:;;Pref Test Road;Pref Test City;;Pref Test Postcode;Pref Test Country
+item1.X-ABADR:uk
+item2.ADR;type=WORK:;;Test Road;Test City;;Test Postcode;Test Country
+item2.X-ABADR:uk
+END:VCARD

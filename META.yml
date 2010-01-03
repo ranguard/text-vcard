@@ -1,0 +1,14 @@
+# http://module-build.sourceforge.net/META-spec.html
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         Text-vCard
+version:      2.01
+version_from: 
+installdirs:  site
+requires:
+    File::Slurp:                   9999.04
+    MIME::QuotedPrint:             3.07
+    Test::More:                    0.1
+    Text::vFile::asData:           0.05
+
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version 6.17

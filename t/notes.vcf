@@ -1,0 +1,13 @@
+BEGIN:VCARD
+VERSION:3.0
+N:;;;;
+FN:Test
+ORG:Test;
+TEL;type=WORK;type=pref:123/1234123
+item1.ADR;type=WORK;type=pref:;;12a The Street.;Montreal;Quebec;;Canada
+item1.X-ABADR:ca
+NOTE:@prefix nasty <note>\; with \; added into it and\n@prefix del: \n"\; ]]\;\n]\;\n.
+X-ABShowAs:COMPANY
+CATEGORY:montreal
+END:VCARD
+

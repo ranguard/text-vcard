@@ -1,0 +1,9 @@
+BEGIN:VCARD
+VERSION:2.1
+N:T-surname;T-firstname;;;
+FN:T-firstname T-surname
+TEL;TYPE=HOME:020 666 6666
+TEL;TYPE=CELL:0793 777 7777
+ADR;TYPE=HOME:;;Test Road;Test City;;Test Postcode;Test Country
+ADR;TYPE=HOME,PREF:;;Pref Test Road;Pref Test City;;Pref Test Postcode;Pref Test Country
+END:VCARD
