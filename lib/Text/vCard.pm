@@ -167,7 +167,7 @@ my $address = $vcard->add_node({
 This creates a new address in the vCard which you can then call the
 address methods on. See below for what options are available.
 
-The node_type parameter must confirm to the vCard spec format (e.g. ADR not address)
+The node_type parameter must conform to the vCard spec format (e.g. ADR not address)
 
 =cut
 
@@ -536,13 +536,13 @@ Leo Lapworth, LLAP@cuckoo.org
 
 None that I'm aware of - export may not encode correctly.
 
-=head1 SVN
+=head1 Repository (git)
 
-http://code.google.com/p/llap/
+http://github.com/ranguard/text-vcard
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005 Leo Lapworth. All rights reserved.
+Copyright (c) 2005-2010 Leo Lapworth. All rights reserved.
 This program is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.
 

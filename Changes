@@ -2,6 +2,8 @@ Revision history for Perl extension Text::vCard.
 
 2.04 Fri  8 Jan 2010 22:00:20 GMT
     - Improvements to Makefile.PL and require 5.6 - thanks cpanservice
+    - Switch to git repo
+    - Doc patch
 
 2.03 Sun Mar 16 10:10:54 GMT 2008
 	- added 'moniker' and marked 'name' as depreciated
