@@ -10,7 +10,7 @@ use Text::vCard::Node;
 # See this module for your basic parser functions
 use base qw(Text::vFile::asData);
 use vars qw ($VERSION %lookup %node_aliases @simple);
-$VERSION = '2.03';
+$VERSION = '2.04';
 
 # If the node's data does not break down use this
 my @default_field = qw(value);
