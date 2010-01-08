@@ -1,3 +1,4 @@
+use 5.006; #warnings.pm
 use ExtUtils::MakeMaker;
 
 my $ABSTRACT = "Module for parsing and creating vCards (RFC 2426) address";

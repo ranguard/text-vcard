@@ -1,5 +1,6 @@
 package Text::vCard;
 
+use 5.006; #warnings.pm
 use Carp;
 use strict;
 use File::Slurp;
