@@ -9,7 +9,7 @@ use Text::vCard;
 # See this module for your basic parser functions
 use base qw(Text::vFile::asData);
 use vars qw ($VERSION);
-$VERSION = '1.97';
+$VERSION = '1.97_10';
 
 =head1 NAME
 
@@ -57,11 +57,25 @@ sub load {
 
     foreach my $file ( @{$files} ) {
         croak "Unable to read file $file" unless -r $file;
-        $self->_process_text( scalar read_file($file) );
+        $self->import_data( scalar read_file($file) );
     }
 
     return $self;
 
+}
+
+=head2 import_data()
+
+  $address_book->import_data($value);
+
+This method imports data directly from a string.
+
+=cut
+
+sub import_data {
+     my ( $self, $value ) = @_;
+
+     $self->_process_text($value);
 }
 
 =head2 new()

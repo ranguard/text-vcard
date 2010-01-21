@@ -10,7 +10,7 @@ use Text::vCard::Node;
 # See this module for your basic parser functions
 use base qw(Text::vFile::asData);
 use vars qw ($VERSION %lookup %node_aliases @simple);
-$VERSION = '2.05';
+$VERSION = '2.05_10';
 
 # If the node's data does not break down use this
 my @default_field = qw(value);
@@ -32,7 +32,7 @@ my @default_field = qw(value);
     'TIMEZONE'  => 'TZ',
     'PHONES'    => 'TEL',
     'ADDRESSES' => 'ADR',
-    'NAME'      => 'N', # To be depreciated as clashes with RFC
+    'NAME'      => 'N', # To be deprecated as clashes with RFC
 	'MONIKER'	=> 'N',
 );
 
@@ -225,6 +225,32 @@ sub get {
     else {
         return $self->get_of_type($conf);
     }
+}
+
+=head2 get_simple_type()
+
+The following method is a convenience wrapper for accessing simple elements.
+
+  $value = $vcard->get_simple_type('email', ['internet', 'work']);
+
+If multiple elements match, then only the first is returned.  If the object
+isn't found, or doesn't have a simple value, then undef is returned.
+ 
+The argument type may be ommitted, it can be a scalar, or it can be an
+array reference if multiple types are selected.
+
+=cut
+
+sub get_simple_type {
+    my ( $self, $node_type, $type ) = @_;
+    carp "You did not supply an element type" unless defined $node_type;
+
+    my %hash = ('node_type', $node_type);
+    $hash{'type'} = $type if defined $type;
+    my $node = $self->get(\%hash);
+    return undef unless $node && @{$node} > 0 && exists $node->[0]->{'value'};
+
+    $node->[0]->{'value'};
 }
 
 =head2 nodes

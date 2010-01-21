@@ -4,7 +4,7 @@ use strict;
 
 use lib qw(./lib);
 
-use Test::More tests => 30;
+use Test::More tests => 31;
 use Data::Dumper;
 # Check we can load module
 BEGIN { use_ok( 'Text::vCard' ); }
@@ -59,6 +59,12 @@ my $new_address = $vcard->add_node({
 	'data'	=> \@d,
 });
 isa_ok($new_address,'Text::vCard::Node');
+
+######
+# get_simple_type
+######
+
+is($vcard->get_simple_type('tel', 'home'), '020 666 6666');
 
 #######
 # Test get_of_type()

@@ -4,7 +4,7 @@ use strict;
 use Carp;
 use MIME::QuotedPrint;
 use vars qw ( $AUTOLOAD $VERSION );
-$VERSION = '1.97';
+$VERSION = '1.97_10';
 
 =head1 NAME
 
@@ -349,7 +349,7 @@ sub export_data {
 
 }
 
-# Beause we have autoload
+# Because we have autoload
 sub DESTROY {
 }
 
