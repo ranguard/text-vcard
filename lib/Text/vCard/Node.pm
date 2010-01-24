@@ -67,11 +67,12 @@ sub new {
     my $self = {};
     carp "No fields defined" unless defined $conf->{'fields'};
     carp "fields is not an array ref"
-      unless ref( $conf->{'fields'} ) eq 'ARRAY';
+        unless ref( $conf->{'fields'} ) eq 'ARRAY';
 
     bless( $self, $class );
 
-    $self->{node_type} = uc( $conf->{node_type} ) if defined $conf->{node_type};
+    $self->{node_type} = uc( $conf->{node_type} )
+        if defined $conf->{node_type};
     $self->group( $conf->{group} ) if defined $conf->{group};
 
     # Store the field order.
@@ -97,7 +98,7 @@ sub new {
                     my $param_list = $key;
                     if ( defined $value ) {
 
-              # use value, not key as it's 'type' => 'CELL', not 'CELL' => undef
+            # use value, not key as it's 'type' => 'CELL', not 'CELL' => undef
                         $param_list = $value;
                     }
                     map { $params{ lc($_) } = 1 } split( ',', $param_list );
@@ -111,32 +112,32 @@ sub new {
             # Store the actual data into the object
 
             if ( defined $self->{params}->{'quoted-printable'} ) {
-                $conf->{'data'}->{'value'} =
-                  decode_qp( $conf->{'data'}->{'value'} );
+                $conf->{'data'}->{'value'}
+                    = decode_qp( $conf->{'data'}->{'value'} );
             }
 
             # the -1 on split is so ;; values create elements in the array
-            my @elements = split( /(?<!\\);/, $conf->{'data'}->{'value'}, -1 );
+            my @elements
+                = split( /(?<!\\);/, $conf->{'data'}->{'value'}, -1 );
             if ( defined $self->{node_type} && $self->{node_type} eq 'ORG' ) {
 
                 # cover ORG where unit is a list
                 $self->{'name'} = shift(@elements);
                 $self->{'unit'} = \@elements if scalar(@elements) > 0;
 
-            }
-            elsif ( scalar(@elements) <= scalar( @{ $self->{'field_order'} } ) )
+            } elsif (
+                scalar(@elements) <= scalar( @{ $self->{'field_order'} } ) )
             {
 
-          # set the field values as the data e.g. $self->{street} = 'The street'
+        # set the field values as the data e.g. $self->{street} = 'The street'
                 @{$self}{ @{ $self->{'field_order'} } } = @elements;
 
-            }
-            else {
+            } else {
                 carp 'Data value had '
-                  . scalar(@elements)
-                  . ' elements expecting '
-                  . scalar( @{ $self->{'field_order'} } )
-                  . ' or less';
+                    . scalar(@elements)
+                    . ' elements expecting '
+                    . scalar( @{ $self->{'field_order'} } )
+                    . ' or less';
             }
         }
     }
@@ -245,8 +246,7 @@ sub add_types {
     }
     if ( ref($type) eq 'ARRAY' ) {
         map { $self->{params}->{ lc($_) } = 1 } @{$type};
-    }
-    else {
+    } else {
         $self->{params}->{ lc($type) } = 1;
     }
 }
@@ -280,8 +280,7 @@ sub remove_types {
             }
         }
         return $to_return;
-    }
-    else {
+    } else {
         if ( defined $self->{params}->{ lc($type) } ) {
             delete $self->{params}->{ lc($type) };
             return 1;
@@ -326,7 +325,7 @@ back out to ensure that it has not been altered.
 =cut
 
 sub export_data {
-    my $self = shift;
+    my $self  = shift;
     my @lines = map {
         if ( defined $self->{$_} )
         {
@@ -334,12 +333,10 @@ sub export_data {
 
                 # Handle things like org etc which have 'units'
                 join( ',', @{ $self->{$_} } );
-            }
-            else {
+            } else {
                 $self->{$_};
             }
-        }
-        else {
+        } else {
             '';
         }
     } @{ $self->{'field_order'} };
@@ -361,7 +358,7 @@ sub AUTOLOAD {
     $name =~ s/.*://;
 
     carp "$name method which is not valid for this node"
-      unless defined $_[0]->{field_lookup}->{$name};
+        unless defined $_[0]->{field_lookup}->{$name};
 
     if ( $_[1] ) {
 

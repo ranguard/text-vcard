@@ -1,6 +1,6 @@
 package Text::vCard;
 
-use 5.006; #warnings.pm
+use 5.006;    #warnings.pm
 use Carp;
 use strict;
 use File::Slurp;
@@ -32,13 +32,13 @@ my @default_field = qw(value);
     'TIMEZONE'  => 'TZ',
     'PHONES'    => 'TEL',
     'ADDRESSES' => 'ADR',
-    'NAME'      => 'N', # To be deprecated as clashes with RFC
-	'MONIKER'	=> 'N',
+    'NAME'      => 'N',      # To be deprecated as clashes with RFC
+    'MONIKER'   => 'N',
 );
 
 # Generate all our simple methods
-@simple =
-  qw(FN BDAY MAILER TZ TITLE ROLE NOTE PRODID REV SORT-STRING UID URL CLASS FULLNAME BIRTHDAY TZ NAME EMAIL NICKNAME PHOTO);
+@simple
+    = qw(FN BDAY MAILER TZ TITLE ROLE NOTE PRODID REV SORT-STRING UID URL CLASS FULLNAME BIRTHDAY TZ NAME EMAIL NICKNAME PHOTO);
 
 # Now we want lowercase as well
 map { push( @simple, lc($_) ) } @simple;
@@ -74,7 +74,7 @@ map { push( @simple, lc($_) ) } @simple;
 
             return $nodes->[0]->value() if scalar($nodes);
             return undef;
-          }
+            }
     }
 }
 
@@ -125,7 +125,7 @@ vCards from an existing file for you.
 sub new {
     my ( $proto, $conf ) = @_;
     my $class = ref($proto) || $proto;
-    my $self  = {};
+    my $self = {};
 
     bless( $self, $class );
 
@@ -135,7 +135,8 @@ sub new {
     if ( defined $conf->{'asData_node'} ) {
 
         # Have a vcard data node being passed in
-        while ( my ( $node_type, $data ) = each %{ $conf->{'asData_node'} } ) {
+        while ( my ( $node_type, $data ) = each %{ $conf->{'asData_node'} } )
+        {
             my $group;
             if ( $node_type =~ /\./ ) {
 
@@ -146,8 +147,7 @@ sub new {
 
             # Deal with each type (ADR, FN, TEL etc)
             $self->_add_node(
-                {
-                    'node_type' => $node_type,
+                {   'node_type' => $node_type,
                     'data'      => $data,
                     'group'     => $group,
                 }
@@ -174,7 +174,7 @@ The node_type parameter must conform to the vCard spec format (e.g. ADR not addr
 sub add_node {
     my ( $self, $conf ) = @_;
     croak 'Must supply a node_type'
-      unless defined $conf && defined $conf->{'node_type'};
+        unless defined $conf && defined $conf->{'node_type'};
     unless ( defined $conf->{data} ) {
         my %empty;
         my @data = ( \%empty );
@@ -219,10 +219,9 @@ sub get {
     carp "You did not supply an element type" unless defined $conf;
     if ( ref($conf) eq 'HASH' ) {
         return $self->get_of_type( $conf->{'node_type'}, $conf->{'types'} )
-          if defined $conf->{'types'};
+            if defined $conf->{'types'};
         return $self->get_of_type( $conf->{'node_type'} );
-    }
-    else {
+    } else {
         return $self->get_of_type($conf);
     }
 }
@@ -245,9 +244,9 @@ sub get_simple_type {
     my ( $self, $node_type, $type ) = @_;
     carp "You did not supply an element type" unless defined $node_type;
 
-    my %hash = ('node_type', $node_type);
+    my %hash = ( 'node_type', $node_type );
     $hash{'type'} = $type if defined $type;
-    my $node = $self->get(\%hash);
+    my $node = $self->get( \%hash );
     return undef unless $node && @{$node} > 0 && exists $node->[0]->{'value'};
 
     $node->[0]->{'value'};
@@ -357,8 +356,8 @@ sub get_group {
     my @to_return;
 
     carp "No group name supplied"
-      unless defined $group_name
-      and $group_name ne '';
+        unless defined $group_name
+            and $group_name ne '';
 
     $group_name = lc($group_name);
 
@@ -369,8 +368,7 @@ sub get_group {
         foreach my $node ( @{$nodes} ) {
             push( @to_return, $node ) if $node->group() eq $group_name;
         }
-    }
-    else {
+    } else {
 
         # We want everything from that group
         foreach my $node_loop ( keys %{ $self->{nodes} } ) {
@@ -379,7 +377,8 @@ sub get_group {
             my $nodes = $self->get($node_loop);
             foreach my $node ( @{$nodes} ) {
                 if ( $node->group() ) {
-                    push( @to_return, $node ) if $node->group() eq $group_name;
+                    push( @to_return, $node )
+                        if $node->group() eq $group_name;
                 }
             }
         }
@@ -447,7 +446,7 @@ sub get_of_type {
 
     # See if there is an alias for it
     $node_type = uc( $node_aliases{$node_type} )
-      if defined $node_aliases{$node_type};
+        if defined $node_aliases{$node_type};
 
     return undef unless defined $self->{nodes}->{$node_type};
 
@@ -459,8 +458,7 @@ sub get_of_type {
             @of_type = @{$types};
 
             #	print "T A: " . join('-',@{$types}) . "\n";
-        }
-        else {
+        } else {
             push( @of_type, $types );
 
             #	print "T: $types\n";
@@ -487,14 +485,12 @@ sub get_of_type {
 
         return wantarray ? @to_return : \@to_return;
 
-    }
-    else {
+    } else {
 
         # Return them all
-        return
-          wantarray
-          ? @{ $self->{nodes}->{$node_type} }
-          : $self->{nodes}->{$node_type};
+        return wantarray
+            ? @{ $self->{nodes}->{$node_type} }
+            : $self->{nodes}->{$node_type};
     }
 }
 
@@ -502,8 +498,7 @@ sub _sort_prefs {
     my $check = shift;
     if ( $check->is_type('pref') ) {
         return 1;
-    }
-    else {
+    } else {
         return 0;
     }
 }
@@ -515,7 +510,8 @@ sub _add_node {
     my $value_fields = $self->get_lookup();
 
     my $node_type = uc( $conf->{node_type} );
-    $node_type = $node_aliases{$node_type} if defined $node_aliases{$node_type};
+    $node_type = $node_aliases{$node_type}
+        if defined $node_aliases{$node_type};
 
     my $field_list;
 
@@ -523,8 +519,7 @@ sub _add_node {
 
         # We know what the field list is
         $field_list = $value_fields->{$node_type};
-    }
-    else {
+    } else {
 
         # No defined fields - use just the 'value' one
         $field_list = \@default_field;
@@ -538,8 +533,7 @@ sub _add_node {
     my $last_node;
     foreach my $node_data ( @{ $conf->{data} } ) {
         my $node_obj = Text::vCard::Node->new(
-            {
-                node_type => $node_type,
+            {   node_type => $node_type,
                 fields    => $field_list,
                 data      => $node_data,
                 group     => $conf->{group} || '',
