@@ -3,8 +3,7 @@ package Text::vCard::Node;
 use strict;
 use Carp;
 use MIME::QuotedPrint;
-use vars qw ( $AUTOLOAD $VERSION );
-$VERSION = '1.97_10';
+use vars qw ( $AUTOLOAD );
 
 =head1 NAME
 

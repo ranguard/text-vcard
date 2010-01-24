@@ -10,7 +10,7 @@ use Text::vCard::Node;
 # See this module for your basic parser functions
 use base qw(Text::vFile::asData);
 use vars qw ($VERSION %lookup %node_aliases @simple);
-$VERSION = '2.05_10';
+$VERSION = '2.06';
 
 # If the node's data does not break down use this
 my @default_field = qw(value);
@@ -558,7 +558,7 @@ None that I'm aware of - export may not encode correctly.
 
 =head1 Repository (git)
 
-http://github.com/ranguard/text-vcard
+http://github.com/ranguard/text-vcard, git://github.com/ranguard/text-vcard.git
 
 =head1 COPYRIGHT
 
