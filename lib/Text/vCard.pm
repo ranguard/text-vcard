@@ -10,7 +10,7 @@ use Text::vCard::Node;
 # See this module for your basic parser functions
 use base qw(Text::vFile::asData);
 use vars qw ($VERSION %lookup %node_aliases @simple);
-$VERSION = '2.05_10';
+$VERSION = '2.07';
 
 # If the node's data does not break down use this
 my @default_field = qw(value);
@@ -242,11 +242,11 @@ array reference if multiple types are selected.
 =cut
 
 sub get_simple_type {
-    my ( $self, $node_type, $type ) = @_;
+    my ( $self, $node_type, $types ) = @_;
     carp "You did not supply an element type" unless defined $node_type;
 
     my %hash = ('node_type', $node_type);
-    $hash{'type'} = $type if defined $type;
+    $hash{'types'} = $types if defined $types;
     my $node = $self->get(\%hash);
     return undef unless $node && @{$node} > 0 && exists $node->[0]->{'value'};
 
