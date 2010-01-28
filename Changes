@@ -1,5 +1,9 @@
 Revision history for Perl extension Text::vCard.
 
+2.07 Wed 28 Jan 2010 22:16:05 GMT
+    - Fix bug in get_simple_type() (Philip A. Prindeville)
+    - Simplify Makefile.PL and deprecate unused fields (Philip A. Prindeville)
+
 2.06 Sun 24 Jan 2010 10:02:01 GMT
     - Doc typos (Philip A. Prindeville)
     - Add get_simple_type() and import_data() (Philip A. Prindeville)
