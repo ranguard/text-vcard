@@ -1,5 +1,8 @@
 Revision history for Perl extension Text::vCard.
 
+2.09 Thu 19 Aug 2010 16:08:20 BST
+    - Add set_encoding() for export - Stefan
+
 2.08 Tue Jul 13 08:47:58 BST 2010
     - Doc fix (Blair Christensen)
 

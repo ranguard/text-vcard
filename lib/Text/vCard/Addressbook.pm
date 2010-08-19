@@ -161,6 +161,22 @@ sub vcards {
     return wantarray ? @{ $self->{cards} } : $self->{cards};
 }
 
+=head2 set_encoding()
+
+  $address_book->add_vcard('utf-8');
+
+This method will add the string ';charset=utf-8' to each and 
+every vCard entry. That does help in connection with e.g. an iPhone...
+
+=cut
+
+sub set_encoding{
+	my ( $self, $coding) = @_;
+	$self->{'encoding'} |= '';
+	$self->{'encoding'} = ";charset=$coding" if ( defined $coding);
+	return $self->{'encoding'};
+}
+
 =head2 export()
 
   my $vcf_file = $address_book->export()
@@ -195,6 +211,7 @@ sub export {
 
                 my $param;
                 $param = join( ',', ( $node->types() ) ) if $node->types();
+                $name .= $self->set_encoding();
                 $name .= ";TYPE=$param" if $param;
                 push( @lines, "$name:" . $node->export_data );
             }

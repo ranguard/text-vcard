@@ -4,7 +4,7 @@ use strict;
 
 use lib qw(./lib);
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 use Data::Dumper;
 # Check we can load module
@@ -40,6 +40,22 @@ my @lines = split("\r\n",$vcf);
 is($lines[0],'BEGIN:VCARD','export() - First line correct');
 is($lines[$#lines],'END:VCARD','export() - Last line correct');
 
+$adbk->set_encoding('utf-8');
+@data = (
+	'BEGIN:VCARD',
+	'item1.X-ABADR;charset=utf-8:uk',
+	'item2.X-ABADR;charset=utf-8:uk',
+	'N;charset=utf-8:T-surname;T-first;;;',
+	'TEL;charset=utf-8;TYPE=pref,home:020 666 6666',
+	'TEL;charset=utf-8;TYPE=cell:0777 777 7777',
+	'item2.ADR;charset=utf-8;TYPE=work:;;Test Road;Test City;;Test Postcode;Test Country',
+	'item1.ADR;charset=utf-8;TYPE=pref,home:;;Pref Test Road;Pref Test City;;Pref Test Postcode;Pref Test Country',
+	'VERSION;charset=utf-8:3.0',
+	'FN;charset=utf-8:T-firstname T-surname',
+	'END:VCARD',
+);
+@lines = split ( "\r\n" , $adbk->export());
+is_deeply(\@lines,\@data,'set_encoding() - returned data matched that expected');
 #is_deeply(\@lines,\@data,'export() - returned data matched that expected');
 
 #my $notes = Text::vCard::Addressbook->new({ 'source_file' => 't/notes.vcf'});
