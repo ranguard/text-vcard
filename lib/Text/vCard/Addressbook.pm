@@ -233,6 +233,13 @@ sub _process_text {
 
     if($text =~ /quoted-printable/i) {
         # Edge case for 2.1 version
+        # 
+        # http://tools.ietf.org/html/rfc2045#section-6.7 point (5),
+        # lines containing quoted-printable encoded data can contain soft-line
+        # breaks. These are indicated as single '=' sign at the end of the line.
+        # 
+        # No longer needed in version 3.0:
+        # http://tools.ietf.org/html/rfc2426 point (5)
 
         my $joinline = 0;
 
