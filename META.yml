@@ -23,3 +23,6 @@ generated_by:       ExtUtils::MakeMaker version 6.55_02
 meta-spec:
     url:      http://module-build.sourceforge.net/META-spec-v1.4.html
     version:  1.4
+resources:
+  license: http://dev.perl.org/licenses/
+  repository: git://github.com/ranguard/text-vcard.git
