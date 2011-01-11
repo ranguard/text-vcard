@@ -1,0 +1,9 @@
+BEGIN:VCARD
+VERSION:2.1
+N:Smith;John;;;
+ADR;ENCODING=QUOTED-PRINTABLE;CHARSET=UTF-8:=
+;;A street on a quoted line;Some test town;Some test region;0815;=C3=96=
+sterreich
+FN:John Smith
+END:VCARD
+
