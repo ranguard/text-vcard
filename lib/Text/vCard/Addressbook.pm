@@ -170,11 +170,11 @@ every vCard entry. That does help in connection with e.g. an iPhone...
 
 =cut
 
-sub set_encoding{
-	my ( $self, $coding) = @_;
-	$self->{'encoding'} |= '';
-	$self->{'encoding'} = ";charset=$coding" if ( defined $coding);
-	return $self->{'encoding'};
+sub set_encoding {
+    my ( $self, $coding ) = @_;
+    $self->{'encoding'} |= '';
+    $self->{'encoding'} = ";charset=$coding" if ( defined $coding );
+    return $self->{'encoding'};
 }
 
 =head2 export()
@@ -231,9 +231,47 @@ sub _process_text {
     # As data may handle \r - must ask richard
     $text =~ s/\r//g;
 
+    if($text =~ /quoted-printable/i) {
+        # Edge case for 2.1 version
+
+        my $joinline = 0;
+
+        my $out;
+        foreach my $line (split( "\n", $text )) {
+            chomp($line);
+
+            if ($joinline) {
+                if ( $line =~ /=$/ ) {
+                    $line =~ s/=$//;
+                    $out .= $line;
+                } else {
+                    $joinline = 0;
+                    $out .= $line . "\n";
+                }
+                next;
+            }
+
+            # find continued QP lines - could be done better
+            if ( $line =~ /ENCODING=QUOTED-PRINTABLE/i && $line =~ /=$/ ) {
+
+                $joinline = 1;    # join lines...
+
+                $line =~ s/=$//;
+                $out .= $line;
+            } else {
+
+                # add regular line;
+                $out .= $line . "\n";
+            }
+        }
+        $text = $out;
+
+    }
+
     # Add error checking here ?
     my $asData = Text::vFile::asData->new;
     $asData->preserve_params(1);
+
     my $data = $asData->parse_lines( split( "\n", $text ) );
     foreach my $card ( @{ $data->{'objects'} } ) {
 

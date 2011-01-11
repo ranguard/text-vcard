@@ -11,6 +11,7 @@ t/03-addressbook.t
 t/04-formats.t
 t/05-export.t
 t/06-encoding.t
+t/07-quoted.t
 t/simple.vcf
 t/encoding.vcf
 t/mix_type.vcf
@@ -18,4 +19,5 @@ t/evolution.vcf
 t/apple_2.1_unicode.vcf
 t/apple_version3.vcf
 t/notes.vcf
+t/quoted.vcf
 META.yml                                Module meta-data (added by MakeMaker)

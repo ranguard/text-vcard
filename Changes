@@ -1,5 +1,9 @@
 Revision history for Perl extension Text::vCard.
 
+2.10 Tue 11 Jan 2011 21:50:02 GMT
+    - Merged in quote-printed code (Christian Varga)
+    - Cleaned up the tests and code for quote-printed
+
 2.09 Thu 19 Aug 2010 16:08:20 BST
     - Add set_encoding() for export - Stefan
 

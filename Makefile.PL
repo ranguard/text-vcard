@@ -6,7 +6,7 @@ WriteMakefile(
     'LICENSE'	=> 'perl',
     'NAME'	=> 'Text::vCard',
     'PREREQ_PM'	=> {
-		    'Text::vFile::asData' => '0.05',
+		    'Text::vFile::asData' => '0.07',
 		    'File::Slurp' => '9999.04',
 		    'MIME::QuotedPrint' => '3.07',
 		    'Test::More' => '0.1',
