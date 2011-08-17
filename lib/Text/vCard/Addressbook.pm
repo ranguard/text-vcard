@@ -163,7 +163,7 @@ sub vcards {
 
 =head2 set_encoding()
 
-  $address_book->add_vcard('utf-8');
+  $address_book->set_encoding('utf-8');
 
 This method will add the string ';charset=utf-8' to each and 
 every vCard entry. That does help in connection with e.g. an iPhone...
