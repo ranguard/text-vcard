@@ -4,4 +4,5 @@ Makefile
 Text-vCard-*
 blib
 pm_to_blib
+*.swp
 
