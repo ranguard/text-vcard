@@ -1,6 +1,7 @@
 package Text::vCard::Node;
 
 use strict;
+use warnings;
 use Carp;
 use MIME::QuotedPrint;
 use vars qw ( $AUTOLOAD );

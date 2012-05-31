@@ -1,8 +1,9 @@
 package Text::vCard;
 
-use 5.006;    #warnings.pm
+use 5.006;
 use Carp;
 use strict;
+use warnings;
 use File::Slurp;
 use Text::vFile::asData;
 use Text::vCard::Node;
@@ -46,7 +47,7 @@ map { push( @simple, lc($_) ) } @simple;
 # Generate the methods
 {
     no strict 'refs';
-    no warnings;
+    no warnings 'redefine';
 
     # 'version' handled separately
     # to prevent conflict with ExtUtils::MakeMaker

@@ -2,6 +2,7 @@ package Text::vCard::Addressbook;
 
 use Carp;
 use strict;
+use warnings;
 use File::Slurp;
 use Text::vFile::asData;
 use Text::vCard;
