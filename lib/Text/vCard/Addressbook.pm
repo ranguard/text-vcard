@@ -15,6 +15,8 @@ Text::vCard::Addressbook - a package to parse, edit and create multiple vCards (
 
 =head1 SYNOPSIS
 
+To read an existing file:
+
   use Text::vCard::Addressbook;
 
   my $address_book = Text::vCard::Addressbook->new({
@@ -24,6 +26,19 @@ Text::vCard::Addressbook - a package to parse, edit and create multiple vCards (
   foreach my $vcard ($address_book->vcards()) {
 	print "Got card for " . $vcard->fullname() . "\n";
   }
+
+To create a new file:
+
+  use Text::vCard::Addressbook;
+
+  my $address_book = Text::vCard::Addressbook->new();
+  my $vcard = $ab->add_vcard;
+  $vcard->fullname('Foo Bar');
+  $vcard->EMAIL('foo@bar.com');
+
+  open my $out, '>', 'address.vcf' or die;
+  print $out $address_book->export;
+
 
 =head1 DESCRIPTION
 
@@ -133,7 +148,7 @@ sub new {
 
   my $vcard = $address_book->add_vcard();
 
-This method creates a new empty Text::vCard object, stores it in the
+This method creates a new empty L<Text::vCard> object, stores it in the
 address book and return it so you can add data to it.
 
 =cut
@@ -307,11 +322,11 @@ it and/or modify it under the same terms as Perl itself.
 
 =head1 ACKNOWLEDGEMENTS
 
-The authors of Text::vFile::asData for making my life so much easier.
+The authors of L<Text::vFile::asData> for making my life so much easier.
 
 =head1 SEE ALSO
 
-Text::vCard, Text::vCard::Node
+L<Text::vCard>, L<Text::vCard::Node>
 
 =cut
 
