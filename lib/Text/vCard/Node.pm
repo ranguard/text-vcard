@@ -1,6 +1,7 @@
 package Text::vCard::Node;
 
 use strict;
+use warnings;
 use Carp;
 use MIME::QuotedPrint;
 use vars qw ( $AUTOLOAD );
@@ -30,7 +31,7 @@ Text::vCard::Node - Object for each node (line) of a vCard
 
 Package used by Text::vCard so that each element: ADR, N, TEL etc are objects.
 
-You should not need to use this module directly, Text::vCard does it all for you.
+You should not need to use this module directly, L<Text::vCard> does it all for you.
 
 =head1 METHODS
 
@@ -385,7 +386,7 @@ Leo Lapworth, LLAP@cuckoo.org
 
 =head1 SEE ALSO
 
-Text::vCard Text::vCard::Addressbook
+L<Text::vCard> L<Text::vCard::Addressbook>
 
 =cut
 
