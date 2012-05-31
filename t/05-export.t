@@ -4,7 +4,7 @@ use strict;
 
 use lib qw(./lib);
 
-use Test::More tests => 5;
+use Test::More tests => 10;
 
 use Data::Dumper;
 # Check we can load module
@@ -63,8 +63,27 @@ is_deeply(\@lines,\@data,'set_encoding() - returned data matched that expected')
 #my $res = $notes->export();
 #print Dumper($res);
 
-
-
+{
+	my $ab = Text::vCard::Addressbook->new();
+	is $ab->export, '', 'export empty addressbook';
+	my $vcard = $ab->add_vcard;
+	isa_ok $vcard, 'Text::vCard';
+	like $ab->export, qr{^BEGIN:VCARD\s+END:VCARD$}, 'single empty vcard';
+	$vcard->fullname('Foo Bar');
+	$vcard->EMAIL('foo@bar.com');
+	my $node = $vcard->add_node({
+		'node_type' => 'TEL',
+#		fields => ['TYPE'],
+#		data   => { TYPE => 'Work' },
+	});
+	isa_ok $node, 'Text::vCard::Node';
+	#$vcard->TEL('01-23456789');
+	eval {
+		$vcard->random_field('Something else');
+	};
+	like $@, qr{Can't locate object method "random_field" via package "Text::vCard"}, 'exception';
+	#diag $ab->export;
+}
 
 
 
