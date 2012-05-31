@@ -12,6 +12,11 @@ WriteMakefile(
 		    'Test::More' => '0.1',
 		   },
     'VERSION_FROM' => 'lib/Text/vCard.pm',
+    'META_MERGE'        => {
+       resources => {
+           repository  =>  'http://github.com/ranguard/text-vcard',
+       },
+    },
     'dist'	=> {'COMPRESS' => 'gzip -9f', 'SUFFIX' => 'gz'},
 );
 
