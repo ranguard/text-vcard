@@ -22,13 +22,13 @@ Text::vCard::Node - Object for each node (line) of a vCard
     },
     'value' => ';;First work address - street;Work city;London;Work PostCode;CountryName',
   );
-	
+
   my $node = Text::vCard::Node->new({
     node_type => 'address', # Auto upper cased
     fields => ['po_box','extended','street','city','region','post_code','country'],
     data => \%data,
   });
-	
+
 =head1 DESCRIPTION
 
 Package used by Text::vCard so that each element: ADR, N, TEL etc are objects.
@@ -124,14 +124,13 @@ sub new {
 
             # Store the actual data into the object
 
-            if ( defined $self->{params}->{'quoted-printable'} ) {
+            if ($self->is_type('q') or $self->is_type('quoted-printable')) {
                 $conf->{'data'}->{'value'}
                     = MIME::QuotedPrint::decode($conf->{data}{value});
             }
 
             # do this first
-            if (defined $self->{params}{base64}
-                    or defined $self->{params}{b}) {
+            if ($self->is_type('b') or $self->is_type('base64')) {
                 # XXX apparently it's possible to get 'b' for 'base64'
                 $conf->{data}{value}
                     = MIME::Base64::decode($conf->{data}{value});
@@ -242,7 +241,7 @@ sub is_type {
 
 =head2 is_pref();
 
-  if($node->is_pref()) {
+  if ($node->is_pref()) {
   	print "Prefered node"
   }
 
@@ -384,6 +383,8 @@ sub export_data {
 
 =head2 as_string
 
+Returns the node as a formatted string.
+
 =cut
 
 sub _key_as_string {
@@ -424,7 +425,8 @@ sub _value_as_string {
         if (ref $v eq 'ARRAY') {
             $data = join ',', map { _escape(Encode::encode($charset, $_)) } @$v;
         }
-        elsif ($self->is_type('quoted-printable')) {
+        # assuming the same 'q' for quoted-printable
+        elsif ($self->is_type('q') or $self->is_type('quoted-printable')) {
             # have to reimplement the m:qp line wrap >:|
             my $enc = MIME::QuotedPrint::encode
                 (Encode::encode($charset, $v), '');
@@ -454,7 +456,7 @@ sub _value_as_string {
             }
             $data .= join "=\x0d\x0a ", @lines;
         }
-        elsif ($self->is_type('base64')) {
+        elsif ($self->is_type('b') or $self->is_type('base64')) {
             # also this. it would be nice to be able to set the width
             # in a parameter.
             my $enc = MIME::Base64::encode($v, '');
