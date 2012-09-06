@@ -130,7 +130,9 @@ sub new {
             }
 
             # do this first
-            if (defined $self->{params}{base64}) {
+            if (defined $self->{params}{base64}
+                    or defined $self->{params}{b}) {
+                # XXX apparently it's possible to get 'b' for 'base64'
                 $conf->{data}{value}
                     = MIME::Base64::decode($conf->{data}{value});
                 # mimic what goes on below
@@ -216,10 +218,10 @@ sub types {
 
 =head2 is_type()
 
-  if($node->is_type($type) {
+  if ($node->is_type($type)) {
   	# ...
   }
-  
+
 Given a type (see types() for a list of those set)
 this method returns 1 if the $node is of that type
 or undef if it is not.
