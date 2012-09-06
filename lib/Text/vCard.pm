@@ -11,7 +11,7 @@ use Text::vCard::Node;
 # See this module for your basic parser functions
 use base qw(Text::vFile::asData);
 use vars qw ($VERSION %lookup %node_aliases @simple);
-$VERSION = '2.10';
+$VERSION = '2.11';
 
 # If the node's data does not break down use this
 my @default_field = qw(value);
@@ -81,14 +81,14 @@ map { push( @simple, lc($_) ) } @simple;
 
 =head1 NAME
 
-Text::vCard - a package to edit and create a single vCard (RFC 2426) 
+Text::vCard - a package to edit and create a single vCard (RFC 2426)
 
 =head1 WARNING
 
 To handle a whole addressbook with several vCard entries in it, you probably
 want to start with L<Text::vCard::Addressbook>, then this module.
 
-This is not backwards compatable with 1.0 or earlier versions! 
+This is not backwards compatable with 1.0 or earlier versions!
 
 Version 1.1 was a complete rewrite/restructure, this should not happen again.
 
@@ -198,16 +198,17 @@ The following method allows you to extract the contents from the vCard.
 	'node_type' => 'addresses',
 	'types' => 'home',
   });
-  
+
   # get all phone number that matches serveral types
   my @types = qw(work home);
   my $nodes = $vcard->get({
 	'node_type' => 'tel',
 	'types' => \@types,
   });
- 
-Either an array or array ref is returned, containing L<Text::vCard::Node> objects.
-If there are no results of 'node_type' undef is returned.
+
+Either an array or array ref is returned, containing
+L<Text::vCard::Node> objects.  If there are no results of 'node_type'
+undef is returned.
 
 Supplied with a scalar or an array ref the methods
 return a list of nodes of a type, where relevant. If any
@@ -270,9 +271,10 @@ sub get_simple_type {
   if($first_address->group()) {
 	print 'Group: ' . $first_address->group();
   }
-  
-According to the RFC the following 'simple' nodes should only have one element, this is
-not enforced by this module, so for example you can have multiple URL's if you wish.
+
+According to the RFC the following 'simple' nodes should only have one
+element, this is not enforced by this module, so for example you can
+have multiple URL's if you wish.
 
 =head2 simple nodes
 
@@ -282,9 +284,10 @@ For simple nodes, you can also access the first node in the following way:
   # or setting
   $vcard->fullname('new name');
 
-The node will be automatically created if it does not exist and you supplied a value.
-undef is returned if the node does not exist. Simple nodes can be called as all upper
-or all lowercase method names.
+The node will be automatically created if it does not exist and you
+supplied a value.  undef is returned if the node does not
+exist. Simple nodes can be called as all upper or all lowercase method
+names.
 
   vCard Spec: 'simple'    Alias
   --------------------    --------
@@ -390,8 +393,9 @@ sub get_group {
 
 =head1 BINARY METHODS
 
-These methods allow access to what are potentially
-binary values such as a photo or sound file.
+These methods allow access to what are potentially binary values such
+as a photo or sound file. Binary values will be correctly encoded and
+decoded to/from base 64.
 
 API still to be finalised.
 
@@ -410,11 +414,12 @@ sub DESTROY {
 
 =head2 get_lookup
 
-This method is used internally to lookup those nodes which have multiple elements,
-e.g. GEO has lat and long, N (name) has family, given, middle etc.
+This method is used internally to lookup those nodes which have
+multiple elements, e.g. GEO has lat and long, N (name) has family,
+given, middle etc.
 
-If you wish to extend this package (for custom attributes), overload this method
-in your code
+If you wish to extend this package (for custom attributes), overload
+this method in your code:
 
   sub my_lookup {
 		return \%my_lookup;
@@ -494,6 +499,35 @@ sub get_of_type {
             ? @{ $self->{nodes}->{$node_type} }
             : $self->{nodes}->{$node_type};
     }
+}
+
+=head2 as_string
+
+Returns the vCard as a string.
+
+=cut
+
+sub as_string {
+    my ($self, $fields, $charset) = @_;
+    # derp
+    my %e = map { lc $_ => 1 } @{$fields || []};
+
+    my @k = qw(VERSION N FN);
+    if ($fields) {
+        push @k, map { uc $_ } @$fields;
+    }
+    else {
+        push @k, grep { defined $_ and $_ ne '' and $_ !~ /^(VERSION|N|FN)$/ }
+            map { uc $_ } keys %{$self->{nodes}};
+    }
+
+    my @lines = qw(BEGIN:VCARD);
+    for my $k (@k) {
+        next unless $k;
+        next unless my $nodes = $self->get($k);
+        push @lines, map { $_->as_string($charset) } @{$nodes};
+    }
+    return join "\x0d\x0a", @lines, 'END:VCARD', '';
 }
 
 sub _sort_prefs {
