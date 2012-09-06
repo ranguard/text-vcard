@@ -1,9 +1,8 @@
 package Text::vCard;
 
-use 5.006;
+use 5.006;    #warnings.pm
 use Carp;
 use strict;
-use warnings;
 use File::Slurp;
 use Text::vFile::asData;
 use Text::vCard::Node;
@@ -11,7 +10,7 @@ use Text::vCard::Node;
 # See this module for your basic parser functions
 use base qw(Text::vFile::asData);
 use vars qw ($VERSION %lookup %node_aliases @simple);
-$VERSION = '2.10';
+$VERSION = '2.11';
 
 # If the node's data does not break down use this
 my @default_field = qw(value);
@@ -47,7 +46,7 @@ map { push( @simple, lc($_) ) } @simple;
 # Generate the methods
 {
     no strict 'refs';
-    no warnings 'redefine';
+    no warnings;
 
     # 'version' handled separately
     # to prevent conflict with ExtUtils::MakeMaker
@@ -85,8 +84,7 @@ Text::vCard - a package to edit and create a single vCard (RFC 2426)
 
 =head1 WARNING
 
-To handle a whole addressbook with several vCard entries in it, you probably
-want to start with L<Text::vCard::Addressbook>, then this module.
+You probably want to start with Text::vCard::Addressbook, then this module.
 
 This is not backwards compatable with 1.0 or earlier versions! 
 
@@ -107,7 +105,7 @@ This package is for a single vCard (person / record / set of address information
 It provides an API to editing and creating vCards, or supplied a specific piece
 of the Text::vFile::asData results it generates a vCard with that content.
 
-You should really use L<Text::vCard::Addressbook> as this handles creating
+You should really use Text::vCard::Addressbook as this handles creating
 vCards from an existing file for you.
 
 =head1 METHODS
@@ -166,8 +164,8 @@ my $address = $vcard->add_node({
 	'node_type' => 'ADR',
 });
 
-This creates a new address (a L<Text::vCard::Node> object) in the vCard
-which you can then call the address methods on. See below for what options are available.
+This creates a new address in the vCard which you can then call the
+address methods on. See below for what options are available.
 
 The node_type parameter must conform to the vCard spec format (e.g. ADR not address)
 
@@ -206,7 +204,7 @@ The following method allows you to extract the contents from the vCard.
 	'types' => \@types,
   });
  
-Either an array or array ref is returned, containing L<Text::vCard::Node> objects.
+Either an array or array ref is returned, containing Text::vCard::Node objects.
 If there are no results of 'node_type' undef is returned.
 
 Supplied with a scalar or an array ref the methods
@@ -496,6 +494,33 @@ sub get_of_type {
     }
 }
 
+=head2 as_string
+
+=cut
+
+sub as_string {
+    my ($self, $fields, $charset) = @_;
+    # derp
+    my %e = map { lc $_ => 1 } @{$fields || []};
+
+    my @k = qw(VERSION N FN);
+    if ($fields) {
+        push @k, map { uc $_ } @$fields;
+    }
+    else {
+        push @k, grep { defined $_ and $_ ne '' and $_ !~ /^(VERSION|N|FN)$/ }
+            map { uc $_ } keys %{$self->{nodes}};
+    }
+
+    my @lines = qw(BEGIN:VCARD);
+    for my $k (@k) {
+        next unless $k;
+        next unless my $nodes = $self->get($k);
+        push @lines, map { $_->as_string($charset) } @{$nodes};
+    }
+    return join "\x0d\x0a", @lines, 'END:VCARD', '';
+}
+
 sub _sort_prefs {
     my $check = shift;
     if ( $check->is_type('pref') ) {
@@ -570,7 +595,7 @@ it and/or modify it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-L<Text::vCard::Addressbook>, L<Text::vCard::Node>
+Text::vCard::Addressbook, Text::vCard::Node
 
 =cut
 

@@ -1,8 +1,9 @@
 package Text::vCard::Node;
 
 use strict;
-use warnings;
 use Carp;
+use Encode;
+use MIME::Base64;
 use MIME::QuotedPrint;
 use vars qw ( $AUTOLOAD );
 
@@ -31,7 +32,7 @@ Text::vCard::Node - Object for each node (line) of a vCard
 
 Package used by Text::vCard so that each element: ADR, N, TEL etc are objects.
 
-You should not need to use this module directly, L<Text::vCard> does it all for you.
+You should not need to use this module directly, Text::vCard does it all for you.
 
 =head1 METHODS
 
@@ -93,15 +94,26 @@ sub new {
             # Loop through array
             foreach my $param_hash ( @{ $conf->{'data'}->{'params'} } ) {
                 while ( my ( $key, $value ) = each %{$param_hash} ) {
+                    my $t = 'type';
 
                     # go through each key/value pair
                     my $param_list = $key;
                     if ( defined $value ) {
+                        $t = $key;
 
-            # use value, not key as it's 'type' => 'CELL', not 'CELL' => undef
+                        # use value, not key as its 'type' => 'CELL',
+                        # not 'CELL' => undef
                         $param_list = $value;
                     }
-                    map { $params{ lc($_) } = 1 } split( ',', $param_list );
+
+                    # These values might as well be useful for
+                    # something. Also get rid of any whitespace
+                    # pollution.
+                    for my $p (split /\s*,\s*/, $param_list) {
+                        $p =~ s/^\s*(.*?)\s*$/\L$1/;
+                        $p =~ s/\s+/ /g;
+                        $params{$p} = lc $t;
+                    }
                 }
             }
             $self->{params} = \%params;
@@ -113,35 +125,51 @@ sub new {
 
             if ( defined $self->{params}->{'quoted-printable'} ) {
                 $conf->{'data'}->{'value'}
-                    = decode_qp( $conf->{'data'}->{'value'} );
+                    = MIME::QuotedPrint::decode($conf->{data}{value});
             }
 
-            # the -1 on split is so ;; values create elements in the array
-            my @elements
-                = split( /(?<!\\);/, $conf->{'data'}->{'value'}, -1 );
-            if ( defined $self->{node_type} && $self->{node_type} eq 'ORG' ) {
-
-                # cover ORG where unit is a list
-                $self->{'name'} = shift(@elements);
-                $self->{'unit'} = \@elements if scalar(@elements) > 0;
-
-            } elsif (
-                scalar(@elements) <= scalar( @{ $self->{'field_order'} } ) )
-            {
-
-        # set the field values as the data e.g. $self->{street} = 'The street'
-                @{$self}{ @{ $self->{'field_order'} } } = @elements;
-
-            } else {
-                carp 'Data value had '
-                    . scalar(@elements)
-                    . ' elements expecting '
-                    . scalar( @{ $self->{'field_order'} } )
-                    . ' or less';
+            # do this first
+            if (defined $self->{params}{base64}) {
+                $conf->{data}{value}
+                    = MIME::Base64::decode($conf->{data}{value});
+                # mimic what goes on below
+                @{$self}{@{$self->{field_order}}} = ($conf->{data}{value});
+            }
+            else {
+                # the -1 on split is so ;; values create elements in
+                # the array
+                my @elements = split /(?<!\\);/, $conf->{data}{value}, -1;
+                if (defined $self->{node_type}
+                        && $self->{node_type} eq 'ORG') {
+                    # cover ORG where unit is a list
+                    $self->{'name'} = shift(@elements);
+                    $self->{'unit'} = \@elements if scalar(@elements) > 0;
+                }
+                # no need for explicit scalar
+                elsif (@elements <= @{$self->{field_order}}) {
+                    # set the field values as the data
+                    # e.g. $self->{street} = 'The street'
+                    @{$self}{@{$self->{field_order}}} = @elements;
+                }
+                else {
+                    carp sprintf(
+                        'Data value had %d elements expecting %d or less.',
+                        scalar @elements, scalar @{$self->{field_order}});
+                }
             }
         }
     }
     return $self;
+}
+
+=head2 node_type
+
+Returns the type of the node itself, e.g. ADR.
+
+=cut
+
+sub node_type {
+    $_[0]->{node_type};
 }
 
 =head2 unit()
@@ -199,8 +227,12 @@ or undef if it is not.
 
 sub is_type {
     my ( $self, $type ) = @_;
-    if ( defined $self->{params} && defined $self->{params}->{ lc($type) } ) {
-        return 1;
+    if ( defined $self->{params} && exists $self->{params}->{ lc($type) } ) {
+        # Make this always return true so as not to change the net
+        # behaviour of the method. if for some wack (and
+        # non-compliant) reason this value is undef, empty string or
+        # zero, tough luck.
+        return $self->{params}{lc $type} || 1;
     }
     return undef;
 }
@@ -274,14 +306,14 @@ sub remove_types {
     if ( ref($type) eq 'ARRAY' ) {
         my $to_return = undef;
         foreach my $t ( @{$type} ) {
-            if ( defined $self->{params}->{ lc($t) } ) {
+            if ( exists $self->{params}->{ lc($t) } ) {
                 delete $self->{params}->{ lc($t) };
                 $to_return = 1;
             }
         }
         return $to_return;
     } else {
-        if ( defined $self->{params}->{ lc($type) } ) {
+        if ( exists $self->{params}->{ lc($type) } ) {
             delete $self->{params}->{ lc($type) };
             return 1;
         }
@@ -317,7 +349,7 @@ sub group {
 =head2 export_data()
 
   my $value = $node->export_data();
-  
+
 This method returns the value string of a node.
 It is only needs to be called when exporting the information 
 back out to ensure that it has not been altered.
@@ -341,9 +373,127 @@ sub export_data {
         }
     } @{ $self->{'field_order'} };
 
-# Should escape stuff here really, but waiting to see what T::vfile::asData does
+    # Should escape stuff here really, but waiting to see what
+    # T::vfile::asData does
     return join( ';', @lines );
 
+}
+
+=head2 as_string
+
+=cut
+
+sub _key_as_string {
+    my ($self, $charset) = @_;
+    my %t;
+    for my $t ($self->types) {
+        my $backwards = uc $self->is_type($t);
+        $t{$backwards} ||= [];
+        push @{$t{$backwards}}, uc $t;
+    }
+
+    # override charset
+    $t{CHARSET} = [$charset] if $charset;
+    # you know it would probably make sense to do some Encode stuff,
+    # plus qp/base64 logic here.
+    my $n = $self->group ?
+        sprintf('%s.%s', $self->group, $self->node_type) : $self->node_type;
+    return join ';', $n,
+        map { sprintf('%s=%s', $_, join ',', @{$t{$_}}) } sort keys %t;
+}
+
+
+sub _escape {
+    my $val = shift;
+    # cover all the bases
+    my %esc = ("\x0a" => 'n', "\x0d" => 'n', "\x0d\x0a" => 'n');
+    $val =~ s/([\\;,]|\x0d?\x0a|\x0d)/sprintf("\\%s", $esc{$1}||$1)/ge;
+    $val;
+}
+
+sub _value_as_string {
+    my ($self, $charset, $key) = @_;
+    $charset ||= 'utf-8';
+    my @fields;
+    for my $f (@{$self->{field_order}}) {
+        next unless defined (my $v = $self->{$f});
+        my $data = '';
+        if (ref $v eq 'ARRAY') {
+            $data = join ',', map { _escape(Encode::encode($charset, $_)) } @$v;
+        }
+        elsif ($self->is_type('quoted-printable')) {
+            # have to reimplement the m:qp line wrap >:|
+            my $enc = MIME::QuotedPrint::encode
+                (Encode::encode($charset, $v), '');
+
+            # 74 because minus initial space and terminal =
+            my @lines;
+            my $step = 74 - length $key; # 75 - key + :
+            my ($i, $len) = (0, length $enc);
+            while ($i <= $len) {
+                # special case if step is initially negative, i.e. if
+                # the key is longer than 76 chars
+                if ($step < 0) {
+                    $step = 74;
+                    $data = "=\x0d\x0a ";
+                }
+
+                my $line = substr($enc, $i, $step);
+                my ($a, $b) = ($line =~ /(.*?)(=[0-9A-Fa-f]?)$/);
+                $line = $a if defined $a;
+                push @lines, $line if length $line;
+
+                # this says increase the step minus a partial escaped
+                # character
+                $i += $step - length($b || 0);
+                # from now own, step is 74
+                $step = 74;
+            }
+            $data .= join "=\x0d\x0a ", @lines;
+        }
+        elsif ($self->is_type('base64')) {
+            # also this. it would be nice to be able to set the width
+            # in a parameter.
+            my $enc = MIME::Base64::encode($v, '');
+            my @lines = '';
+            for (my $i = 0; $i <= length $enc; $i += 72) {
+                push @lines, ' ' . substr($enc, $i, 72);
+            }
+            $data = join "\x0d\x0a", @lines;
+        }
+        else {
+            $data = _escape(Encode::encode($charset, $v));
+        }
+        push @fields, $data;
+    }
+
+    join ';', @fields;
+}
+
+sub _fold {
+    my $str = shift;
+    # already folded
+    return $str if $str =~ /\x0d?\x0a/;
+
+    my @lines;
+    my ($i, $len, $step) = (0, length $str, 76);
+    while ($i <= $len) {
+        my $line = substr($str, $i, $step);
+        push @lines, $line;
+
+        # increment the position
+        $i += $step;
+        # step is 75 from now on
+        $step = 75;
+    }
+    join "\x0d\x0a ", @lines;
+}
+
+sub as_string {
+    my ($self, $charset) = @_;
+    my $key = $self->_key_as_string($charset);
+    my $val = $self->_value_as_string($charset, $key);
+    return _fold("$key:$val");
 }
 
 # Because we have autoload
@@ -386,7 +536,7 @@ Leo Lapworth, LLAP@cuckoo.org
 
 =head1 SEE ALSO
 
-L<Text::vCard> L<Text::vCard::Addressbook>
+Text::vCard Text::vCard::Addressbook
 
 =cut
 

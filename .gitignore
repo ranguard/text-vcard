@@ -1,3 +1,4 @@
+syntax: glob
 MYMETA.json
 MYMETA.yml
 Makefile
