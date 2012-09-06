@@ -11,7 +11,7 @@ use Text::vCard::Node;
 # See this module for your basic parser functions
 use base qw(Text::vFile::asData);
 use vars qw ($VERSION %lookup %node_aliases @simple);
-$VERSION = '2.10';
+$VERSION = '2.11';
 
 # If the node's data does not break down use this
 my @default_field = qw(value);
@@ -494,6 +494,33 @@ sub get_of_type {
             ? @{ $self->{nodes}->{$node_type} }
             : $self->{nodes}->{$node_type};
     }
+}
+
+=head2 as_string
+
+=cut
+
+sub as_string {
+    my ($self, $fields, $charset) = @_;
+    # derp
+    my %e = map { lc $_ => 1 } @{$fields || []};
+
+    my @k = qw(VERSION N FN);
+    if ($fields) {
+        push @k, map { uc $_ } @$fields;
+    }
+    else {
+        push @k, grep { defined $_ and $_ ne '' and $_ !~ /^(VERSION|N|FN)$/ }
+            map { uc $_ } keys %{$self->{nodes}};
+    }
+
+    my @lines = qw(BEGIN:VCARD);
+    for my $k (@k) {
+        next unless $k;
+        next unless my $nodes = $self->get($k);
+        push @lines, map { $_->as_string($charset) } @{$nodes};
+    }
+    return join "\x0d\x0a", @lines, 'END:VCARD', '';
 }
 
 sub _sort_prefs {
