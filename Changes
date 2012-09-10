@@ -1,5 +1,9 @@
 Revision history for Perl extension Text::vCard.
 
+2.11
+    - Adding base64 encode/decode (doriantaylor)
+    - POD and various cleanups (szabgab)
+
 2.10 Tue 11 Jan 2011 21:50:02 GMT
     - Merged in quote-printed code (Christian Varga)
     - Cleaned up the tests and code for quote-printed

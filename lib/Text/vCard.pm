@@ -5,7 +5,7 @@ use Carp;
 use strict;
 use warnings;
 use File::Slurp;
-use Text::vFile::asData;
+use Text::vFile::asData 0.07;
 use Text::vCard::Node;
 
 # See this module for your basic parser functions
