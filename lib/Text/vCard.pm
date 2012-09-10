@@ -94,17 +94,17 @@ Version 1.1 was a complete rewrite/restructure, this should not happen again.
 =head1 SYNOPSIS
 
   use Text::vCard;
-  my $cards = Text::vCard->new({
-	'asData_node' => $objects_node_from_asData,
-  });
+  my $cards
+      = Text::vCard->new( { 'asData_node' => $objects_node_from_asData, } );
 
 =head1 DESCRIPTION
 
 A vCard is an electronic business card. 
 
-This package is for a single vCard (person / record / set of address information).
-It provides an API to editing and creating vCards, or supplied a specific piece
-of the Text::vFile::asData results it generates a vCard with that content.
+This package is for a single vCard (person / record / set of address
+information). It provides an API to editing and creating vCards, or supplied
+a specific piece of the Text::vFile::asData results it generates a vCard 
+with that content.
 
 You should really use L<Text::vCard::Addressbook> as this handles creating
 vCards from an existing file for you.
@@ -116,11 +116,10 @@ vCards from an existing file for you.
   use Text::vCard;
 
   my $new_vcard = Text::vCard->new();
-  
-  my $existing_vcard = Text::vCard->new({
-	'asData_node' => $objects_node_from_asData,
-  });
-  
+
+  my $existing_vcard
+      = Text::vCard->new( { 'asData_node' => $objects_node_from_asData, } );
+
 =cut
 
 sub new {
@@ -161,9 +160,7 @@ sub new {
 
 =head2 add_node()
 
-my $address = $vcard->add_node({
-	'node_type' => 'ADR',
-});
+  my $address = $vcard->add_node( { 'node_type' => 'ADR', } );
 
 This creates a new address (a L<Text::vCard::Node> object) in the vCard
 which you can then call the address methods on. See below for what options are available.
@@ -193,17 +190,20 @@ The following method allows you to extract the contents from the vCard.
   $nodes = $vcard->get('tel');
 
   # Just get the home address
-  my $nodes = $vcard->get({
-	'node_type' => 'addresses',
-	'types' => 'home',
-  });
+  my $nodes = $vcard->get(
+      {   'node_type' => 'addresses',
+          'types'     => 'home',
+      }
+  );
 
   # get all phone number that matches serveral types
   my @types = qw(work home);
-  my $nodes = $vcard->get({
-	'node_type' => 'tel',
-	'types' => \@types,
-  });
+  my $nodes = $vcard->get(
+      {   'node_type' => 'tel',
+          'types'     => \@types,
+      }
+  );
+
 
 Either an array or array ref is returned, containing
 L<Text::vCard::Node> objects.  If there are no results of 'node_type'
@@ -232,7 +232,7 @@ sub get {
 
 The following method is a convenience wrapper for accessing simple elements.
 
-  $value = $vcard->get_simple_type('email', ['internet', 'work']);
+  $value = $vcard->get_simple_type( 'email', [ 'internet', 'work' ] );
 
 If multiple elements match, then only the first is returned.  If the object
 isn't found, or doesn't have a simple value, then undef is returned.
@@ -246,9 +246,9 @@ sub get_simple_type {
     my ( $self, $node_type, $types ) = @_;
     carp "You did not supply an element type" unless defined $node_type;
 
-    my %hash = ('node_type', $node_type);
+    my %hash = ( 'node_type', $node_type );
     $hash{'types'} = $types if defined $types;
-    my $node = $self->get(\%hash);
+    my $node = $self->get( \%hash );
     return undef unless $node && @{$node} > 0 && exists $node->[0]->{'value'};
 
     $node->[0]->{'value'};
@@ -256,10 +256,10 @@ sub get_simple_type {
 
 =head2 nodes
 
-  my $addresses = $vcard->get({ 'node_type' => 'address' });
+  my $addresses = $vcard->get( { 'node_type' => 'address' } );
 
   my $first_address = $addresses->[0];
-  
+
   # get the value
   print $first_address->street();
 
@@ -267,8 +267,8 @@ sub get_simple_type {
   $first_address->street('Barney Rubble');
 
   # See if it is part of a group
-  if($first_address->group()) {
-	print 'Group: ' . $first_address->group();
+  if ( $first_address->group() ) {
+      print 'Group: ' . $first_address->group();
   }
 
 According to the RFC the following 'simple' nodes should only have one
@@ -320,9 +320,9 @@ names.
   LABELS
   ORG                           'name','unit' (unit is a special case and will return an array reference)
 
-  my $addresses = $vcard->get({ 'node_type' => 'addresses' });
-  foreach my $address (@{$addresses}) {
-	print $address->street();
+  my $addresses = $vcard->get( { 'node_type' => 'addresses' } );
+  foreach my $address ( @{$addresses} ) {
+      print $address->street();
   }
 
   # Setting values on an address element
@@ -337,10 +337,10 @@ names.
 =head2 get_group()
 
   my $group_name = 'item1';
-  my $node_type = 'X-ABLABEL';
-  my $of_group = $vcard->get_group($group_name,$node_type);
-  foreach my $label (@{$of_group}) {
-	print $label->value();
+  my $node_type  = 'X-ABLABEL';
+  my $of_group   = $vcard->get_group( $group_name, $node_type );
+  foreach my $label ( @{$of_group} ) {
+      print $label->value();
   }
 
 This method takes one or two arguments. The group name
@@ -361,7 +361,7 @@ sub get_group {
 
     carp "No group name supplied"
         unless defined $group_name
-            and $group_name ne '';
+        and $group_name ne '';
 
     $group_name = lc($group_name);
 
@@ -421,7 +421,7 @@ If you wish to extend this package (for custom attributes), overload
 this method in your code:
 
   sub my_lookup {
-		return \%my_lookup;
+      return \%my_lookup;
   }
   *Text::vCard::get_lookup = \&my_lookup;
 
@@ -436,7 +436,7 @@ sub get_lookup {
 
 =head2 get_of_type()
 
-  my $list = $vcard->get_of_type($node_type,\@types);
+  my $list = $vcard->get_of_type( $node_type, \@types );
 
 It is probably easier just to use the get() method, which inturn calls
 this method.
@@ -462,12 +462,8 @@ sub get_of_type {
         my @of_type;
         if ( ref($types) eq 'ARRAY' ) {
             @of_type = @{$types};
-
-            #	print "T A: " . join('-',@{$types}) . "\n";
         } else {
             push( @of_type, $types );
-
-            #	print "T: $types\n";
         }
         my @to_return;
         foreach my $element ( @{ $self->{nodes}->{$node_type} } ) {
@@ -479,7 +475,6 @@ sub get_of_type {
             }
             if ( $check == 1 ) {
 
-                #	print "Adding: $element->street() \n";
                 push( @to_return, $element );
             }
         }
@@ -507,17 +502,17 @@ Returns the vCard as a string.
 =cut
 
 sub as_string {
-    my ($self, $fields, $charset) = @_;
+    my ( $self, $fields, $charset ) = @_;
+
     # derp
-    my %e = map { lc $_ => 1 } @{$fields || []};
+    my %e = map { lc $_ => 1 } @{ $fields || [] };
 
     my @k = qw(VERSION N FN);
     if ($fields) {
         push @k, map { uc $_ } @$fields;
-    }
-    else {
+    } else {
         push @k, grep { defined $_ and $_ ne '' and $_ !~ /^(VERSION|N|FN)$/ }
-            map { uc $_ } keys %{$self->{nodes}};
+            map { uc $_ } keys %{ $self->{nodes} };
     }
 
     my @lines = qw(BEGIN:VCARD);

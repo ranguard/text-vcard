@@ -20,26 +20,25 @@ To read an existing file:
 
   use Text::vCard::Addressbook;
 
-  my $address_book = Text::vCard::Addressbook->new({
-	'source_file' => '/path/to/address.vcf',
-  });
+  my $address_book = Text::vCard::Addressbook->new(
+      { 'source_file' => '/path/to/address.vcf', } );
 
-  foreach my $vcard ($address_book->vcards()) {
-	print "Got card for " . $vcard->fullname() . "\n";
+  foreach my $vcard ( $address_book->vcards() ) {
+      print "Got card for " . $vcard->fullname() . "\n";
   }
+
 
 To create a new file:
 
   use Text::vCard::Addressbook;
 
   my $address_book = Text::vCard::Addressbook->new();
-  my $vcard = $ab->add_vcard;
+  my $vcard        = $ab->add_vcard;
   $vcard->fullname('Foo Bar');
   $vcard->EMAIL('foo@bar.com');
 
   open my $out, '>', 'address.vcf' or die;
   print $out $address_book->export;
-
 
 =head1 DESCRIPTION
 
@@ -58,7 +57,8 @@ Evolution etc) can export and import vCards.
   use Text::vCard::Addressbook;
 
   # Read in from a list of files
-  my $address_book = Text::vCard::Addressbook->load( ['foo.vCard', 'Addresses.vcf']);
+  my $address_book
+      = Text::vCard::Addressbook->load( [ 'foo.vCard', 'Addresses.vcf' ] );
 
 This method will croak if it is unable to read in any of the files.
 
@@ -95,25 +95,26 @@ sub import_data {
 =head2 new()
   
   # Read in from just one file
-  my $address_book = Text::vCard::Addressbook->new({
-	'source_file' => '/path/to/address.vcf',
-  });
+  my $address_book = Text::vCard::Addressbook->new(
+      { 'source_file' => '/path/to/address.vcf', } );
+
 
 This method will croak if it is unable to read in the source_file.
 
   # File already in a string
-  my $address_book = Text::vCard::Addressbook->new({
-	'source_text' => $source_text,
-  });
+  my $address_book
+      = Text::vCard::Addressbook->new( { 'source_text' => $source_text, } );
+
 
   # Create a new address book
   my $address_book = Text::vCard::Addressbook->new();
 
 Looping through all vcards in an address book.
   
-  foreach my $vcard ($address_book->vcards()) {
-	$vcard->...;
+  foreach my $vcard ( $address_book->vcards() ) {
+      $vcard->...;
   }
+
   
 =cut
 
@@ -247,20 +248,21 @@ sub _process_text {
     # As data may handle \r - must ask richard
     $text =~ s/\r//g;
 
-    if($text =~ /quoted-printable/i) {
-        # Edge case for 2.1 version
-        # 
-        # http://tools.ietf.org/html/rfc2045#section-6.7 point (5),
-        # lines containing quoted-printable encoded data can contain soft-line
-        # breaks. These are indicated as single '=' sign at the end of the line.
-        # 
-        # No longer needed in version 3.0:
-        # http://tools.ietf.org/html/rfc2426 point (5)
+    if ( $text =~ /quoted-printable/i ) {
+
+      # Edge case for 2.1 version
+      #
+      # http://tools.ietf.org/html/rfc2045#section-6.7 point (5),
+      # lines containing quoted-printable encoded data can contain soft-line
+      # breaks. These are indicated as single '=' sign at the end of the line.
+      #
+      # No longer needed in version 3.0:
+      # http://tools.ietf.org/html/rfc2426 point (5)
 
         my $joinline = 0;
 
         my $out;
-        foreach my $line (split( "\n", $text )) {
+        foreach my $line ( split( "\n", $text ) ) {
             chomp($line);
 
             if ($joinline) {

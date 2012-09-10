@@ -110,7 +110,7 @@ sub new {
                     # These values might as well be useful for
                     # something. Also get rid of any whitespace
                     # pollution.
-                    for my $p (split /\s*,\s*/, $param_list) {
+                    for my $p ( split /\s*,\s*/, $param_list ) {
                         $p =~ s/^\s*(.*?)\s*$/\L$1/;
                         $p =~ s/\s+/ /g;
                         $params{$p} = lc $t;
@@ -124,39 +124,46 @@ sub new {
 
             # Store the actual data into the object
 
-            if ($self->is_type('q') or $self->is_type('quoted-printable')) {
+            if ( $self->is_type('q') or $self->is_type('quoted-printable') ) {
                 $conf->{'data'}->{'value'}
-                    = MIME::QuotedPrint::decode($conf->{data}{value});
+                    = MIME::QuotedPrint::decode( $conf->{data}{value} );
             }
 
             # do this first
-            if ($self->is_type('b') or $self->is_type('base64')) {
+            if ( $self->is_type('b') or $self->is_type('base64') ) {
+
                 # XXX apparently it's possible to get 'b' for 'base64'
                 $conf->{data}{value}
-                    = MIME::Base64::decode($conf->{data}{value});
+                    = MIME::Base64::decode( $conf->{data}{value} );
+
                 # mimic what goes on below
-                @{$self}{@{$self->{field_order}}} = ($conf->{data}{value});
-            }
-            else {
+                @{$self}{ @{ $self->{field_order} } }
+                    = ( $conf->{data}{value} );
+            } else {
+
                 # the -1 on split is so ;; values create elements in
                 # the array
                 my @elements = split /(?<!\\);/, $conf->{data}{value}, -1;
-                if (defined $self->{node_type}
-                        && $self->{node_type} eq 'ORG') {
+                if ( defined $self->{node_type}
+                    && $self->{node_type} eq 'ORG' )
+                {
                     # cover ORG where unit is a list
                     $self->{'name'} = shift(@elements);
                     $self->{'unit'} = \@elements if scalar(@elements) > 0;
                 }
+
                 # no need for explicit scalar
-                elsif (@elements <= @{$self->{field_order}}) {
+                elsif ( @elements <= @{ $self->{field_order} } ) {
+
                     # set the field values as the data
                     # e.g. $self->{street} = 'The street'
-                    @{$self}{@{$self->{field_order}}} = @elements;
-                }
-                else {
+                    @{$self}{ @{ $self->{field_order} } } = @elements;
+                } else {
                     carp sprintf(
                         'Data value had %d elements expecting %d or less.',
-                        scalar @elements, scalar @{$self->{field_order}});
+                        scalar @elements,
+                        scalar @{ $self->{field_order} }
+                    );
                 }
             }
         }
@@ -176,8 +183,8 @@ sub node_type {
 
 =head2 unit()
 
-  my @units = @{$org_node->unit()};
-  $org_node->unit(['Division','Department','Sub-department']);
+  my @units = @{ $org_node->unit() };
+  $org_node->unit( [ 'Division', 'Department', 'Sub-department' ] );
 
 As ORG allows unlimited numbers of 'units' as well as and organisation
 'name', this method is a specific case for accessing those values, they
@@ -195,10 +202,11 @@ sub unit {
 
 =head2 types()
 
-	my @types = $node->types();
-	or
-	my $types = $node->types();
-	
+  my @types = $node->types();
+
+  # or
+  my $types = $node->types();
+
 This method will return an array or an array ref depending
 on the calling context of types associated with the $node,
 undef is returned if there are no types.
@@ -217,8 +225,9 @@ sub types {
 
 =head2 is_type()
 
-  if ($node->is_type($type)) {
-  	# ...
+  if ( $node->is_type($type) ) {
+
+      # ...
   }
 
 Given a type (see types() for a list of those set)
@@ -230,19 +239,20 @@ or undef if it is not.
 sub is_type {
     my ( $self, $type ) = @_;
     if ( defined $self->{params} && exists $self->{params}->{ lc($type) } ) {
+
         # Make this always return true so as not to change the net
         # behaviour of the method. if for some wack (and
         # non-compliant) reason this value is undef, empty string or
         # zero, tough luck.
-        return $self->{params}{lc $type} || 1;
+        return $self->{params}{ lc $type } || 1;
     }
     return undef;
 }
 
 =head2 is_pref();
 
-  if ($node->is_pref()) {
-  	print "Prefered node"
+  if ( $node->is_pref() ) {
+      print "Prefered node";
   }
 
 This method is the same as is_type (which can take a value of 'pref')
@@ -261,10 +271,10 @@ sub is_pref {
 
 =head2 add_types()
 
- $address->add_types('home');
- 
- my @types = qw(home work);
- $address->add_types(\@types);
+  $address->add_types('home');
+
+  my @types = qw(home work);
+  $address->add_types( \@types );
 
 Add a type to an address, it can take a scalar or an array ref.
 
@@ -287,10 +297,10 @@ sub add_types {
 
 =head2 remove_types()
 
- $address->remove_types('home');
+  $address->remove_types('home');
 
- my @types = qw(home work);
- $address->remove_types(\@types);
+  my @types = qw(home work);
+  $address->remove_types( \@types );
 
 This method removes a type from an address, it can take a scalar 
 or an array ref.
@@ -388,86 +398,94 @@ Returns the node as a formatted string.
 =cut
 
 sub _key_as_string {
-    my ($self, $charset) = @_;
+    my ( $self, $charset ) = @_;
     my %t;
-    for my $t ($self->types) {
+    for my $t ( $self->types ) {
         my $backwards = uc $self->is_type($t);
         $t{$backwards} ||= [];
-        push @{$t{$backwards}}, uc $t;
+        push @{ $t{$backwards} }, uc $t;
     }
 
     # override charset
     $t{CHARSET} = [$charset] if $charset;
+
     # you know it would probably make sense to do some Encode stuff,
     # plus qp/base64 logic here.
-    my $n = $self->group ?
-        sprintf('%s.%s', $self->group, $self->node_type) : $self->node_type;
+    my $n
+        = $self->group
+        ? sprintf( '%s.%s', $self->group, $self->node_type )
+        : $self->node_type;
     return join ';', $n,
-        map { sprintf('%s=%s', $_, join ',', @{$t{$_}}) } sort keys %t;
+        map { sprintf( '%s=%s', $_, join ',', @{ $t{$_} } ) } sort keys %t;
 }
-
 
 sub _escape {
     my $val = shift;
+
     # cover all the bases
-    my %esc = ("\x0a" => 'n', "\x0d" => 'n', "\x0d\x0a" => 'n');
+    my %esc = ( "\x0a" => 'n', "\x0d" => 'n', "\x0d\x0a" => 'n' );
     $val =~ s/([\\;,]|\x0d?\x0a|\x0d)/sprintf("\\%s", $esc{$1}||$1)/ge;
     $val;
 }
 
 sub _value_as_string {
-    my ($self, $charset, $key) = @_;
+    my ( $self, $charset, $key ) = @_;
     $charset ||= 'utf-8';
     my @fields;
-    for my $f (@{$self->{field_order}}) {
-        next unless defined (my $v = $self->{$f});
+    for my $f ( @{ $self->{field_order} } ) {
+        next unless defined( my $v = $self->{$f} );
         my $data = '';
-        if (ref $v eq 'ARRAY') {
-            $data = join ',', map { _escape(Encode::encode($charset, $_)) } @$v;
+        if ( ref $v eq 'ARRAY' ) {
+            $data = join ',',
+                map { _escape( Encode::encode( $charset, $_ ) ) } @$v;
         }
+
         # assuming the same 'q' for quoted-printable
-        elsif ($self->is_type('q') or $self->is_type('quoted-printable')) {
+        elsif ( $self->is_type('q') or $self->is_type('quoted-printable') ) {
+
             # have to reimplement the m:qp line wrap >:|
-            my $enc = MIME::QuotedPrint::encode
-                (Encode::encode($charset, $v), '');
+            my $enc
+                = MIME::QuotedPrint::encode( Encode::encode( $charset, $v ),
+                '' );
 
             # 74 because minus initial space and terminal =
             my @lines;
-            my $step = 74 - length $key; # 75 - key + :
-            my ($i, $len) = (0, length $enc);
-            while ($i <= $len) {
+            my $step = 74 - length $key;    # 75 - key + :
+            my ( $i, $len ) = ( 0, length $enc );
+            while ( $i <= $len ) {
+
                 # special case if step is initially negative, i.e. if
                 # the key is longer than 76 chars
-                if ($step < 0) {
+                if ( $step < 0 ) {
                     $step = 74;
                     $data = "=\x0d\x0a ";
                 }
 
-                my $line = substr($enc, $i, $step);
-                my ($a, $b) = ($line =~ /(.*?)(=[0-9A-Fa-f]?)$/);
+                my $line = substr( $enc, $i, $step );
+                my ( $a, $b ) = ( $line =~ /(.*?)(=[0-9A-Fa-f]?)$/ );
                 $line = $a if defined $a;
                 push @lines, $line if length $line;
 
                 # this says increase the step minus a partial escaped
                 # character
-                $i += $step - length($b || 0);
+                $i += $step - length( $b || 0 );
+
                 # from now own, step is 74
                 $step = 74;
             }
             $data .= join "=\x0d\x0a ", @lines;
-        }
-        elsif ($self->is_type('b') or $self->is_type('base64')) {
+        } elsif ( $self->is_type('b') or $self->is_type('base64') ) {
+
             # also this. it would be nice to be able to set the width
             # in a parameter.
-            my $enc = MIME::Base64::encode($v, '');
+            my $enc = MIME::Base64::encode( $v, '' );
             my @lines = '';
-            for (my $i = 0; $i <= length $enc; $i += 72) {
-                push @lines, ' ' . substr($enc, $i, 72);
+            for ( my $i = 0; $i <= length $enc; $i += 72 ) {
+                push @lines, ' ' . substr( $enc, $i, 72 );
             }
             $data = join "\x0d\x0a", @lines;
-        }
-        else {
-            $data = _escape(Encode::encode($charset, $v));
+        } else {
+            $data = _escape( Encode::encode( $charset, $v ) );
         }
         push @fields, $data;
     }
@@ -477,17 +495,19 @@ sub _value_as_string {
 
 sub _fold {
     my $str = shift;
+
     # already folded
     return $str if $str =~ /\x0d?\x0a/;
 
     my @lines;
-    my ($i, $len, $step) = (0, length $str, 76);
-    while ($i <= $len) {
-        my $line = substr($str, $i, $step);
+    my ( $i, $len, $step ) = ( 0, length $str, 76 );
+    while ( $i <= $len ) {
+        my $line = substr( $str, $i, $step );
         push @lines, $line;
 
         # increment the position
         $i += $step;
+
         # step is 75 from now on
         $step = 75;
     }
@@ -495,9 +515,9 @@ sub _fold {
 }
 
 sub as_string {
-    my ($self, $charset) = @_;
+    my ( $self, $charset ) = @_;
     my $key = $self->_key_as_string($charset);
-    my $val = $self->_value_as_string($charset, $key);
+    my $val = $self->_value_as_string( $charset, $key );
     return _fold("$key:$val");
 }
 
