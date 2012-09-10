@@ -87,10 +87,6 @@ Text::vCard - a package to edit and create a single vCard (RFC 2426)
 To handle a whole addressbook with several vCard entries in it, you probably
 want to start with L<Text::vCard::Addressbook>, then this module.
 
-This is not backwards compatable with 1.0 or earlier versions!
-
-Version 1.1 was a complete rewrite/restructure, this should not happen again.
-
 =head1 SYNOPSIS
 
   use Text::vCard;
