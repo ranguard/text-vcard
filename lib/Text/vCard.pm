@@ -4,14 +4,13 @@ use 5.006;
 use Carp;
 use strict;
 use warnings;
-use File::Slurp;
+use File::Slurp 9999.04;
 use Text::vFile::asData 0.07;
 use Text::vCard::Node;
 
 # See this module for your basic parser functions
 use base qw(Text::vFile::asData);
-use vars qw ($VERSION %lookup %node_aliases @simple);
-$VERSION = '2.11';
+use vars qw (%lookup %node_aliases @simple);
 
 # If the node's data does not break down use this
 my @default_field = qw(value);

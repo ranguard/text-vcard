@@ -4,8 +4,8 @@ use strict;
 use warnings;
 use Carp;
 use Encode;
-use MIME::Base64;
-use MIME::QuotedPrint;
+use MIME::Base64 3.07;
+use MIME::QuotedPrint 3.07;
 use vars qw ( $AUTOLOAD );
 
 =head1 NAME
