@@ -7,10 +7,14 @@ WriteMakefile(
     'NAME'	=> 'Text::vCard',
     'PREREQ_PM'	=> {
 		    'Text::vFile::asData' => '0.07',
-		    'File::Slurp' => '9999.04',
-		    'MIME::QuotedPrint' => '3.07',
-		    'Test::More' => '0.1',
-		   },
+		    'File::Slurp'         => '9999.04',
+		    'MIME::QuotedPrint'   => '3.07',
+		    'MIME::Base64'        => '3.07',
+		    'Test::More'          => '0.1',
+        },
+    'BUILD_REQUIRES' => {
+        'Digest' => '1.16',
+    },
     'VERSION_FROM' => 'lib/Text/vCard.pm',
     'META_MERGE'        => {
        resources => {
