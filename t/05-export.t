@@ -21,7 +21,7 @@ my @data = (
     'TEL;pref;home:020 666 6666',
     'TEL;cell:0777 777 7777',
     'item2.ADR;work:;;Test Road;Test City;;Test Postcode;Test Country',
-    'item1.ADR;TYPE=pref,home:;;Pref Test Road;Pref Test City;;Pref Test Postcode;Pref Test Country',
+    'item1.ADR;TYPE=home,pref:;;Pref Test Road;Pref Test City;;Pref Test Postcode;Pref Test Country',
     'VERSION:3.0',
     'FN:T-firstname T-surname',
     'END:VCARD',
@@ -49,16 +49,16 @@ $adbk->set_encoding('utf-8');
     'item1.X-ABADR;charset=utf-8:uk',
     'item2.X-ABADR;charset=utf-8:uk',
     'N;charset=utf-8:T-surname;T-first;;;',
-    'TEL;charset=utf-8;TYPE=pref,home:020 666 6666',
+    'TEL;charset=utf-8;TYPE=home,pref:020 666 6666',
     'TEL;charset=utf-8;TYPE=cell:0777 777 7777',
     'item2.ADR;charset=utf-8;TYPE=work:;;Test Road;Test City;;Test Postcode;Test Country',
-    'item1.ADR;charset=utf-8;TYPE=pref,home:;;Pref Test Road;Pref Test City;;Pref Test Postcode;Pref Test Country',
+    'item1.ADR;charset=utf-8;TYPE=home,pref:;;Pref Test Road;Pref Test City;;Pref Test Postcode;Pref Test Country',
     'VERSION;charset=utf-8:3.0',
     'FN;charset=utf-8:T-firstname T-surname',
     'END:VCARD',
 );
 @lines = split( "\r\n", $adbk->export() );
-is_deeply( \@lines, \@data,
+is_deeply( [sort @lines], [sort @data],
     'set_encoding() - returned data matched that expected' );
 
 #is_deeply(\@lines,\@data,'export() - returned data matched that expected');

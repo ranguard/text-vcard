@@ -219,7 +219,7 @@ sub types {
     my $self = shift;
     my @types;
     return undef unless defined $self->{params};
-    @types = keys %{ $self->{params} };
+    @types = sort keys %{ $self->{params} };
     return wantarray ? @types : \@types;
 }
 
