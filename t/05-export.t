@@ -73,7 +73,7 @@ is_deeply( [sort @lines], [sort @data],
     is $ab->export, '', 'export empty addressbook';
     my $vcard = $ab->add_vcard;
     isa_ok $vcard, 'Text::vCard';
-    like $ab->export, qr{^BEGIN:VCARD\s+END:VCARD$}, 'single empty vcard';
+    like $ab->export, qr{^BEGIN:VCARD\s+END:VCARD\r\n$}, 'single empty vcard';
     $vcard->fullname('Foo Bar');
     $vcard->EMAIL('foo@bar.com');
     my $node = $vcard->add_node(
