@@ -1,5 +1,10 @@
 Revision history for Perl extension Text::vCard.
 
+2.13 Thu 20 Dec 2012 19:34:44 GMT
+    - Under the newer combined RFC6350 - every END:VCARD must 
+      be followed by \r\n (including last one)- reported by ysth
+    - Fix for tests, should now work under Perl 5.17.6 - Ron Savage
+
 2.12 Mon 10 Sep 2012 21:09:45 BST
     - perltidy everything
     - Adding base64 encode/decode (doriantaylor)
