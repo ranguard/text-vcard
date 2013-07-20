@@ -401,6 +401,7 @@ sub _key_as_string {
     my ( $self, $charset ) = @_;
     my %t;
     for my $t ( $self->types ) {
+        next unless $t;
         my $backwards = uc $self->is_type($t);
         $t{$backwards} ||= [];
         push @{ $t{$backwards} }, uc $t;
