@@ -398,7 +398,7 @@ Returns the node as a formatted string.
 =cut
 
 sub _key_as_string {
-    my ( $self, $charset ) = @_;
+    my ( $self ) = @_;
     my %t;
     for my $t ( $self->types ) {
         next unless $t;
@@ -406,9 +406,6 @@ sub _key_as_string {
         $t{$backwards} ||= [];
         push @{ $t{$backwards} }, uc $t;
     }
-
-    # override charset
-    $t{CHARSET} = [$charset] if $charset;
 
     # you know it would probably make sense to do some Encode stuff,
     # plus qp/base64 logic here.
@@ -430,24 +427,21 @@ sub _escape {
 }
 
 sub _value_as_string {
-    my ( $self, $charset, $key ) = @_;
-    $charset ||= 'utf-8';
+    my ( $self, $key ) = @_;
     my @fields;
     for my $f ( @{ $self->{field_order} } ) {
         next unless defined( my $v = $self->{$f} );
         my $data = '';
         if ( ref $v eq 'ARRAY' ) {
             $data = join ',',
-                map { _escape( Encode::encode( $charset, $_ ) ) } @$v;
+                map { _escape( $_ ) } @$v;
         }
 
         # assuming the same 'q' for quoted-printable
         elsif ( $self->is_type('q') or $self->is_type('quoted-printable') ) {
 
             # have to reimplement the m:qp line wrap >:|
-            my $enc
-                = MIME::QuotedPrint::encode( Encode::encode( $charset, $v ),
-                '' );
+            my $enc = MIME::QuotedPrint::encode( $v, '' );
 
             # 74 because minus initial space and terminal =
             my @lines;
@@ -486,7 +480,7 @@ sub _value_as_string {
             }
             $data = join "\x0d\x0a", @lines;
         } else {
-            $data = _escape( Encode::encode( $charset, $v ) );
+            $data = _escape( $v );
         }
         push @fields, $data;
     }
@@ -516,9 +510,9 @@ sub _fold {
 }
 
 sub as_string {
-    my ( $self, $charset ) = @_;
-    my $key = $self->_key_as_string($charset);
-    my $val = $self->_value_as_string( $charset, $key );
+    my ( $self ) = @_;
+    my $key = $self->_key_as_string();
+    my $val = $self->_value_as_string($key);
     return _fold("$key:$val");
 }
 
