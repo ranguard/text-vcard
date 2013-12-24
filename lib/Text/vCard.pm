@@ -38,7 +38,7 @@ my @default_field = qw(value);
 
 # Generate all our simple methods
 @simple
-    = qw(FN BDAY MAILER TZ TITLE ROLE NOTE PRODID REV SORT-STRING UID URL CLASS FULLNAME BIRTHDAY TZ NAME EMAIL NICKNAME PHOTO);
+    = qw(FN BDAY MAILER TZ TITLE ROLE NOTE PRODID REV SORT-STRING UID URL CLASS FULLNAME BIRTHDAY TIMEZONE NAME EMAIL NICKNAME PHOTO);
 
 # Now we want lowercase as well
 map { push( @simple, lc($_) ) } @simple;
