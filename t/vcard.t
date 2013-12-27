@@ -6,8 +6,7 @@ use Path::Class;
 use vCard;
 
 my $tmp_file = Directory::Scratch->new->touch('.simple.vcf');
-my $vcard    = vCard->new;
-$vcard->load_hashref( hashref() );
+my $vcard    = vCard->new->load_hashref( hashref() );
 
 is $vcard->as_string, expected_vcard(), "as_string()";
 
