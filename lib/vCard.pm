@@ -1,8 +1,8 @@
 package vCard;
-
 use Moo;
-use Text::vCard;
+
 use Path::Class;
+use Text::vCard;
 
 =head1 SYNOPSIS
 
@@ -59,7 +59,7 @@ L<vCard::AddressBook> and then come back to this module.
 
 =cut
 
-has _data => ( is => 'rw' );
+has _data => ( is => 'rw', default => sub { {} } );
 
 =head2 load_hashref($hashref)
 
@@ -121,12 +121,14 @@ sub as_string {
     return $vcard->as_string;
 }
 
+sub _simple_node_types {
+    qw/fullname title photo birthday timezone/;
+}
+
 sub _build_simple_nodes {
     my ( $self, $vcard, $data ) = @_;
 
-    my @simple_node_types = qw/fullname title photo birthday timezone/;
-
-    foreach my $node_type (@simple_node_types) {
+    foreach my $node_type ( $self->_simple_node_types ) {
         next unless $data->{$node_type};
         $vcard->$node_type( $data->{$node_type} );
     }
@@ -230,6 +232,21 @@ sub as_file {
     $file->spew( $self->as_string );
 
     return $file;
+}
+
+sub fullname        { shift->setget( 'fullname',        @_ ) }
+sub title           { shift->setget( 'title',           @_ ) }
+sub photo           { shift->setget( 'photo',           @_ ) }
+sub birthday        { shift->setget( 'birthday',        @_ ) }
+sub timezone        { shift->setget( 'timezone',        @_ ) }
+sub phones          { shift->setget( 'phones',          @_ ) }
+sub addresses       { shift->setget( 'addresses',       @_ ) }
+sub email_addresses { shift->setget( 'email_addresses', @_ ) }
+
+sub setget {
+    my ( $self, $attr, $value ) = @_;
+    $self->_data->{$attr} = $value if $value;
+    return $self->_data->{$attr};
 }
 
 1;

@@ -6,13 +6,29 @@ use Path::Class;
 use vCard;
 
 my $tmp_file = Directory::Scratch->new->touch('.simple.vcf');
-my $vcard    = vCard->new->load_hashref( hashref() );
+my $hashref  = hashref();
+my $vcard    = vCard->new->load_hashref($hashref);
 
-is $vcard->as_string, expected_vcard(), "as_string()";
+subtest 'output methods' => sub {
+    is $vcard->as_string, expected_vcard(), "as_string()";
+    is $vcard->as_file($tmp_file)->stringify, "$tmp_file", "as_file()";
+    is scalar $tmp_file->slurp, expected_vcard(), "file contents ok";
+};
 
-is $vcard->as_file($tmp_file)->stringify, $tmp_file->stringify, "as_file()";
+subtest 'simple getters' => sub {
+    foreach my $node_type ( vCard->_simple_node_types ) {
+        is $vcard->$node_type, $hashref->{$node_type}, $node_type;
+    }
+};
 
-is scalar $tmp_file->slurp, expected_vcard(), "file contents ok";
+subtest 'complex getters' => sub {
+    is $vcard->phones->[0]->{type},    'work',        'work phone';
+    is $vcard->phones->[1]->{type},    'cell',        'cell phone';
+    is $vcard->addresses->[0]->{city}, 'Desert Base', 'work address';
+    is $vcard->addresses->[1]->{city}, 'Desert Base', 'home address';
+    is $vcard->email_addresses->[0]->{type}, 'work', 'work email address';
+    is $vcard->email_addresses->[1]->{type}, 'home', 'home email address';
+};
 
 done_testing;
 
