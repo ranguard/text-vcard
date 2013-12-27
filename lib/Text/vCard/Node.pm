@@ -125,8 +125,11 @@ sub new {
             # Store the actual data into the object
 
             if ( $self->is_type('q') or $self->is_type('quoted-printable') ) {
-                $conf->{'data'}->{'value'}
-                    = MIME::QuotedPrint::decode( $conf->{data}{value} );
+
+                my $original_string = $conf->{data}{value};
+                my $utf8_string = MIME::QuotedPrint::decode($original_string);
+                $conf->{'data'}->{'value'} = decode( 'utf-8', $utf8_string );
+
             }
 
             # do this first
@@ -371,8 +374,7 @@ back out to ensure that it has not been altered.
 sub export_data {
     my $self  = shift;
     my @lines = map {
-        if ( defined $self->{$_} )
-        {
+        if ( defined $self->{$_} ) {
             if ( ref( $self->{$_} ) eq 'ARRAY' ) {
 
                 # Handle things like org etc which have 'units'
