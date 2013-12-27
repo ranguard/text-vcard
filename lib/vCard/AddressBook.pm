@@ -170,4 +170,27 @@ sub _copy_email_addresses {
     $vcard->email_addresses( \@email_addresses );
 }
 
+sub as_file {
+    my ( $self, $filename ) = @_;
+
+    my $file = ref $filename eq 'Path::Class::File'              #
+        ? $filename
+        : file($filename);
+
+    $file->spew( $self->as_string );
+
+    return $file;
+}
+
+sub as_string {
+    my ($self) = @_;
+
+    my $string;
+    foreach my $vcard ( @{ $self->vcards } ) {
+        $string .= $vcard->as_string;
+    }
+
+    return $string;
+}
+
 1;

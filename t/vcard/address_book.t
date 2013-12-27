@@ -69,6 +69,9 @@ subtest 'load_file()' => sub {
 
 $address_book->load_string( scalar $in_file->slurp );
 
+#$address_book->as_file('boop.vcf');
+#$address_book->as_string('boop.vcf');
+
 is scalar @{ $address_book->vcards }, 5, 'created the right number of vcards';
 is ref $_, 'vCard', 'object reference' for @{ $address_book->vcards };
 
