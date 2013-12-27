@@ -11,8 +11,6 @@ use Path::Class;
     # create the object
     my $vcard = vCard->new;
 
-    # if you want to parse vcard data from a file see L<vCard::AddressBook>
-
     # there are 3 ways to load vcard data in one fell swoop 
     # (see method documentation for details)
     $vcard->load_file($filename); 
@@ -31,45 +29,19 @@ use Path::Class;
     $vcard->title('Research Scientist');
     $vcard->photo('http://example.com/bbanner.gif');
 
-    # phones setter example
+    # complex getters/setters
     $vcard->phones({
-        work => { number => '651-290-1234', preferred => 1 },
-        cell => { number => '651-290-1111' }
+        { type => 'work', number => '651-290-1234', preferred => 1 },
+        { type => 'home', number => '651-290-1111' }
     });
-
-    # phones getter example
-    if (my $work_phone = $vcard->phones->work) {
-        $work_phone->number();
-    }
-    $vcard->phones->work->number();
-    $vcard->phones->work->preferred();
-
-    # addresses setter example
     $vcard->addresses({
-        work => { street => 'Main St' },
-        home => { street => 'Army St' },
+        { type => 'work', street => 'Main St' },
+        { type => 'home', street => 'Army St' },
     });
-
-    # addresses getter example
-    $vcard->addresses->work->po_box();
-    $vcard->addresses->work->extended();
-    $vcard->addresses->work->street();
-    $vcard->addresses->work->city();
-    $vcard->addresses->work->region();
-    $vcard->addresses->work->post_code();
-    $vcard->addresses->work->country();
-    $vcard->addresses->work->preferred();
-
-    # email setter example
-    $vcard->email({
-        work => { address => 'bbanner@ssh.secret.army.mil' },
-        home => { address => 'bbanner@timewarner.com'      },
+    $vcard->email_addresses({
+        { type => 'work', address => 'bbanner@ssh.secret.army.mil' },
+        { type => 'home', address => 'bbanner@timewarner.com'      },
     });
-
-    # email getter examples
-    $vcard->email->work->address();
-    $vcard->email->home->address();
-    $vcard->email->home->preferred();
 
 
 =head1 DESCRIPTION
