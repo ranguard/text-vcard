@@ -1,5 +1,4 @@
 package vCard::AddressBook;
-use feature qw/say/;
 use Moo;
 use vCard;
 use Path::Class;
@@ -57,7 +56,25 @@ sub add_vcard {
 sub load_file {
     my ( $self, $filename ) = @_;
 
-    my $cards = $self->_parse_file($filename);
+    my $file = ref $filename eq 'Path::Class::File'    #
+        ? $filename
+        : file($filename);
+
+    $self->load_string( scalar $file->slurp );
+
+    return $self;
+}
+
+sub load_string {
+    my ( $self, $string ) = @_;
+    $self->_create_vcards($string);
+    return $self;
+}
+
+sub _create_vcards {
+    my ( $self, $string ) = @_;
+
+    my $cards = $self->_parse_string($string);
 
     foreach my $card (@$cards) {
         carp "This file contains $card->{'type'} data which was not parsed"
@@ -74,21 +91,17 @@ sub load_file {
 
         push @{ $self->vcards }, $vcard;
     }
-
-    return $self;
 }
 
-sub _parse_file {
-    my ( $self, $filename ) = @_;
+sub _parse_string {
+    my ( $self, $string ) = @_;
 
-    my $file = ref $filename eq 'Path::Class::File'    #
-        ? $filename
-        : file($filename);
+    my @lines = split /\n/, $string;
 
     my $asData = Text::vFile::asData->new;
     $asData->preserve_params(1);
 
-    return $asData->parse_lines( $file->slurp )->{'objects'};
+    return $asData->parse_lines(@lines)->{'objects'};
 }
 
 sub _copy_simple_nodes {
@@ -96,7 +109,6 @@ sub _copy_simple_nodes {
 
     foreach my $node_type ( vCard->_simple_node_types ) {
         next unless $text_vcard->$node_type;
-        say $node_type;
         $vcard->$node_type( $text_vcard->$node_type );
     }
 }

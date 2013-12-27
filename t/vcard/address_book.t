@@ -65,10 +65,11 @@ subtest 'load_file()' => sub {
     ##    }
     ##    ],
     ##    'email_addresses()';
-
 };
 
-is scalar @{ $address_book->vcards }, 4, 'created the right number of vcards';
+$address_book->load_string( scalar $in_file->slurp );
+
+is scalar @{ $address_book->vcards }, 5, 'created the right number of vcards';
 is ref $_, 'vCard', 'object reference' for @{ $address_book->vcards };
 
 done_testing;
