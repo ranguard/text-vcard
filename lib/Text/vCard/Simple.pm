@@ -2,23 +2,27 @@ package Text::vCard::Simple;
 
 use Moo;
 use Text::vCard;
+use Path::Class;
 
 =head1 SYNOPSIS
 
-    use Text::vCard::Simple;
+    use vCard;
 
     # create the object
-    my $vcard = Text::vCard::Simple->new;
+    my $vcard = vCard->new;
 
-    # there are 3 ways to load vcard data
-    $vcard->load_file($filename);
-    $vcard->load_string($string);
+    # if you want to parse vcard data from a file see L<vCard::AddressBook>
+
+    # there are 3 ways to load vcard data in one fell swoop 
+    # (see method documentation for details)
+    $vcard->load_file($filename); 
+    $vcard->load_string($string); 
     $vcard->load_hashref($hashref); 
 
     # there are 3 ways to output data in vcard format
-    $vcard->write_file($filename); # save it to a file
-    say $vcard->as_string;         # return as a string
-    say "$vcard";                  # overloaded as a string
+    my $file   = $vcard->as_file($filename); # writes to $filename
+    my $string = $vcard->as_string;          # returns a string
+    print "$vcard";                          # overloaded as a string
 
     # simple getters/setters
     $vcard->fullname('Bruce Banner, PhD');
@@ -70,9 +74,14 @@ use Text::vCard;
 
 =head1 DESCRIPTION
 
-This module is built on top of Text::vCard.  It is a more intuitive and easy to
-use user interface.  
+A vCard is a digital business card.  vCard and vCard::AddressBook provide an
+API for parsing, editing, and creating vCards.
 
+This module is built on top of Text::vCard.  It provides a more intuitive user
+interface.  
+
+To handle an address book with several vCard entries in it, start with
+L<vCard::AddressBook> and then come back to this module.
 
 =head1 METHODS
 
@@ -229,6 +238,26 @@ sub _build_email_address_nodes {
             }
         );
     }
+}
+
+=head2 as_file($filename)
+
+Write data in vCard format to $filename.
+
+Returns a Path::Class::File if successful.  Dies if not successful.
+
+=cut
+
+sub as_file {
+    my ( $self, $filename ) = @_;
+
+    my $file = ref $filename eq 'Path::Class::File'    #
+        ? $filename
+        : file($filename);
+
+    $file->spew( $self->as_string );
+
+    return $file;
 }
 
 1;
