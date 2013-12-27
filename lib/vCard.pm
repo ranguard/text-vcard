@@ -1,4 +1,4 @@
-package Text::vCard::Simple;
+package vCard;
 
 use Moo;
 use Text::vCard;

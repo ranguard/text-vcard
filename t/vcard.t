@@ -3,10 +3,10 @@ use Test::Most;
 use Encode;
 use Directory::Scratch;
 use Path::Class;
-use Text::vCard::Simple;
+use vCard;
 
 my $tmp_file = Directory::Scratch->new->touch('.simple.vcf');
-my $vcard    = Text::vCard::Simple->new;
+my $vcard    = vCard->new;
 $vcard->load_hashref( hashref() );
 
 is $vcard->as_string, expected_vcard(), "as_string()";
