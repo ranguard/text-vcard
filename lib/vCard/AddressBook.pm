@@ -148,9 +148,6 @@ sub _copy_email_addresses {
     my $nodes = $text_vcard->get('email') || [];
 
     foreach my $node (@$nodes) {
-        say "hiiiiiiiiiiiiiiiiiiiiiiiiii";
-        use DDP;
-        p $node;
         my $email_address;
         $email_address->{type}       = $node->types()->[0];      # FIXME
         $email_address->{preference} = $node->is_pref ? 1 : 0;
