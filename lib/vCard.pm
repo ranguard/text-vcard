@@ -3,6 +3,7 @@ use Moo;
 
 use Path::Class;
 use Text::vCard;
+use vCard::AddressBook;
 
 =head1 SYNOPSIS
 
@@ -96,6 +97,30 @@ sub load_hashref {
     my ( $self, $hashref ) = @_;
     $self->_data($hashref);
     return $self;
+}
+
+=head2 load_file($filename)
+
+Returns $self in case you feel like chaining.
+
+=cut
+
+sub load_file {
+    my ( $self, $filename ) = @_;
+    my $address_book = vCard::AddressBook->new->load_file($filename);
+    return $address_book->vcards->[0];
+}
+
+=head2 load_string($string)
+
+Returns $self in case you feel like chaining.
+
+=cut
+
+sub load_string {
+    my ( $self, $string ) = @_;
+    my $address_book = vCard::AddressBook->new->load_string($string);
+    return $address_book->vcards->[0];
 }
 
 =head2 as_string()

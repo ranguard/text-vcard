@@ -30,6 +30,24 @@ subtest 'complex getters' => sub {
     is $vcard->email_addresses->[1]->{type}, 'home', 'home email address';
 };
 
+subtest 'load_file()' => sub {
+    my $vcard2 = vCard->new->load_file($tmp_file);
+    is ref $vcard2, 'vCard', 'object type is good';
+    foreach my $node_type ( vCard->_simple_node_types ) {
+        next if $node_type eq 'fullname';
+        is $vcard2->$node_type, $hashref->{$node_type}, $node_type;
+    }
+};
+
+subtest 'load_string()' => sub {
+    my $vcard3 = vCard->new->load_string( scalar $tmp_file->slurp );
+    is ref $vcard3, 'vCard', 'object type is good';
+    foreach my $node_type ( vCard->_simple_node_types ) {
+        next if $node_type eq 'fullname';
+        is $vcard3->$node_type, $hashref->{$node_type}, $node_type;
+    }
+};
+
 done_testing;
 
 sub expected_vcard {
