@@ -52,7 +52,7 @@ done_testing;
 # everything below this line is test data
 
 sub expected_phones {
-    [   { type => 'home', number => '651-290-1234', preference => 0 },
+    [   { type => 'work', number => '651-290-1234', preference => 0 },
         { type => 'cell', number => '651-290-1111', preference => 0 }
     ];
 }
