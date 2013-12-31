@@ -5,7 +5,7 @@ use Directory::Scratch;
 use Path::Class;
 use vCard::AddressBook;
 
-my $in_file      = file('t/vcard.vcf');
+my $in_file      = file('t/complete.vcf');
 my $out_file     = Directory::Scratch->new->touch('.vcard.out.vcf');
 my $address_book = vCard::AddressBook->new;
 
