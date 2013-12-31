@@ -40,6 +40,12 @@ API for parsing, editing, and creating vCards.
 This module is built on top of Text::vCard and provides a more intuitive user
 interface.  
 
+
+=head1 ENCODING ISSUES
+
+TODO
+
+
 =head1 METHODS
 
 =cut

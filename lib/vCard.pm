@@ -56,6 +56,12 @@ interface.
 To handle an address book with several vCard entries in it, start with
 L<vCard::AddressBook> and then come back to this module.
 
+
+=head1 ENCODING ISSUES
+
+TODO
+
+
 =head1 METHODS
 
 =cut
