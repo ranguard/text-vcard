@@ -6,7 +6,7 @@ use Path::Class;
 use vCard::AddressBook;
 
 my $in_file      = file('t/vcard.vcf');
-my $out_file     = file('t/.vcard.out.vcf');
+my $out_file     = Directory::Scratch->new->touch('.vcard.out.vcf');
 my $address_book = vCard::AddressBook->new;
 
 # TODO: get rid of the undef tests by loading a vcf which tests every field
@@ -49,8 +49,6 @@ subtest 'output address book' => sub {
 };
 
 done_testing;
-
-END { unlink $out_file if -e "$out_file" }
 
 # everything below this line is test data
 
