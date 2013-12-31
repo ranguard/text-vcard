@@ -9,7 +9,6 @@ my $in_file      = file('t/vcard.vcf');
 my $out_file     = Directory::Scratch->new->touch('.vcard.out.vcf');
 my $address_book = vCard::AddressBook->new;
 
-# TODO: get rid of the undef tests by loading a vcf which tests every field
 subtest 'load an address book' => sub {
     note 'add_vcard()';
     $address_book->add_vcard;
