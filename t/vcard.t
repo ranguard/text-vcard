@@ -50,6 +50,8 @@ subtest 'load_string()' => sub {
 
 done_testing;
 
+# everything below this line is test data
+
 sub expected_vcard {
     return <<EOF
 BEGIN:VCARD\r
