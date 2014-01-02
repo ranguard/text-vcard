@@ -222,7 +222,7 @@ sub types {
     my $self = shift;
     my @types;
     return undef unless defined $self->{params};
-    foreach my $key ( %{ $self->{params} } ) {
+    foreach my $key ( sort keys %{ $self->{params} } ) {
         my $value = $self->{params}->{$key};
         push @types, $key if $value && $value eq 'type';
     }
