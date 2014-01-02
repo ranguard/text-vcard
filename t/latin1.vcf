@@ -1,7 +1,7 @@
 BEGIN:VCARD
 FN:Bruce Banner\, PhD
 ADR;TYPE=home:;;Main St;Desert Base;New Mexico;55416;USA
-ADR;TYPE=work:;;部队街;Desert Base;New Mexico;55416;USA
+ADR;TYPE=work:;;Army St;Desert Base;New Mexico;55416;USA
 BDAY:19700414
 EMAIL;PREF=1;TYPE=work:bbanner.work@example.com
 EMAIL;TYPE=home:bbanner.home@example.com

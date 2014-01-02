@@ -39,7 +39,7 @@ my $adbk = Text::vCard::Addressbook->new( { source_file => "t/notes.vcf" } );
 my $vcards = $adbk->vcards();
 my $note   = $vcards->[0]->note;
 is( $note,
-    '@prefix nasty <note>\; with \; added into it and\n@prefix del: \n"\; ]]\;\n]\;\n.',
+    '@prefix nasty <note>; with ; added into it and\n@prefix del: \n"; ]];\n];\n.',
     'Got note ok'
 );
 

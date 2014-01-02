@@ -16,28 +16,26 @@ Text::vCard::Addressbook - a package to parse, edit and create multiple vCards (
 
 =head1 SYNOPSIS
 
-To read an existing file:
-
   use Text::vCard::Addressbook;
 
-  my $address_book = Text::vCard::Addressbook->new(
-      { 'source_file' => '/path/to/address.vcf', } );
+  # To read an existing address book file:
+
+  my $address_book = Text::vCard::Addressbook->new({ 
+    'source_file'  => '/path/to/address_book.vcf', 
+  });
 
   foreach my $vcard ( $address_book->vcards() ) {
       print "Got card for " . $vcard->fullname() . "\n";
   }
 
-
-To create a new file:
-
-  use Text::vCard::Addressbook;
+  # To create a new address book file:
 
   my $address_book = Text::vCard::Addressbook->new();
   my $vcard        = $ab->add_vcard;
   $vcard->fullname('Foo Bar');
   $vcard->EMAIL('foo@bar.com');
 
-  open my $out, '>', 'address.vcf' or die;
+  open my $out, '>', 'new_address_book.vcf' or die;
   print $out $address_book->export;
 
 =head1 DESCRIPTION
@@ -49,29 +47,46 @@ been developed based on rfc2426.
 You will find that many applications (Apple Address book, MS Outlook,
 Evolution etc) can export and import vCards. 
 
-=head1 READING IN VCARDS
+=head1 ENCODING AND UTF8
 
+The 'encoding_in' and 'encoding_out' constructor arguments allow you to read
+and create vCard files with any encoding.  However note that the latest vCard
+RFCs only allow UTF-8. However the RFC still permits 8bit MIME encoding schemes
+such as Quoted-Printable and Base64 which are supported by this module.
+
+If you wish to use a Quoted-Printable schema 'encoding_out' must have
+a value of 'UTF-8'.
+
+'encoding_out' and 'encoding_in' can also be set to 'none' to skip
+encoding/decoding.
+
+Note that if you manually set values on a Text::vCard or Text::vCard::Node
+object those strings must be decoded.  The only exception to this rule is if
+you are messing around with the 'encoding_out' constructor arg.
+
+=head1 METHODS
 
 =head2 load()
 
-  use Text::vCard::Addressbook;
-
-  # Read in from a list of files
-  my $address_book
-      = Text::vCard::Addressbook->load( [ 'foo.vCard', 'Addresses.vcf' ] );
+  my $address_book = Text::vCard::Addressbook->load( 
+    [ 'foo.vCard', 'Addresses.vcf' ],  # list of files to load
+    $constructor_args                  # optional see new()
+  );
 
 This method will croak if it is unable to read in any of the files.
 
 =cut
 
 sub load {
-    my ( $proto, $files ) = @_;
+    my ( $proto, $files, $constructor_args ) = @_;
 
-    my $self = __PACKAGE__->new();
+    my $self = __PACKAGE__->new($constructor_args);
+
+    my %encoding = $self->_slurp_encoding;
 
     foreach my $file ( @{$files} ) {
         croak "Unable to read file $file" unless -r $file;
-        $self->import_data( scalar read_file($file) );
+        $self->import_data( scalar read_file( $file, %encoding ) );
     }
 
     return $self;
@@ -93,29 +108,27 @@ sub import_data {
 }
 
 =head2 new()
-  
-  # Read in from just one file
-  my $address_book = Text::vCard::Addressbook->new(
-      { 'source_file' => '/path/to/address.vcf', } );
 
-
-This method will croak if it is unable to read in the source_file.
-
-  # File already in a string
-  my $address_book
-      = Text::vCard::Addressbook->new( { 'source_text' => $source_text, } );
-
-
-  # Create a new address book
+  # Create a new (empty) address book
   my $address_book = Text::vCard::Addressbook->new();
-
-Looping through all vcards in an address book.
   
-  foreach my $vcard ( $address_book->vcards() ) {
-      $vcard->...;
-  }
+  # Load vcards from a single file
+  my $address_book = Text::vCard::Addressbook->new({ 
+    source_file => '/path/to/address_book.vcf'
+  });
 
-  
+  # Load vcards from a a string
+  my $address_book = Text::vCard::Addressbook->new({ 
+    source_text => $source_text
+  });
+
+This method will croak if it is unable to read the source_file.
+
+The constructor accepts 'encoding_in' and 'encoding_out' attributes.  The
+default values for both are 'UTF-8'.  You can set them to 'none' if
+you don't want your output encoded with Encode::encode().  But be aware the
+latest vcard RFC mandates utf-8.
+
 =cut
 
 sub new {
@@ -123,19 +136,22 @@ sub new {
     my $class = ref($proto) || $proto;
     my $self = {};
 
-    if ( defined $conf->{'source_file'} ) {
-
-        # Need to read in source file
-        croak "Unable to read file $conf->{'source_file'}\n"
-            unless -r $conf->{'source_file'};
-        $conf->{'source_text'} = read_file( $conf->{'source_file'} );
-    }
+    bless( $self, $class );
 
     # create some where to store out individual vCard objects
-    my @cards;
-    $self->{'cards'} = \@cards;
+    $self->{'cards'} = [];
+    $self->{encoding_in}  = $conf->{encoding_in}  || 'UTF-8';
+    $self->{encoding_out} = $conf->{encoding_out} || 'UTF-8';
 
-    bless( $self, $class );
+    # slurp in file contents
+    if ( defined $conf->{'source_file'} ) {
+
+        croak "Unable to read file $conf->{'source_file'}\n"
+            unless -r $conf->{'source_file'};
+
+        $conf->{'source_text'}
+            = read_file( $conf->{'source_file'}, $self->_slurp_encoding );
+    }
 
     # Process the text if we have it.
     $self->_process_text( $conf->{'source_text'} )
@@ -156,8 +172,8 @@ address book and return it so you can add data to it.
 =cut
 
 sub add_vcard {
-    my $self  = shift;
-    my $vcard = Text::vCard->new();
+    my $self = shift;
+    my $vcard = Text::vCard->new( { encoding_out => $self->{encoding_out} } );
     push( @{ $self->{cards} }, $vcard );
     return $vcard;
 }
@@ -180,10 +196,7 @@ sub vcards {
 
 =head2 set_encoding()
 
-  $address_book->set_encoding('utf-8');
-
-This method will add the string ';charset=utf-8' to each and 
-every vCard entry. That does help in connection with e.g. an iPhone...
+DEPRECATED.  Use the 'encoding_in' and 'encoding_out' constructor arguments.
 
 =cut
 
@@ -192,6 +205,8 @@ sub set_encoding {
     $self->{'encoding'} |= '';
     $self->{'encoding'} = ";charset=$coding" if ( defined $coding );
     return $self->{'encoding'};
+    die "DEPRECATED.  Use the 'encoding_in' and 'encoding_out'"
+        . " constructor arguments";
 }
 
 =head2 export()
@@ -210,37 +225,23 @@ at the moment.
 =cut
 
 sub export {
-    my $self = shift;
-    my @lines;
-    foreach my $vcard ( $self->vcards() ) {
-        push @lines, 'BEGIN:VCARD';
-        while ( my ( $node_type, $nodes ) = each %{ $vcard->{nodes} } ) {
-
-            # Make sure all the nodes values are up to date
-            my @export_nodes;
-            foreach my $node ( @{$nodes} ) {
-                my $name = $node_type;
-                if ( $node->group() ) {
-
-                    # Add the group in to the name
-                    $name = $node->group() . '.' . $node_type;
-                }
-
-                my $param;
-                $param = join( ',', ( $node->types() ) ) if $node->types();
-                $name .= $self->set_encoding();
-                $name .= ";TYPE=$param" if $param;
-                push( @lines, "$name:" . $node->export_data );
-            }
-        }
-        push @lines, 'END:VCARD';
-    }
-    my $vcf_file = join( "\r\n", @lines );
-    $vcf_file .= "\r\n" if $vcf_file;
-    return $vcf_file;
+    my $self   = shift;
+    my $string = '';
+    $string .= $_->as_string for $self->vcards;
+    return $string;
 }
 
 # PRIVATE METHODS
+
+# PerlIO layers should look like ':encoding(UTF-8)'
+# The ':encoding()' part does character set and encoding transformations.
+# Without it you are just declaring the stream to be of a certain encoding.
+# See PerlIO, PerlIO::encoding docs.
+sub _slurp_encoding {
+    my ($self) = @_;
+    return () if $self->{encoding_in} eq 'none';
+    return ( binmode => ':encoding(' . $self->{encoding_in} . ')' );
+}
 
 # Process a chunk of text, create Text::vCard objects and store in the address book
 sub _process_text {
@@ -304,7 +305,11 @@ sub _process_text {
         # Run through each card in the data
         if ( $card->{'type'} =~ /VCARD/i ) {
             my $vcard = Text::vCard->new(
-                { 'asData_node' => $card->{'properties'}, } );
+                {   'asData_node' => $card->{'properties'},
+                    encoding_in   => $self->{encoding_in},
+                    encoding_out  => $self->{encoding_out}
+                }
+            );
             push( @{ $self->{'cards'} }, $vcard );
         } else {
             carp

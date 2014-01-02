@@ -125,6 +125,8 @@ sub new {
 
     bless( $self, $class );
 
+    $self->{encoding_out} = $conf->{encoding_out} || 'UTF-8';
+
     my %nodes;
     $self->{nodes} = \%nodes;
 
@@ -498,26 +500,29 @@ Returns the vCard as a string.
 =cut
 
 sub as_string {
-    my ( $self, $fields, $charset ) = @_;
+    my ( $self, $fields ) = @_;
 
     # derp
     my %e = map { lc $_ => 1 } @{ $fields || [] };
 
     my @k = qw(VERSION N FN);
     if ($fields) {
-        push @k, map { uc $_ } @$fields;
+        push @k, sort map { uc $_ } @$fields;
     } else {
-        push @k, grep { defined $_ and $_ ne '' and $_ !~ /^(VERSION|N|FN)$/ }
-            map { uc $_ } keys %{ $self->{nodes} };
+        push @k, grep { $_ !~ /^(VERSION|N|FN)$/ }
+            sort map { uc $_ } keys %{ $self->{nodes} };
     }
 
-    my @lines = qw(BEGIN:VCARD);
+    my $begin   = $self->_encode_string('BEGIN:VCARD');
+    my $end     = $self->_encode_string('END:VCARD');
+    my $newline = $self->_encode_string("\r\n");
+
+    my @lines = ($begin);
     for my $k (@k) {
-        next unless $k;
-        next unless my $nodes = $self->get($k);
-        push @lines, map { $_->as_string($charset) } @{$nodes};
+        my $nodes = $self->get($k);
+        push @lines, map { $_->as_string() } @$nodes;
     }
-    return join "\x0d\x0a", @lines, 'END:VCARD', '';
+    return join $newline, @lines, $end, '';
 }
 
 sub _sort_prefs {
@@ -527,6 +532,12 @@ sub _sort_prefs {
     } else {
         return 0;
     }
+}
+
+sub _encode_string {
+    my ( $self, $string ) = @_;
+    return $string if $self->{encoding_out} eq 'none';
+    return Encode::encode( $self->{encoding_out}, $string );
 }
 
 # Private method for adding nodes
@@ -559,10 +570,11 @@ sub _add_node {
     my $last_node;
     foreach my $node_data ( @{ $conf->{data} } ) {
         my $node_obj = Text::vCard::Node->new(
-            {   node_type => $node_type,
-                fields    => $field_list,
-                data      => $node_data,
-                group     => $conf->{group} || '',
+            {   node_type    => $node_type,
+                fields       => $field_list,
+                data         => $node_data,
+                group        => $conf->{group} || '',
+                encoding_out => $self->{encoding_out},
             }
         );
 
