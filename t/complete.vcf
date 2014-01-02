@@ -4,7 +4,7 @@ TITLE:Research Scientist
 ADR;TYPE=WORK:;;部队街;Desert Base;New Mexico;55416;USA
 ADR;TYPE=HOME:;;Main St;Desert Base;New Mexico;55416;USA
 TEL;PREF=1;TYPE=WORK:651-290-1234
-TEL;TYPE=CELL:651-290-1111
+TEL;TYPE=CELL;TYPE=text:651-290-1111
 TZ:UTC-7
 PHOTO:http://shh.supersecret.army.mil/bbanner.gif
 EMAIL;PREF=1;TYPE=WORK:bbanner.work@example.com
