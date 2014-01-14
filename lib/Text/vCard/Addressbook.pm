@@ -31,46 +31,70 @@ Text::vCard::Addressbook - a package to parse, edit and create multiple vCards (
   # To create a new address book file:
 
   my $address_book = Text::vCard::Addressbook->new();
-  my $vcard        = $ab->add_vcard;
+  my $vcard        = $address_book->add_vcard;
   $vcard->fullname('Foo Bar');
   $vcard->EMAIL('foo@bar.com');
 
+  # note that you should NOT use ':encoding(UTF-8)' when writing to a file
+  # because the result of $address_book->export is already utf-8 encoded.  See
+  # the ENCODING AND UTF-8 for more information.
   open my $out, '>', 'new_address_book.vcf' or die;
   print $out $address_book->export;
 
+
 =head1 DESCRIPTION
 
-This package provides an API to reading / editing and creating
-multiple vCards. A vCard is an electronic business card. This package has
-been developed based on rfc2426.
+This package provides an API to reading / editing and creating multiple vCards.
+A vCard is an electronic business card. This package has been developed based
+on rfc2426.
 
-You will find that many applications (Apple Address book, MS Outlook,
-Evolution etc) can export and import vCards. 
+You will find that many applications (Apple Address book, MS Outlook, Evolution
+etc) can export and import vCards. 
 
-=head1 ENCODING AND UTF8
+
+=head1 ENCODING AND UTF-8
+
+=head2 Constructor Arguments
 
 The 'encoding_in' and 'encoding_out' constructor arguments allow you to read
-and create vCard files with any encoding.  However note that the latest vCard
-RFCs only allow UTF-8. However the RFC still permits 8bit MIME encoding schemes
-such as Quoted-Printable and Base64 which are supported by this module.
+and create vCard files with any encoding.  Examples of valid values are
+'UTF-8', 'Latin1', and 'none'.  
 
-If you wish to use a Quoted-Printable schema 'encoding_out' must have
-a value of 'UTF-8'.
+Both values default to 'UTF-8' and this should just work for the vast majority
+of people.  The latest vCard RFC 6350 only allows UTF-8 as an encoding so most
+people should not need to use either of these constructor arguments.
 
-'encoding_out' and 'encoding_in' can also be set to 'none' to skip
-encoding/decoding.
+=head2 MIME encodings
 
-Note that if you manually set values on a Text::vCard or Text::vCard::Node
-object those strings must be decoded.  The only exception to this rule is if
-you are messing around with the 'encoding_out' constructor arg.
+vCard RFC 6350 only allows UTF-8 but it still permits 8bit MIME encoding
+schemes such as Quoted-Printable and Base64 which are supported by this module.
 
-=head1 METHODS
+If you wish to use a Quoted-Printable value 'encoding_out' must have a value of
+'UTF-8'.
+
+=head2 Manually setting values on a Text::vCard or Text::vCard::Node object
+
+If you manually set values on a Text::vCard or Text::vCard::Node object they
+must be decoded.  The only exception to this rule is if you are messing around
+with the 'encoding_out' constructor arg.
+
+=head2 Exporting your address book
+
+The export() method will by default return a UTF-8 encoded string.  This means
+you should use something like this:
+
+  open $fh, '>', '/path/to/new/address_book.vcf' or die;
+
+and NOT something like this:
+
+  open $fh, '>:encoding(UTF-8)', '/path/to/new/address_book.vcf' or die;
+
+=head1 METHODS FOR LOADING VCARDS
 
 =head2 load()
 
   my $address_book = Text::vCard::Addressbook->load( 
     [ 'foo.vCard', 'Addresses.vcf' ],  # list of files to load
-    $constructor_args                  # optional see new()
   );
 
 This method will croak if it is unable to read in any of the files.
@@ -95,9 +119,10 @@ sub load {
 
 =head2 import_data()
 
-  $address_book->import_data($value);
+  $address_book->import_data($string);
 
-This method imports data directly from a string.
+This method imports data directly from a string.  $string is assumed to be
+decoded.
 
 =cut
 
@@ -127,7 +152,7 @@ This method will croak if it is unable to read the source_file.
 The constructor accepts 'encoding_in' and 'encoding_out' attributes.  The
 default values for both are 'UTF-8'.  You can set them to 'none' if
 you don't want your output encoded with Encode::encode().  But be aware the
-latest vcard RFC mandates utf-8.
+latest vcard RFC (RFC6350) mandates utf-8.
 
 =cut
 
@@ -160,7 +185,7 @@ sub new {
     return $self;
 }
 
-=head1 METHODS
+=head1 OTHER METHODS
 
 =head2 add_vcard()
 
@@ -211,16 +236,15 @@ sub set_encoding {
 
 =head2 export()
 
-  my $vcf_file = $address_book->export()
+  my $string = $address_book->export()
 
-This method returns the vcard data in the vcf file format.
+This method returns the vcard data as a string in the vcf file format.  By
+default the string returned is UTF-8 encoded.  See the ENCODING AND UTF-8
+section for more information.
 
-Please note there is no validation, you must ensure
-that the correct nodes (FN,N,VERSION) are already added
-to each vcard if you want to comply with RFC 2426.
-
-This might not escape the results correctly
-at the moment.
+Please note there is no validation, you must ensure that the correct nodes
+(FN,N,VERSION) are already added to each vcard if you want to comply with 
+RFC 2426.
 
 =cut
 
