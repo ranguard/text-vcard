@@ -6,6 +6,8 @@ use Carp;
 use Encode;
 use MIME::Base64 3.07;
 use MIME::QuotedPrint 3.07;
+use Unicode::LineBreak;
+use Text::Wrap;
 use vars qw ( $AUTOLOAD );
 
 =head1 NAME
@@ -73,6 +75,8 @@ sub new {
 
     bless( $self, $class );
 
+    $self->{encoding_out} = $conf->{encoding_out} || 'UTF-8';
+
     $self->{node_type} = uc( $conf->{node_type} )
         if defined $conf->{node_type};
     $self->group( $conf->{group} ) if defined $conf->{group};
@@ -126,18 +130,24 @@ sub new {
 
             if ( $self->is_type('q') or $self->is_type('quoted-printable') ) {
 
-                my $original_string = $conf->{data}{value};
-                my $utf8_string = MIME::QuotedPrint::decode($original_string);
-                $conf->{'data'}->{'value'} = decode( 'utf-8', $utf8_string );
-
+                my $value          = $conf->{data}{value};
+                my $mime_decoded   = MIME::QuotedPrint::decode($value);
+                my $encode_decoded = Encode::decode( 'UTF-8', $mime_decoded );
+                my $unescaped      = $self->_unescape($encode_decoded);
+                $conf->{'data'}->{'value'} = $unescaped;
             }
 
-            # do this first
             if ( $self->is_type('b') or $self->is_type('base64') ) {
 
-                # XXX apparently it's possible to get 'b' for 'base64'
-                $conf->{data}{value}
-                    = MIME::Base64::decode( $conf->{data}{value} );
+                # Don't Encode::decode() $mime_decoded because it is usually
+                # (99% of the time) a binary value like a photo and not a
+                # string.
+                #
+                # Also do not escape binary values.
+
+                my $value        = $conf->{data}{value};
+                my $mime_decoded = MIME::Base64::decode($value);
+                $conf->{data}{value} = $mime_decoded;
 
                 # mimic what goes on below
                 @{$self}{ @{ $self->{field_order} } }
@@ -150,17 +160,19 @@ sub new {
                 if ( defined $self->{node_type}
                     && $self->{node_type} eq 'ORG' )
                 {
-                    # cover ORG where unit is a list
-                    $self->{'name'} = shift(@elements);
-                    $self->{'unit'} = \@elements if scalar(@elements) > 0;
+                    my @unescaped = $self->_unescape_list(@elements);
+
+                    $self->{'name'} = shift(@unescaped);
+                    $self->{'unit'} = \@unescaped if scalar(@unescaped) > 0;
                 }
 
                 # no need for explicit scalar
                 elsif ( @elements <= @{ $self->{field_order} } ) {
+                    my @unescaped = $self->_unescape_list(@elements);
 
                     # set the field values as the data
                     # e.g. $self->{street} = 'The street'
-                    @{$self}{ @{ $self->{field_order} } } = @elements;
+                    @{$self}{ @{ $self->{field_order} } } = @unescaped;
                 } else {
                     carp sprintf(
                         'Data value had %d elements expecting %d or less.',
@@ -172,6 +184,17 @@ sub new {
         }
     }
     return $self;
+}
+
+sub _unescape {
+    my ( $self, $value ) = @_;
+    $value =~ s|\\([\\,;])|$1|g;
+    return $value;
+}
+
+sub _unescape_list {
+    my ( $self, @values ) = @_;
+    return map { $self->_unescape($_) } @values;
 }
 
 =head2 node_type
@@ -224,7 +247,7 @@ sub types {
     return undef unless defined $self->{params};
     foreach my $key ( sort keys %{ $self->{params} } ) {
         my $value = $self->{params}->{$key};
-        push @types, $key if $value && $value eq 'type';
+        push @types, lc $key if $value && $value eq 'type';
     }
     return wantarray ? @types : \@types;
 }
@@ -366,6 +389,8 @@ sub group {
 
 =head2 export_data()
 
+NOTE: This method is deprecated and should not be used
+
   my $value = $node->export_data();
 
 This method returns the value string of a node.
@@ -403,127 +428,268 @@ Returns the node as a formatted string.
 =cut
 
 sub _key_as_string {
-    my ( $self, $charset ) = @_;
+    my ($self) = @_;
+
+    my $n = '';
+    $n .= $self->group . '.' if $self->group;
+    $n .= $self->node_type;
+    $n .= $self->_params     if $self->_params;
+
+    return $n;
+}
+
+# returns a string of params formatted for saving to a vcard file
+# returns false if there are no params
+sub _params {
+    my ($self) = @_;
+
     my %t;
-    for my $t ( $self->types ) {
-        my $backwards = uc $self->is_type($t);
+    for my $t ( sort keys %{ $self->{params} } ) {
+        my $backwards = uc $self->is_type( lc $t );
         $t{$backwards} ||= [];
-        push @{ $t{$backwards} }, uc $t;
+        push @{ $t{$backwards} }, lc $t;
     }
 
-    # override charset
-    $t{CHARSET} = [$charset] if $charset;
+    $t{CHARSET} = [ lc $self->{encoding_out} ]
+        if $self->{encoding_out} ne 'none'
+        && $self->{encoding_out} ne 'UTF-8'
+        && !$self->is_type('b')
+        && !$self->is_type('base64');
 
-    # you know it would probably make sense to do some Encode stuff,
-    # plus qp/base64 logic here.
-    my $n
-        = $self->group
-        ? sprintf( '%s.%s', $self->group, $self->node_type )
-        : $self->node_type;
-    return join ';', $n,
-        map { sprintf( '%s=%s', $_, join ',', @{ $t{$_} } ) } sort keys %t;
+    my @params = map { sprintf( '%s=%s', $_, join ',', @{ $t{$_} } ) }    #
+        sort keys %t;
+
+    return @params ? ';' . join( ';', @params ) : undef;
 }
 
+# The vCard RFC requires commas, semicolons, and backslashes to be escaped.
+# See http://tools.ietf.org/search/rfc6350#section-3.4
+#
+# Line breaks which are part of a value and are intended to be seen by humans
+# must have a value of '\n'.
+# See http://tools.ietf.org/search/rfc6350#section-4.1
+#
+# Line breaks which happen because the RFC requires a line break after 75
+# characters have a value of '\r\n'.  These line breaks are not handled by
+# this method.  See _newline() and
+# http://tools.ietf.org/search/rfc6350#section-3.2
+#
+# Don't escape anything if this is a base64 node.  Escaping only applies to
+# strings not binary values.
 sub _escape {
-    my $val = shift;
-
-    # cover all the bases
-    my %esc = ( "\x0a" => 'n', "\x0d" => 'n', "\x0d\x0a" => 'n' );
-    $val =~ s/([\\;,]|\x0d?\x0a|\x0d)/sprintf("\\%s", $esc{$1}||$1)/ge;
-    $val;
+    my ( $self, $val ) = @_;
+    return $val if ( $self->is_type('b') or $self->is_type('base64') );
+    $val =~ s/(\r\n|\r|\n)/\n/g;
+    $val =~ s/([,;|])/\\$1/g;
+    return $val;
 }
 
-sub _value_as_string {
-    my ( $self, $charset, $key ) = @_;
-    $charset ||= 'utf-8';
-    my @fields;
-    for my $f ( @{ $self->{field_order} } ) {
-        next unless defined( my $v = $self->{$f} );
-        my $data = '';
-        if ( ref $v eq 'ARRAY' ) {
-            $data = join ',',
-                map { _escape( Encode::encode( $charset, $_ ) ) } @$v;
-        }
+sub _escape_list {
+    my ( $self, @list ) = @_;
+    return map { $self->_escape($_) } @list;
+}
 
-        # assuming the same 'q' for quoted-printable
-        elsif ( $self->is_type('q') or $self->is_type('quoted-printable') ) {
+# The vCard RFC says new lines must be \r\n
+# See http://tools.ietf.org/search/rfc6350#section-3.2
+sub _newline {
+    my ($self) = @_;
+    return "\r\n" if $self->{encoding_out} eq 'none';
+    return Encode::encode( $self->{encoding_out}, "\r\n" );
+}
 
-            # have to reimplement the m:qp line wrap >:|
-            my $enc
-                = MIME::QuotedPrint::encode( Encode::encode( $charset, $v ),
-                '' );
+sub _encode_string {
+    my ( $self, $string ) = @_;
+    return $string if $self->{encoding_out} eq 'none';
+    return Encode::encode( $self->{encoding_out}, $string );
+}
 
-            # 74 because minus initial space and terminal =
-            my @lines;
-            my $step = 74 - length $key;    # 75 - key + :
-            my ( $i, $len ) = ( 0, length $enc );
-            while ( $i <= $len ) {
+sub _encode_list {
+    my ( $self, @list ) = @_;
+    return @list if $self->{encoding_out} eq 'none';
+    return map { $self->_encode_string($_) } @list;
+}
 
-                # special case if step is initially negative, i.e. if
-                # the key is longer than 76 chars
-                if ( $step < 0 ) {
-                    $step = 74;
-                    $data = "=\x0d\x0a ";
-                }
+# The vCard RFC says lines should be wrapped (or 'folded') at 75 octets
+# excluding the line break.  The line is continued on the next line with a
+# space as the first character. See
+# http://tools.ietf.org/search/rfc6350#section-3.1 for details.
+#
+# Note than an octet is 1 byte (8 bits) and is not necessarily equal to 1
+# character, 1 grapheme, 1 codepoint, or 1 column of output.  Actually none of
+# those things are necessarily equal.  See
+# http://www.perl.com/pub/2012/05/perlunicook-string-length-in-graphemes.html
+#
+# MIME::QuotedPrint does line wrapping but it assumes the line length must be
+# <= 76 chars which doesn't work for us.
+#
+# Can't use Unicode::LineBreak because it wraps by counting characters and the
+# vCard spec wants us to wrap by counting octets.
+sub _wrap {
+    my ( $self, $key, $value ) = @_;
 
-                my $line = substr( $enc, $i, $step );
-                my ( $a, $b ) = ( $line =~ /(.*?)(=[0-9A-Fa-f]?)$/ );
-                $line = $a if defined $a;
-                push @lines, $line if length $line;
+    #PHOTO;ENCODING=b;TYPE=x-evolution-unknown:R0lGODlhlgAyALMPAAAAAP9BAP////9
+    return $self->_wrap_naively( $key, $value )
+        unless $self->{encoding_out} eq 'UTF-8';
 
-                # this says increase the step minus a partial escaped
-                # character
-                $i += $step - length( $b || 0 );
-
-                # from now own, step is 74
-                $step = 74;
-            }
-            $data .= join "=\x0d\x0a ", @lines;
-        } elsif ( $self->is_type('b') or $self->is_type('base64') ) {
-
-            # also this. it would be nice to be able to set the width
-            # in a parameter.
-            my $enc = MIME::Base64::encode( $v, '' );
-            my @lines = '';
-            for ( my $i = 0; $i <= length $enc; $i += 72 ) {
-                push @lines, ' ' . substr( $enc, $i, 72 );
-            }
-            $data = join "\x0d\x0a", @lines;
-        } else {
-            $data = _escape( Encode::encode( $charset, $v ) );
-        }
-        push @fields, $data;
+    if ( $self->is_type('q') or $self->is_type('quoted-printable') ) {
+        ## See the Quoted-Printable RFC205
+        ## https://tools.ietf.org/html/rfc2045#section-6.7 (rule 5)
+        my $newline
+            = $self->_encode_string("=")
+            . $self->_newline
+            . $self->_encode_string(" ");
+        my $max
+            = 73; # 75 octets per line max including '=' and ' ' from $newline
+        return $self->_wrap_utf8( $key, $value, $max, $newline );
     }
 
-    join ';', @fields;
+    my $newline = $self->_newline . $self->_encode_string(" ");
+    my $max = 74;    # 75 octets per line max including " " from $newline
+    return $self->_wrap_utf8( $key, $value, $max, $newline );
 }
 
-sub _fold {
-    my $str = shift;
+sub _wrap_utf8 {
+    my ( $self, $key, $value, $max, $newline ) = @_;
 
-    # already folded
-    return $str if $str =~ /\x0d?\x0a/;
+    my $gcs = Unicode::GCString->new( $key . $value );
+    return $key . $value if $gcs->length <= $max;
 
-    my @lines;
-    my ( $i, $len, $step ) = ( 0, length $str, 76 );
-    while ( $i <= $len ) {
-        my $line = substr( $str, $i, $step );
-        push @lines, $line;
+    my $start = 0;
+    my @wrapped_lines;
 
-        # increment the position
-        $i += $step;
+    # first line is 1 character longer than the others because it doesn't
+    # begin with a " "
+    my $first_max = $max + 1;
 
-        # step is 75 from now on
-        $step = 75;
+    #use v5.10.1;
+    #say "length: " . $gcs->length;
+
+    while ( $start <= $gcs->length ) {
+        my $len = 1;
+
+        #say $start;
+
+        while ( ( $start + $len ) <= $gcs->length ) {
+
+            my $line = $gcs->substr( $start, $len );
+            my $bytes = bytes::length( $line->as_string );
+
+            #say "len: $len    bytes: " . $bytes;
+
+            # is this a good place to line wrap?
+            if ( $first_max && $bytes <= $first_max ) {
+                ## no its not a good place to line wrap
+                ## this if statement is only hit on the first line wrap
+                $len++;
+                next;
+            }
+            if ( $bytes <= $max ) {
+                ## no its not a good place to line wrap
+                $len++;
+                next;
+            }
+
+            # wrap the line here
+            $line = $gcs->substr( $start, $len - 1 )->as_string;
+            push @wrapped_lines, $line;
+            $start += $len - 1;
+            last;
+        }
+
+        if ( ( $start + $len - 1 ) >= $gcs->length ) {
+            my $line = $gcs->substr( $start, $len - 1 )->as_string;
+            push @wrapped_lines, $line;
+            last;
+        }
+
+        #say ">> start: $start,  len: $len,  length: " . $gcs->length;
+        $first_max = undef;
     }
-    join "\x0d\x0a ", @lines;
+
+    return join $newline, @wrapped_lines;
 }
 
+# BUG: This will fail to line wrap properly for wide characters.  The problem
+# is it naively wraps lines by counting the number of characters but the vcard
+# spec wants us to wrap after 75 octets (bytes).  However clever vCard readers
+# may be able to deal with this.
+sub _wrap_naively {
+    my ( $self, $key, $value ) = @_;
+
+    $Text::Wrap::columns   = 75;                 # wrap after 75 chars
+    $Text::Wrap::break     = qr/[.]/;            # allow lines breaks anywhere
+    $Text::Wrap::separator = $self->_newline;    # use encoded new lines
+
+    my $first_prefix = $key;    # this text is placed before first line
+    my $prefix       = " ";     # this text is placed before all other lines
+    return Text::Wrap::wrap( $first_prefix, $prefix, $value );
+}
+
+sub _mime_encode {
+    my ( $self, $value ) = @_;
+
+    if ( $self->is_type('q') or $self->is_type('quoted-printable') ) {
+
+        # Encode with Encode::encode()
+        my $encoded_value = $self->_encode_string($value);
+        return MIME::QuotedPrint::encode( $encoded_value, '' );
+
+    } elsif ( $self->is_type('b') or $self->is_type('base64') ) {
+
+        # Scenarios where MIME::Base64::encode() works:
+        #  - for binary data (photo) -- 99% of cases
+        #  - if $value is a string with wide characters and the user has
+        #    encoded it as UTF-8.
+        #  - if $value is a string with no wide characters
+        #
+        # Scenario where MIME::Base64::encode() will die:
+        #  - if $value is a string with wide characters and the user has not
+        #    encoded it as UTF-8.
+        return MIME::Base64::encode( $value, '' );
+
+    } else {
+        $value = $self->_encode_string($value);
+    }
+
+    return $value;
+}
+
+# This method does the following:
+# 1. Escape and concatenate values
+# 2. Encode::encode() values
+# 3. MIME encode() values
+# 4. wrap lines to 75 octets
+#
+# assumes there is only ever one MIME::Quoted-Printable field.
+# assumes there is only ever one MIME::Base64 field.
+#
+# If either of the above assumptions is false, line wrapping may be incorrect.
+# However clever vCard readers may still be able to read vCards with incorrect
+# line wrapping.
 sub as_string {
-    my ( $self, $charset ) = @_;
-    my $key = $self->_key_as_string($charset);
-    my $val = $self->_value_as_string( $charset, $key );
-    return _fold("$key:$val");
+    my ($self) = @_;
+    my $key = $self->_key_as_string();
+
+    # Build up $raw_value from field values
+    my @field_values;
+    my $field_names = $self->{field_order};
+    foreach my $field_name (@$field_names) {
+        next unless defined( my $field_value = $self->{$field_name} );
+
+        # escape stuff
+        $field_value = ref $field_value eq 'ARRAY'    #
+            ? join( ';', $self->_escape_list(@$field_value) )
+            : $self->_escape($field_value);
+
+        push @field_values, $field_value;
+    }
+    my $raw_value = join ';', @field_values;
+
+    # MIME::*::encode() value
+    my $value = $self->_mime_encode($raw_value);
+
+    # Line wrap everything to 75 octets
+    return $self->_wrap( $key . ":", $value );
 }
 
 # Because we have autoload
