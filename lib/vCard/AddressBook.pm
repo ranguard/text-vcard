@@ -175,7 +175,7 @@ sub as_file {
         ? $filename
         : file($filename);
 
-    $file->spew( $self->as_string );
+    $file->spew( iomode => '>:encoding(UTF-8)', $self->as_string, );
 
     return $file;
 }

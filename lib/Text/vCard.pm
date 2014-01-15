@@ -513,9 +513,9 @@ sub as_string {
             sort map { uc $_ } keys %{ $self->{nodes} };
     }
 
-    my $begin   = $self->_encode_string('BEGIN:VCARD');
-    my $end     = $self->_encode_string('END:VCARD');
-    my $newline = $self->_encode_string("\r\n");
+    my $begin   = 'BEGIN:VCARD';
+    my $end     = 'END:VCARD';
+    my $newline = "\r\n";
 
     my @lines = ($begin);
     for my $k (@k) {
@@ -532,12 +532,6 @@ sub _sort_prefs {
     } else {
         return 0;
     }
-}
-
-sub _encode_string {
-    my ( $self, $string ) = @_;
-    return $string if $self->{encoding_out} eq 'none';
-    return Encode::encode( $self->{encoding_out}, $string );
 }
 
 # Private method for adding nodes

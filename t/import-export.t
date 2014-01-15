@@ -11,17 +11,13 @@ foreach my $filename (qw|complete.vcf quotedprintable.vcf|) {
     my $address_book = Text::vCard::Addressbook->load( [$in_file] );
     my $vcard = $address_book->vcards->[0];
 
-    # This returns a decoded value:
-    #    $file->slurp( iomode => ":encoding('UTF-8')" );
-    # This returns a utf-8 encoded value if the file is utf-8
-    #    $file->slurp();
-    # So $expected_content below is UTF-8 encoded
-    my $expected_content = $in_file->slurp();
+    # This returns UTF-8 decoded content
+    my $expected_content = $in_file->slurp( iomode => '<:encoding(UTF-8)' );
 
-    # This returns UTF-8 encoded content
+    # This returns UTF-8 decoded content
     my $actual_content = $vcard->as_string();
 
-    # These are comparing 2 things that are both UTF-8 encoded
+    # These are comparing 2 things that are both UTF-8 decoded
     is $actual_content, $expected_content, 'vCard->as_string()';
     is $address_book->export(), $actual_content, 'Addressbook->export()';
 }

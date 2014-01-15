@@ -12,7 +12,8 @@ my $vcard    = vCard->new->load_hashref($hashref);
 subtest 'output methods' => sub {
     is $vcard->as_string, expected_vcard(), "as_string()";
     is $vcard->as_file($tmp_file)->stringify, "$tmp_file", "as_file()";
-    is scalar $tmp_file->slurp, expected_vcard(), "file contents ok";
+    my $tmp_contents = $tmp_file->slurp( iomode => '<:encoding(UTF-8)' );
+    is $tmp_contents, expected_vcard(), "file contents ok";
 };
 
 subtest 'simple getters' => sub {
@@ -45,7 +46,8 @@ subtest 'load_file()' => sub {
 };
 
 subtest 'load_string()' => sub {
-    my $vcard3 = vCard->new->load_string( scalar $tmp_file->slurp );
+    my $tmp_contents = $tmp_file->slurp( iomode => '<:encoding(UTF-8)' );
+    my $vcard3 = vCard->new->load_string($tmp_contents);
     is ref $vcard3, 'vCard', 'object type is good';
     foreach my $node_type ( vCard->_simple_node_types ) {
         next if $node_type eq 'fullname';
@@ -58,7 +60,7 @@ done_testing;
 # everything below this line is test data
 
 sub expected_vcard {
-    return <<EOF
+    my $string = <<EOF;
 BEGIN:VCARD\r
 FN:Bruce Banner\\, PhD\r
 ADR;TYPE=work:;;部队街;Desert Base;New Mexico;55416;USA\r
@@ -73,6 +75,8 @@ TITLE:Research Scientist\r
 TZ:UTC-7\r
 END:VCARD\r
 EOF
+
+    return Encode::decode( 'UTF-8', $string );
 }
 
 sub hashref {

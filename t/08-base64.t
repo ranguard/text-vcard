@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use Test::More;
 use lib qw(./lib);
@@ -50,11 +50,10 @@ is $photo->value, $base64_image_decoded, 'compare decoded values';
 my $photo_value = MIME::Base64::encode( $photo->value );
 is $photo_value, $base64_image, 'compare encoded values';
 
-# $vcard->as_string returns a utf8 string.
-# slurp() returns a utf8 string if the file is utf8 encoded.
-# slurp() does not need an iomode attr because we don't want to decode the
-# content.
-my $original_vcard = file('t/base64.vcf')->slurp();
+# $vcard->as_string returns a decoded string.
+# slurp( iomode => '<:encoding(UTF-8)' ) returns a decoded string
+my $original_vcard
+    = file('t/base64.vcf')->slurp( iomode => '<:encoding(UTF-8)' );
 is $vcard->as_string, $original_vcard,
     'as_string() output is the same as the input';
 
