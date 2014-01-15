@@ -268,7 +268,7 @@ sub _slurp_encoding {
 }
 
 # Process a chunk of text, create Text::vCard objects and store in the address book
-sub _process_text {
+sub _pre_process_text {
     my ( $self, $text ) = @_;
 
     # As data may handle \r - must ask richard
@@ -323,8 +323,18 @@ sub _process_text {
     my $asData = Text::vFile::asData->new;
     $asData->preserve_params(1);
 
-    my $data = $asData->parse_lines( split( "\n", $text ) );
-    foreach my $card ( @{ $data->{'objects'} } ) {
+    # FIXME: whats up with the \n stuff???
+    my @lines = split "\n", $text;
+    return $asData->parse_lines(@lines)->{objects};
+
+}
+
+sub _process_text {
+    my ( $self, $text ) = @_;
+
+    my $cards = $self->_pre_process_text($text);
+
+    foreach my $card (@$cards) {
 
         # Run through each card in the data
         if ( $card->{'type'} =~ /VCARD/i ) {
@@ -341,6 +351,7 @@ sub _process_text {
         }
     }
 
+    return $self->{cards};
 }
 
 =head1 AUTHOR

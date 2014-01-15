@@ -4,6 +4,7 @@ use vCard;
 use Path::Class;
 use Carp;
 use Text::vCard;
+use Text::vCard::Addressbook;
 
 =head1 SYNOPSIS
 
@@ -66,7 +67,8 @@ sub load_file {
         ? $filename
         : file($filename);
 
-    $self->load_string( scalar $file->slurp );
+    $self->load_string(
+        scalar $file->slurp( iomode => '<:encoding(UTF-8)' ) );
 
     return $self;
 }
@@ -80,15 +82,16 @@ sub load_string {
 sub _create_vcards {
     my ( $self, $string ) = @_;
 
-    my $cards = $self->_parse_string($string);
+    my $text_addressbook = Text::vCard::Addressbook->new;
+    my $vcards_data      = $text_addressbook->_pre_process_text($string);
 
-    foreach my $card (@$cards) {
-        carp "This file contains $card->{'type'} data which was not parsed"
-            unless $card->{'type'} =~ /VCARD/i;
+    foreach my $vcard_data (@$vcards_data) {
+        carp "This file has $vcard_data->{type} data that was not parsed"
+            unless $vcard_data->{'type'} =~ /VCARD/i;
 
         my $vcard      = vCard->new;
         my $text_vcard = Text::vCard    #
-            ->new( { 'asData_node' => $card->{'properties'} } );
+            ->new( { 'asData_node' => $vcard_data->{'properties'} } );
 
         $self->_copy_simple_nodes( $text_vcard => $vcard );
         $self->_copy_phones( $text_vcard => $vcard );
@@ -97,17 +100,6 @@ sub _create_vcards {
 
         push @{ $self->vcards }, $vcard;
     }
-}
-
-sub _parse_string {
-    my ( $self, $string ) = @_;
-
-    my @lines = split /\n/, $string;
-
-    my $asData = Text::vFile::asData->new;
-    $asData->preserve_params(1);
-
-    return $asData->parse_lines(@lines)->{'objects'};
 }
 
 sub _copy_simple_nodes {
