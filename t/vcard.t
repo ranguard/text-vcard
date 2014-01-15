@@ -22,12 +22,17 @@ subtest 'simple getters' => sub {
 };
 
 subtest 'complex getters' => sub {
-    is $vcard->phones->[0]->{type},    'work',        'work phone';
-    is $vcard->phones->[1]->{type},    'cell',        'cell phone';
-    is $vcard->addresses->[0]->{city}, 'Desert Base', 'work address';
-    is $vcard->addresses->[1]->{city}, 'Desert Base', 'home address';
-    is $vcard->email_addresses->[0]->{type}, 'work', 'work email address';
-    is $vcard->email_addresses->[1]->{type}, 'home', 'home email address';
+    my $phones = $vcard->phones;
+    is_deeply $phones->[0]->{type}, ['work'], 'work phone';
+    is_deeply $phones->[1]->{type}, ['cell'], 'cell phone';
+
+    my $addresses = $vcard->addresses;
+    is $addresses->[0]->{city}, 'Desert Base', 'work address';
+    is $addresses->[1]->{city}, 'Desert Base', 'home address';
+
+    my $emails = $vcard->email_addresses;
+    is_deeply $emails->[0]->{type}, ['work'], 'work email address';
+    is_deeply $emails->[1]->{type}, ['home'], 'home email address';
 };
 
 subtest 'load_file()' => sub {
@@ -55,17 +60,17 @@ done_testing;
 sub expected_vcard {
     return <<EOF
 BEGIN:VCARD\r
-FN;=:Bruce Banner\\, PhD\r
-TITLE;=:Research Scientist\r
-ADR;TYPE=WORK:;;部队街;Desert Base;New Mexico;55416;USA\r
-ADR;TYPE=HOME:;;Main St;Desert Base;New Mexico;55416;USA\r
-TEL;PREF=1;TYPE=WORK:651-290-1234\r
-TEL;TYPE=CELL:651-290-1111\r
-TZ;=:UTC-7\r
-PHOTO;=:http://shh.supersecret.army.mil/bbanner.gif\r
-EMAIL;PREF=1;TYPE=WORK:bbanner.work\@example.com\r
-EMAIL;TYPE=HOME:bbanner.home\@example.com\r
-BDAY;=:19700414\r
+FN:Bruce Banner\\, PhD\r
+ADR;TYPE=work:;;部队街;Desert Base;New Mexico;55416;USA\r
+ADR;TYPE=home:;;Main St;Desert Base;New Mexico;55416;USA\r
+BDAY:19700414\r
+EMAIL;PREF=1;TYPE=work:bbanner.work\@example.com\r
+EMAIL;TYPE=home:bbanner.home\@example.com\r
+PHOTO:http://shh.supersecret.army.mil/bbanner.gif\r
+TEL;PREF=1;TYPE=work:651-290-1234\r
+TEL;TYPE=cell:651-290-1111\r
+TITLE:Research Scientist\r
+TZ:UTC-7\r
 END:VCARD\r
 EOF
 }
@@ -79,23 +84,23 @@ sub hashref {
         birthday    => '19700414',
         timezone    => 'UTC-7',
         phones      => [
-            {   type      => 'work',
+            {   type      => ['work'],
                 number    => '651-290-1234',
                 preferred => 1,
             },
-            {   type   => 'cell',
+            {   type   => ['cell'],
                 number => '651-290-1111'
             },
         ],
         addresses => [
-            {   type      => 'work',
+            {   type      => ['work'],
                 street    => decode( 'utf8', '部队街' ),
                 city      => 'Desert Base',
                 region    => 'New Mexico',
                 post_code => '55416',
                 country   => 'USA',
             },
-            {   type      => 'home',
+            {   type      => ['home'],
                 street    => 'Main St',
                 city      => 'Desert Base',
                 region    => 'New Mexico',
@@ -104,11 +109,11 @@ sub hashref {
             },
         ],
         email_addresses => [
-            {   type      => 'work',
+            {   type      => ['work'],
                 address   => 'bbanner.work@example.com',
                 preferred => 1
             },
-            {   type    => 'home',
+            {   type    => ['home'],
                 address => 'bbanner.home@example.com',
             },
         ],
