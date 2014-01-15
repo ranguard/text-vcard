@@ -281,20 +281,30 @@ sub is_type {
 =head2 is_pref();
 
   if ( $node->is_pref() ) {
-      print "Prefered node";
+      print "Preferred node";
   }
 
 This method is the same as is_type (which can take a value of 'pref')
-but it specific to if it is the prefered node. This method is used
+but it specific to if it is the preferred node. This method is used
 to sort when returning lists of nodes.
 
 =cut 
 
+# A preferred node can be indicated in a vcard file 2 ways:
+#
+# 1. As 'PREF=1' which makes $self->{params} look like:
+#   { 1 => 'pref', work => 'type' }
+#
+# 2. As 'TYPE=PREF' which makes $self->{params} look like:
+#   { pref => 'type', work => 'type' }
+#
 sub is_pref {
-    my $self = shift;
-    if (   defined $self->{params}
-        && defined $self->{params}->{1}
-        && $self->{params}->{1} eq 'pref' )
+    my $self   = shift;
+    my $params = $self->{params};
+    if (( defined $params ) &&    #
+        ( defined $params->{1} && $params->{1} eq 'pref' ) ||    #
+        ( defined $params->{pref} )
+        )
     {
         return 1;
     }
