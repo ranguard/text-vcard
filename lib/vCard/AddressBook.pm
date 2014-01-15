@@ -182,7 +182,7 @@ sub as_file {
 
 sub as_string {
     my ($self) = @_;
-    my $string;
+    my $string = '';
     $string .= $_->as_string for @{ $self->vcards };
     return $string;
 }
