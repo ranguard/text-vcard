@@ -47,10 +47,10 @@ use vCard::AddressBook;
 
 =head1 DESCRIPTION
 
-A vCard is a digital business card.  vCard and vCard::AddressBook provide an
+A vCard is a digital business card.  vCard and L<vCard::AddressBook> provide an
 API for parsing, editing, and creating vCards.
 
-This module is built on top of Text::vCard.  It provides a more intuitive user
+This module is built on top of L<Text::vCard>.  It provides a more intuitive user
 interface.  
 
 To handle an address book with several vCard entries in it, start with
@@ -252,7 +252,7 @@ sub _build_email_address_nodes {
 
 Write data in vCard format to $filename.
 
-Returns a Path::Class::File if successful.  Dies if not successful.
+Returns a L<Path::Class::File> object if successful.  Dies if not successful.
 
 =cut
 
@@ -282,5 +282,14 @@ sub setget {
     $self->_data->{$attr} = $value if $value;
     return $self->_data->{$attr};
 }
+
+=head1 AUTHOR
+
+Eric Johnson (kablamo), github ~!at!~ iijo dot org
+
+=head1 ACKNOWLEDGEMENTS
+
+Thanks to L<Foxtons|http://foxtons.co.uk> for making this module possible by
+donating a significant amount of developer time.
 
 1;

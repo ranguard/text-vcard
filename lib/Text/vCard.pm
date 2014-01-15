@@ -84,8 +84,8 @@ Text::vCard - a package to edit and create a single vCard (RFC 2426)
 
 =head1 WARNING
 
-To handle a whole addressbook with several vCard entries in it, you probably
-want to start with L<Text::vCard::Addressbook>, then this module.
+L<vCard> and L<vCard::AddressBook> are built on top of this module and provide
+a more intuitive user interface.  Please try those modules first.
 
 =head1 SYNOPSIS
 
@@ -583,10 +583,7 @@ sub _add_node {
 =head1 AUTHOR
 
 Leo Lapworth, LLAP@cuckoo.org
-
-=head1 BUGS
-
-None that I'm aware of - export may not encode correctly.
+Eric Johnson (kablamo), github ~!at!~ iijo dot org
 
 =head1 Repository (git)
 
@@ -600,7 +597,8 @@ it and/or modify it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-L<Text::vCard::Addressbook>, L<Text::vCard::Node>
+L<Text::vCard::Addressbook>, L<Text::vCard::Node>,
+L<vCard> L<vCard>, L<vCard::AddressBook> L<vCard::AddressBook>,
 
 =cut
 

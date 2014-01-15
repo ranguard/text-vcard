@@ -402,7 +402,8 @@ sub group {
 
 =head2 export_data()
 
-NOTE: This method is deprecated and should not be used
+NOTE: This method is deprecated and should not be used.  It will be removed in
+a later version.
 
   my $value = $node->export_data();
 
@@ -619,7 +620,7 @@ sub _wrap_utf8 {
     return join $newline, @wrapped_lines;
 }
 
-# BUG: This will fail to line wrap properly for wide characters.  The problem
+# This will fail to line wrap properly for wide characters.  The problem
 # is it naively wraps lines by counting the number of characters but the vcard
 # spec wants us to wrap after 75 octets (bytes).  However clever vCard readers
 # may be able to deal with this.
@@ -736,17 +737,16 @@ If a node has a param of 'quoted-printable' then the
 value is escaped (basically converting Hex return into \r\n
 as far as I can see).
 
-=head2 EXPORT
-
-None by default.
-
 =head1 AUTHOR
 
 Leo Lapworth, LLAP@cuckoo.org
+Eric Johnson (kablamo), github ~!at!~ iijo dot org
 
 =head1 SEE ALSO
 
-L<Text::vCard> L<Text::vCard::Addressbook>
+L<Text::vCard> L<Text::vCard::Addressbook>,
+L<vCard> L<vCard>,
+L<vCard::AddressBook> L<vCard::AddressBook>,
 
 =cut
 

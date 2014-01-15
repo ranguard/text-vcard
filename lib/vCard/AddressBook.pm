@@ -35,10 +35,10 @@ use Text::vCard::Addressbook;
 
 =head1 DESCRIPTION
 
-A vCard is a digital business card.  vCard and vCard::AddressBook provide an
+A vCard is a digital business card.  L<vCard> and vCard::AddressBook provide an
 API for parsing, editing, and creating vCards.
 
-This module is built on top of Text::vCard and provides a more intuitive user
+This module is built on top of L<Text::vCard> and provides a more intuitive user
 interface.  
 
 
@@ -186,5 +186,14 @@ sub as_string {
     $string .= $_->as_string for @{ $self->vcards };
     return $string;
 }
+
+=head1 AUTHOR
+
+Eric Johnson (kablamo), github ~!at!~ iijo dot org
+
+=head1 ACKNOWLEDGEMENTS
+
+Thanks to L<Foxtons|http://foxtons.co.uk> for making this module possible by
+donating a significant amount of developer time.
 
 1;
