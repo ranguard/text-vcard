@@ -167,6 +167,8 @@ sub _build_phone_nodes {
 
         # TODO: better error handling
         die "'number' attr missing from 'phones'" unless $phone->{number};
+        die "'type' attr in 'phones' should be an arrayref"
+            if ( $phone->{type} && ref( $phone->{type} ) ne 'ARRAY' );
 
         my $type      = $phone->{type} || [];
         my $preferred = $phone->{preferred};
@@ -188,6 +190,9 @@ sub _build_address_nodes {
     my ( $self, $vcard, $addresses ) = @_;
 
     foreach my $address (@$addresses) {
+
+        die "'type' attr in 'addresses' should be an arrayref"
+            if ( $address->{type} && ref( $address->{type} ) ne 'ARRAY' );
 
         my $type = $address->{type} || [];
         my $preferred = $address->{preferred};
@@ -221,6 +226,9 @@ sub _build_email_address_nodes {
         # TODO: better error handling
         die "'address' attr missing from 'email_addresses'"
             unless $email_address->{address};
+        die "'type' attr in 'email_addresses' should be an arrayref"
+            if ( $email_address->{type}
+            && ref( $email_address->{type} ) ne 'ARRAY' );
 
         my $type = $email_address->{type} || [];
         my $preferred = $email_address->{preferred};
