@@ -19,8 +19,8 @@ use Text::vCard::Addressbook;
     my $vcard = $adress_book->add_vcard; # returns a vCard object
     $vcard->fullname('Bruce Banner, PhD');
     $vcard->email_addresses([
-        { type => 'work', address => 'bbanner@ssh.secret.army.mil' },
-        { type => 'home', address => 'bbanner@timewarner.com'      },
+        { type => ['work'], address => 'bbanner@ssh.secret.army.mil' },
+        { type => ['home'], address => 'bbanner@timewarner.com'      },
     ]);
 
     # $address_book->vcards() returns a L<vCard> object
@@ -87,11 +87,11 @@ sub _create_vcards {
 
     foreach my $vcard_data (@$vcards_data) {
         carp "This file has $vcard_data->{type} data that was not parsed"
-            unless $vcard_data->{'type'} =~ /VCARD/i;
+            unless $vcard_data->{type} =~ /VCARD/i;
 
         my $vcard      = vCard->new;
         my $text_vcard = Text::vCard    #
-            ->new( { 'asData_node' => $vcard_data->{'properties'} } );
+            ->new( { asData_node => $vcard_data->{properties} } );
 
         $self->_copy_simple_nodes( $text_vcard => $vcard );
         $self->_copy_phones( $text_vcard => $vcard );
@@ -119,7 +119,7 @@ sub _copy_phones {
 
     foreach my $node (@$nodes) {
         my $phone;
-        $phone->{type}      = $node->types()->[0];      # FIXME
+        $phone->{type}      = scalar $node->types;
         $phone->{preferred} = $node->is_pref ? 1 : 0;
         $phone->{number}    = $node->value;
         push @phones, $phone;
@@ -136,7 +136,7 @@ sub _copy_addresses {
 
     foreach my $node (@$nodes) {
         my $address;
-        $address->{type}      = $node->types()->[0];         # FIXME
+        $address->{type}      = scalar $node->types;
         $address->{preferred} = $node->is_pref ? 1 : 0;
         $address->{po_box}    = $node->po_box || undef;
         $address->{street}    = $node->street || undef;
@@ -159,7 +159,7 @@ sub _copy_email_addresses {
 
     foreach my $node (@$nodes) {
         my $email_address;
-        $email_address->{type}      = $node->types()->[0];      # FIXME
+        $email_address->{type}      = scalar $node->types;
         $email_address->{preferred} = $node->is_pref ? 1 : 0;
         $email_address->{address}   = $node->value;
         push @email_addresses, $email_address;
@@ -171,7 +171,7 @@ sub _copy_email_addresses {
 sub as_file {
     my ( $self, $filename ) = @_;
 
-    my $file = ref $filename eq 'Path::Class::File'             #
+    my $file = ref $filename eq 'Path::Class::File'    #
         ? $filename
         : file($filename);
 

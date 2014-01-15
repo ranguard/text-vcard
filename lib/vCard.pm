@@ -32,16 +32,16 @@ use vCard::AddressBook;
 
     # complex getters/setters
     $vcard->phones({
-        { type => 'work', number => '651-290-1234', preferred => 1 },
-        { type => 'home', number => '651-290-1111' }
+        { type => ['work', 'text'], number => '651-290-1234', preferred => 1 },
+        { type => ['home'],         number => '651-290-1111' }
     });
     $vcard->addresses({
-        { type => 'work', street => 'Main St' },
-        { type => 'home', street => 'Army St' },
+        { type => ['work'], street => 'Main St' },
+        { type => ['home'], street => 'Army St' },
     });
     $vcard->email_addresses({
-        { type => 'work', address => 'bbanner@ssh.secret.army.mil' },
-        { type => 'home', address => 'bbanner@timewarner.com'      },
+        { type => ['work'], address => 'bbanner@ssh.secret.army.mil' },
+        { type => ['home'], address => 'bbanner@timewarner.com'      },
     });
 
 
@@ -72,28 +72,23 @@ has _data => ( is => 'rw', default => sub { {} } );
 
 $hashref looks like this:
 
-    fullname   => 'Bruce Banner, PhD',
+    fullname    => 'Bruce Banner, PhD',
     first_name  => 'Bruce',
-    family_name => 'Banner', # required
+    family_name => 'Banner',
     title       => 'Research Scientist',
     photo       => 'http://example.com/bbanner.gif',
-    phones      => {
-        {   type      => 'work',
-            number    => '651-290-1234',
-            preferred => 1,
-        },
-        {   type   => 'cell',
-            number => '651-290-1111'
-        },
+    phones      => [
+        { type => ['work'], number => '651-290-1234', preferred => 1 },
+        { type => ['cell'], number => '651-290-1111' },
     },
-    addresses => {
-        work => {  },
-        home => {  },
-    },
-    email_addresses => {
-        work => { address => 'bbanner@shh.secret.army.mil', preferred => 1 },
-        home => { address => 'bbanner@timewarner.com' },
-    },
+    addresses => [
+        { type => ['work'], ... },
+        { type => ['home'], ... },
+    ],
+    email_addresses => [
+        { type => ['work'], address => 'bbanner@shh.secret.army.mil' },
+        { type => ['home'], address => 'bbanner@timewarner.com' },
+    ],
 
 Returns $self in case you feel like chaining.
 
@@ -173,12 +168,12 @@ sub _build_phone_nodes {
         # TODO: better error handling
         die "'number' attr missing from 'phones'" unless $phone->{number};
 
-        my $type      = $phone->{type};
+        my $type      = $phone->{type} || [];
         my $preferred = $phone->{preferred};
         my $number    = $phone->{number};
 
         my $params = [];
-        push @$params, { type => $type }      if $type;
+        push @$params, { type => $_ } foreach @$type;
         push @$params, { pref => $preferred } if $preferred;
 
         $vcard->add_node(
@@ -194,11 +189,11 @@ sub _build_address_nodes {
 
     foreach my $address (@$addresses) {
 
-        my $type      = $address->{type};
+        my $type = $address->{type} || [];
         my $preferred = $address->{preferred};
 
         my $params = [];
-        push @$params, { type => $type }      if $type;
+        push @$params, { type => $_ } foreach @$type;
         push @$params, { pref => $preferred } if $preferred;
 
         my $value = join ';',
@@ -227,11 +222,11 @@ sub _build_email_address_nodes {
         die "'address' attr missing from 'email_addresses'"
             unless $email_address->{address};
 
-        my $type      = $email_address->{type};
+        my $type = $email_address->{type} || [];
         my $preferred = $email_address->{preferred};
 
         my $params = [];
-        push @$params, { type => $type }      if $type;
+        push @$params, { type => $_ } foreach @$type;
         push @$params, { pref => $preferred } if $preferred;
 
         # TODO: better error handling
