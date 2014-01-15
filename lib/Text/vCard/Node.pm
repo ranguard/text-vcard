@@ -292,7 +292,10 @@ to sort when returning lists of nodes.
 
 sub is_pref {
     my $self = shift;
-    if ( defined $self->{params} && defined $self->{params}->{'pref'} ) {
+    if (   defined $self->{params}
+        && defined $self->{params}->{1}
+        && $self->{params}->{1} eq 'pref' )
+    {
         return 1;
     }
     return undef;

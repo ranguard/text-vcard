@@ -119,9 +119,9 @@ sub _copy_phones {
 
     foreach my $node (@$nodes) {
         my $phone;
-        $phone->{type}       = $node->types()->[0];      # FIXME
-        $phone->{preference} = $node->is_pref ? 1 : 0;
-        $phone->{number}     = $node->value;
+        $phone->{type}      = $node->types()->[0];      # FIXME
+        $phone->{preferred} = $node->is_pref ? 1 : 0;
+        $phone->{number}    = $node->value;
         push @phones, $phone;
     }
 
@@ -136,15 +136,15 @@ sub _copy_addresses {
 
     foreach my $node (@$nodes) {
         my $address;
-        $address->{type}       = $node->types()->[0];         # FIXME
-        $address->{preference} = $node->is_pref ? 1 : 0;
-        $address->{po_box}     = $node->po_box || undef;
-        $address->{street}     = $node->street || undef;
-        $address->{city}       = $node->city || undef;
-        $address->{post_code}  = $node->post_code || undef;
-        $address->{region}     = $node->region || undef;
-        $address->{country}    = $node->country || undef;
-        $address->{extended}   = $node->extended || undef;
+        $address->{type}      = $node->types()->[0];         # FIXME
+        $address->{preferred} = $node->is_pref ? 1 : 0;
+        $address->{po_box}    = $node->po_box || undef;
+        $address->{street}    = $node->street || undef;
+        $address->{city}      = $node->city || undef;
+        $address->{post_code} = $node->post_code || undef;
+        $address->{region}    = $node->region || undef;
+        $address->{country}   = $node->country || undef;
+        $address->{extended}  = $node->extended || undef;
         push @addresses, $address;
     }
 
@@ -159,9 +159,9 @@ sub _copy_email_addresses {
 
     foreach my $node (@$nodes) {
         my $email_address;
-        $email_address->{type}       = $node->types()->[0];      # FIXME
-        $email_address->{preference} = $node->is_pref ? 1 : 0;
-        $email_address->{address}    = $node->value;
+        $email_address->{type}      = $node->types()->[0];      # FIXME
+        $email_address->{preferred} = $node->is_pref ? 1 : 0;
+        $email_address->{address}   = $node->value;
         push @email_addresses, $email_address;
     }
 
@@ -171,7 +171,7 @@ sub _copy_email_addresses {
 sub as_file {
     my ( $self, $filename ) = @_;
 
-    my $file = ref $filename eq 'Path::Class::File'              #
+    my $file = ref $filename eq 'Path::Class::File'             #
         ? $filename
         : file($filename);
 
@@ -182,12 +182,8 @@ sub as_file {
 
 sub as_string {
     my ($self) = @_;
-
     my $string;
-    foreach my $vcard ( @{ $self->vcards } ) {
-        $string .= $vcard->as_string;
-    }
-
+    $string .= $_->as_string for @{ $self->vcards };
     return $string;
 }
 

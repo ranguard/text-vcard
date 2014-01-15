@@ -249,8 +249,8 @@ RFC 2426.
 =cut
 
 sub export {
-    my $self   = shift;
-    my $string = '';
+    my $self = shift;
+    my $string;
     $string .= $_->as_string for $self->vcards;
     return $string;
 }
