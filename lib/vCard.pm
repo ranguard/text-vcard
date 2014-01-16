@@ -290,6 +290,63 @@ sub as_file {
     return $file;
 }
 
+=head1 SIMPLE GETTERS/SETTERS
+
+These methods accept and return strings.  
+
+The vCard RFC requires version, fullname.  This module does not check or warn
+if this condition has not been met.
+
+Note that fullname() is an entire name as the person would like to see it
+displayed.  
+
+=head2 version()
+
+=head2 fullname()
+
+=head2 title()
+
+=head2 photo()
+
+=head2 birthday()
+
+=head2 timezone()
+
+
+=head1 COMPLEX GETTERS/SETTERS
+
+These methods accept and return hashrefs.  Each method accepts 'type' (an
+arrayref) and 'preferred' (a boolean).  See the example below.
+
+=head2 phones()
+
+Accepts a hashref that looks like:
+
+  {
+    { type => ['work'], number => '651-290-1234', preferred => 1 },
+    { type => ['cell'], number => '651-290-1111' },
+  }
+
+=head2 addresses()
+
+Accepts a hashref that looks like:
+
+  {
+    { type => ['work'], street => 'Main St' },
+    { type => ['home'], street => 'Army St' },
+  }
+
+=head2 email_addresses()
+
+Accepts a hashref that looks like:
+
+  {
+    { type => ['work'], address => 'bbanner@ssh.secret.army.mil' },
+    { type => ['home'], address => 'bbanner@timewarner.com'      },
+  }
+
+=cut
+
 sub fullname        { shift->setget( 'fullname',        @_ ) }
 sub title           { shift->setget( 'title',           @_ ) }
 sub photo           { shift->setget( 'photo',           @_ ) }
