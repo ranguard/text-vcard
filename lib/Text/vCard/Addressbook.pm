@@ -258,49 +258,35 @@ sub _slurp_encoding {
 sub _pre_process_text {
     my ( $self, $text ) = @_;
 
-    # As data may handle \r - must ask richard
-    $text =~ s/\r//g;
-
     if ( $text =~ /quoted-printable/i ) {
 
-      # Edge case for 2.1 version
-      #
-      # http://tools.ietf.org/html/rfc2045#section-6.7 point (5),
-      # lines containing quoted-printable encoded data can contain soft-line
-      # breaks. These are indicated as single '=' sign at the end of the line.
-      #
-      # No longer needed in version 3.0:
-      # http://tools.ietf.org/html/rfc2426 point (5)
-
-        my $joinline = 0;
+        # Edge case for 2.1 version
+        #
+        # http://tools.ietf.org/html/rfc2045#section-6.7 point (5),
+        # lines containing quoted-printable encoded data can contain soft line
+        # breaks. These are indicated as single '=' sign at the end of the
+        # line.
+        #
+        # No longer needed in version 3.0:
+        # http://tools.ietf.org/html/rfc2426 point (5)
 
         my $out;
-        foreach my $line ( split( "\n", $text ) ) {
-            chomp($line);
+        my $inside = 0;
+        foreach my $line ( split( "\r\n", $text ) ) {
 
-            if ($joinline) {
+            if ($inside) {
                 if ( $line =~ /=$/ ) {
                     $line =~ s/=$//;
-                    $out .= $line;
                 } else {
-                    $joinline = 0;
-                    $out .= $line . "\n";
+                    $inside = 0;
                 }
-                next;
             }
 
-            # find continued QP lines - could be done better
-            if ( $line =~ /ENCODING=QUOTED-PRINTABLE/i && $line =~ /=$/ ) {
-
-                $joinline = 1;    # join lines...
-
+            if ( $line =~ /ENCODING=QUOTED-PRINTABLE/i ) {
+                $inside = 1;
                 $line =~ s/=$//;
-                $out .= $line;
-            } else {
-
-                # add regular line;
-                $out .= $line . "\n";
             }
+            $out .= $line . "\r\n";
         }
         $text = $out;
 
@@ -310,9 +296,9 @@ sub _pre_process_text {
     my $asData = Text::vFile::asData->new;
     $asData->preserve_params(1);
 
-    # FIXME: whats up with the \n stuff???
-    my @lines = split "\n", $text;
-    return $asData->parse_lines(@lines)->{objects};
+    my @lines = split "\r\n", $text;
+    my @lines_with_newlines = map { $_ . "\r\n" } @lines;
+    return $asData->parse_lines(@lines_with_newlines)->{objects};
 }
 
 sub _process_text {

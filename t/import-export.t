@@ -2,6 +2,10 @@ use Test::Most;
 use Text::vCard::Addressbook;
 use Path::Class;
 
+# This test makes sure that the files we export are the same as what we
+# imported.  This property is not true for every possible vcard, but it should
+# always be true for the vcards that are tested below.
+
 note "utf-8 encoded files";
 foreach my $filename (qw|complete.vcf quotedprintable.vcf|) {
     note "Importing $filename with Addressbook->load()";

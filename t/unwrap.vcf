@@ -1,0 +1,16 @@
+BEGIN:VCARD
+VERSION:2.1
+N;CHARSET=utf-8;ENCODING=quoted-printable:mynameisveryveryveryveryveryvery=
+ long
+FN:Bruce Banner\, PhD
+ADR;TYPE=home:;;Hover Valley Mountain Pass Road;Desert Base;New Mexico;5541
+ 6;USA
+BDAY:19700414
+EMAIL;PREF=1;TYPE=work:bbanner.work@example.com
+EMAIL;TYPE=home:bbanner.home@example.com
+PHOTO:http://shh.supersecret.army.mil/bbanner.gif
+TEL;PREF=1;TYPE=work:651-290-1234
+TEL;TYPE=cell,text:651-290-1111
+TITLE:Research Scientist
+TZ:UTC-7
+END:VCARD
