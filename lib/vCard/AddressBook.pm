@@ -21,7 +21,9 @@ vCard::AddressBook - read, write, and edit a multiple vCards
     $address_book->load_string($string);
 
     my $vcard = $adress_book->add_vcard; # returns a vCard object
-    $vcard->fullname('Bruce Banner, PhD');
+    $vcard->full_name('Bruce Banner, PhD');
+    $vcard->family_name('Banner');
+    $vcard->given_name('Bruce');
     $vcard->email_addresses([
         { type => ['work'], address => 'bbanner@ssh.secret.army.mil' },
         { type => ['home'], address => 'bbanner@timewarner.com'      },
@@ -29,7 +31,7 @@ vCard::AddressBook - read, write, and edit a multiple vCards
 
     # $address_book->vcards() returns a L<vCard> object
     foreach my $vcard ( $address_book->vcards() ) {
-        print $vcard->fullname() . "\n";
+        print $vcard->full_name() . "\n";
         print $vcard->email_addresses->[0]->{address} . "\n";
     }
 
@@ -63,11 +65,13 @@ so most people should not need to use either parameter.
 vCard RFC 6350 only allows UTF-8 but it still permits 8bit MIME encoding
 schemes such as Quoted-Printable and Base64 which are supported by this module.
 
-=head2 Manually setting values on a vCard object
+=head2 Getting and setting values on a vCard object
 
-If you manually set values on a vCard object they must be decoded values.  The
+If you set values on a vCard object they must be decoded values.  The
 only exception to this rule is if you are messing around with the
 'encoding_out' constructor arg.
+
+When you get values from a vCard object they will be decoded values.
 
 
 =head1 METHODS
@@ -119,10 +123,6 @@ sub load_file {
     return $self;
 }
 
-sub _slurp {
-    my ($self) = @_;
-}
-
 =head2 load_string($string)
 
 Load and parse the contents of $string.  This method assumes that $string is
@@ -161,6 +161,7 @@ sub _create_vcards {
         );
 
         $self->_copy_simple_nodes( $text_vcard => $vcard );
+        $self->_copy_name( $text_vcard => $vcard );
         $self->_copy_phones( $text_vcard => $vcard );
         $self->_copy_addresses( $text_vcard => $vcard );
         $self->_copy_email_addresses( $text_vcard => $vcard );
@@ -173,9 +174,26 @@ sub _copy_simple_nodes {
     my ( $self, $text_vcard, $vcard ) = @_;
 
     foreach my $node_type ( vCard->_simple_node_types ) {
-        next unless $text_vcard->$node_type;
-        $vcard->$node_type( $text_vcard->$node_type );
+        if ( $node_type eq 'full_name' ) {
+            next unless $text_vcard->fullname;
+            $vcard->full_name( $text_vcard->fullname );
+        } else {
+            next unless $text_vcard->$node_type;
+            $vcard->$node_type( $text_vcard->$node_type );
+        }
     }
+}
+
+sub _copy_name {
+    my ( $self, $text_vcard, $vcard ) = @_;
+
+    my ($node) = $text_vcard->get('n');
+
+    $vcard->family_names(       [ $node->family ] );
+    $vcard->given_names(        [ $node->given ] );
+    $vcard->other_names(        [ $node->middle ] );
+    $vcard->honorific_prefixes( [ $node->prefixes ] );
+    $vcard->honorific_suffixes( [ $node->suffixes ] );
 }
 
 sub _copy_phones {
@@ -249,9 +267,9 @@ sub as_file {
         ? $filename
         : file($filename);
 
-    my @iomode = $self->encoding_in eq 'none'          #
+    my @iomode = $self->encoding_out eq 'none'         #
         ? ()
-        : ( iomode => '<:encoding(' . $self->encoding_out . ')' );
+        : ( iomode => '>:encoding(' . $self->encoding_out . ')' );
 
     $file->spew( @iomode, $self->as_string, );
 

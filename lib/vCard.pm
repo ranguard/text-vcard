@@ -25,11 +25,10 @@ vCard - read, write, and edit a single vCard
     # there are 3 ways to output data in vcard format
     my $file   = $vcard->as_file($filename); # writes to $filename
     my $string = $vcard->as_string;          # returns a string
-    print "$vcard";                          # overloaded as a string
 
     # simple getters/setters
-    $vcard->fullname('Bruce Banner, PhD');
-    $vcard->first_name('Bruce');
+    $vcard->full_name('Bruce Banner, PhD');
+    $vcard->given_name('Bruce');
     $vcard->family_name('Banner');
     $vcard->title('Research Scientist');
     $vcard->photo('http://example.com/bbanner.gif');
@@ -60,6 +59,11 @@ interface.
 To handle an address book with several vCard entries in it, start with
 L<vCard::AddressBook> and then come back to this module.
 
+Note that the vCard RFC requires version() and full_name().  It also requires
+at least one of the following: family_name(), given_name(), other_names(),
+honorific_prefixes(), or honorific_suffixes().  This module does not check or
+warn if these conditions have not been met.
+
 
 =head1 ENCODING AND UTF-8
 
@@ -76,14 +80,14 @@ has _data        => ( is => 'rw', default => sub { {} } );
 
 =head2 load_hashref($hashref)
 
-$hashref looks like this:
+$hashref should look like this:
 
-    fullname    => 'Bruce Banner, PhD',
-    '<:encoding(' . first_name  => 'Bruce',
-    family_name => 'Banner',
-    title       => 'Research Scientist',
-    photo       => 'http://example.com/bbanner.gif',
-    phones      => [
+    full_name    => 'Bruce Banner, PhD',
+    given_names  => ['Bruce'],
+    family_names => ['Banner'],
+    title        => 'Research Scientist',
+    photo        => 'http://example.com/bbanner.gif',
+    phones       => [
         { type => ['work'], number => '651-290-1234', preferred => 1 },
         { type => ['cell'], number => '651-290-1111' },
     },
@@ -157,6 +161,7 @@ sub as_string {
     my $email_addresses = $self->_data->{email_addresses};
 
     $self->_build_simple_nodes( $vcard, $self->_data );
+    $self->_build_name_node( $vcard, $self->_data );
     $self->_build_phone_nodes( $vcard, $phones ) if $phones;
     $self->_build_address_nodes( $vcard, $addresses ) if $addresses;
     $self->_build_email_address_nodes( $vcard, $email_addresses )
@@ -166,16 +171,34 @@ sub as_string {
 }
 
 sub _simple_node_types {
-    qw/fullname title photo birthday timezone/;
+    qw/full_name title photo birthday timezone/;
 }
 
 sub _build_simple_nodes {
     my ( $self, $vcard, $data ) = @_;
 
     foreach my $node_type ( $self->_simple_node_types ) {
-        next unless $data->{$node_type};
-        $vcard->$node_type( $data->{$node_type} );
+        if ( $node_type eq 'full_name' ) {
+            next unless $data->{full_name};
+            $vcard->fullname( $data->{full_name} );
+        } else {
+            next unless $data->{$node_type};
+            $vcard->$node_type( $data->{$node_type} );
+        }
     }
+}
+
+sub _build_name_node {
+    my ( $self, $vcard, $data ) = @_;
+
+    my $value = join ',', @{ $data->{family_names} || [] };
+    $value .= ';' . join ',', @{ $data->{given_names}        || [] };
+    $value .= ';' . join ',', @{ $data->{other_names}        || [] };
+    $value .= ';' . join ',', @{ $data->{honorific_prefixes} || [] };
+    $value .= ';' . join ',', @{ $data->{honorific_suffixes} || [] };
+
+    $vcard->add_node( { node_type => 'N', data => [ { value => $value } ] } )
+        if $value ne ';;;;';
 }
 
 sub _build_phone_nodes {
@@ -281,9 +304,9 @@ sub as_file {
         ? $filename
         : file($filename);
 
-    my @iomode = $self->encoding_in eq 'none'          #
+    my @iomode = $self->encoding_out eq 'none'         #
         ? ()
-        : ( iomode => '<:encoding(' . $self->encoding_out . ')' );
+        : ( iomode => '>:encoding(' . $self->encoding_out . ')' );
 
     $file->spew( @iomode, $self->as_string, );
 
@@ -294,19 +317,21 @@ sub as_file {
 
 These methods accept and return strings.  
 
-The vCard RFC requires version, fullname.  This module does not check or warn
-if this condition has not been met.
-
-Note that fullname() is an entire name as the person would like to see it
-displayed.  
-
 =head2 version()
 
-=head2 fullname()
+Version number of the vcard.  Defaults to ???
+
+=head2 full_name()
+
+A person's entire name as they would like to see it displayed.  
 
 =head2 title()
 
+A person's position or job.
+
 =head2 photo()
+
+This should be a link. TODO: handle binary image
 
 =head2 birthday()
 
@@ -315,46 +340,71 @@ displayed.
 
 =head1 COMPLEX GETTERS/SETTERS
 
-These methods accept and return hashrefs.  Each method accepts 'type' (an
-arrayref) and 'preferred' (a boolean).  See the example below.
+These methods accept and return array references rather than simple strings.
+
+=head2 family_names()
+
+Accepts/returns an arrayref of family names (aka surnames).
+
+=head2 given_names()
+
+Accepts/returns an arrayref.
+
+=head2 other_names()
+
+Accepts/returns an arrayref of names which don't qualify as family_names or
+given_names.
+
+=head2 honorific_prefixes()
+
+Accepts/returns an arrayref.  eg C<[ 'Dr.' ]>
+
+=head2 honorific_suffixes()
+
+Accepts/returns an arrayref.  eg C<[ 'Jr.', 'MD' ]>
 
 =head2 phones()
 
-Accepts a hashref that looks like:
+Accepts/returns an arrayref that looks like:
 
-  {
+  [
     { type => ['work'], number => '651-290-1234', preferred => 1 },
     { type => ['cell'], number => '651-290-1111' },
-  }
+  ]
 
 =head2 addresses()
 
-Accepts a hashref that looks like:
+Accepts/returns an arrayref that looks like:
 
-  {
-    { type => ['work'], street => 'Main St' },
+  [
+    { type => ['work'], street => 'Main St', preferred => 1 },
     { type => ['home'], street => 'Army St' },
-  }
+  ]
 
 =head2 email_addresses()
 
-Accepts a hashref that looks like:
+Accepts/returns an arrayref that looks like:
 
-  {
+  [
     { type => ['work'], address => 'bbanner@ssh.secret.army.mil' },
-    { type => ['home'], address => 'bbanner@timewarner.com'      },
-  }
+    { type => ['home'], address => 'bbanner@timewarner.com', preferred => 1 },
+  ]
 
 =cut
 
-sub fullname        { shift->setget( 'fullname',        @_ ) }
-sub title           { shift->setget( 'title',           @_ ) }
-sub photo           { shift->setget( 'photo',           @_ ) }
-sub birthday        { shift->setget( 'birthday',        @_ ) }
-sub timezone        { shift->setget( 'timezone',        @_ ) }
-sub phones          { shift->setget( 'phones',          @_ ) }
-sub addresses       { shift->setget( 'addresses',       @_ ) }
-sub email_addresses { shift->setget( 'email_addresses', @_ ) }
+sub full_name          { shift->setget( 'full_name',          @_ ) }
+sub family_names       { shift->setget( 'family_names',       @_ ) }
+sub given_names        { shift->setget( 'given_names',        @_ ) }
+sub other_names        { shift->setget( 'other_names',        @_ ) }
+sub honorific_prefixes { shift->setget( 'honorific_prefixes', @_ ) }
+sub honorific_suffixes { shift->setget( 'honorific_suffixes', @_ ) }
+sub title              { shift->setget( 'title',              @_ ) }
+sub photo              { shift->setget( 'photo',              @_ ) }
+sub birthday           { shift->setget( 'birthday',           @_ ) }
+sub timezone           { shift->setget( 'timezone',           @_ ) }
+sub phones             { shift->setget( 'phones',             @_ ) }
+sub addresses          { shift->setget( 'addresses',          @_ ) }
+sub email_addresses    { shift->setget( 'email_addresses',    @_ ) }
 
 sub setget {
     my ( $self, $attr, $value ) = @_;

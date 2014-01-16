@@ -12,6 +12,7 @@ my $vcard    = vCard->new->load_hashref($hashref);
 subtest 'output methods' => sub {
     is $vcard->as_string, expected_vcard(), "as_string()";
     is $vcard->as_file($tmp_file)->stringify, "$tmp_file", "as_file()";
+
     my $tmp_contents = $tmp_file->slurp( iomode => '<:encoding(UTF-8)' );
     is $tmp_contents, expected_vcard(), "file contents ok";
 };
@@ -23,6 +24,11 @@ subtest 'simple getters' => sub {
 };
 
 subtest 'complex getters' => sub {
+    is_deeply $vcard->family_names,       ['Banner'], 'family_names()';
+    is_deeply $vcard->given_names,        ['Bruce'],  'given_names()';
+    is_deeply $vcard->honorific_prefixes, ['Dr.'],    'prefixes';
+    is_deeply $vcard->honorific_suffixes, ['PhD'],    'suffixes';
+
     my $phones = $vcard->phones;
     is_deeply $phones->[0]->{type}, ['work'], 'work phone';
     is_deeply $phones->[1]->{type}, ['cell'], 'cell phone';
@@ -40,7 +46,7 @@ subtest 'load_file()' => sub {
     my $vcard2 = vCard->new->load_file($tmp_file);
     is ref $vcard2, 'vCard', 'object type is good';
     foreach my $node_type ( vCard->_simple_node_types ) {
-        next if $node_type eq 'fullname';
+        next if $node_type eq 'full_name';
         is $vcard2->$node_type, $hashref->{$node_type}, $node_type;
     }
 };
@@ -50,7 +56,7 @@ subtest 'load_string()' => sub {
     my $vcard3 = vCard->new->load_string($tmp_contents);
     is ref $vcard3, 'vCard', 'object type is good';
     foreach my $node_type ( vCard->_simple_node_types ) {
-        next if $node_type eq 'fullname';
+        next if $node_type eq 'full_name';
         is $vcard3->$node_type, $hashref->{$node_type}, $node_type;
     }
 };
@@ -62,6 +68,7 @@ done_testing;
 sub expected_vcard {
     my $string = <<EOF;
 BEGIN:VCARD\r
+N:Banner;Bruce;;Dr.;PhD\r
 FN:Bruce Banner\\, PhD\r
 ADR;TYPE=work:;;部队街;Desert Base;New Mexico;55416;USA\r
 ADR;TYPE=home:;;Main St;Desert Base;New Mexico;55416;USA\r
@@ -80,14 +87,16 @@ EOF
 }
 
 sub hashref {
-    {   fullname    => 'Bruce Banner, PhD',
-        first_name  => 'Bruce',
-        family_name => 'Banner',
-        title       => 'Research Scientist',
-        photo       => 'http://shh.supersecret.army.mil/bbanner.gif',
-        birthday    => '19700414',
-        timezone    => 'UTC-7',
-        phones      => [
+    {   full_name          => 'Bruce Banner, PhD',
+        given_names        => ['Bruce'],
+        family_names       => ['Banner'],
+        honorific_prefixes => ['Dr.'],
+        honorific_suffixes => ['PhD'],
+        title              => 'Research Scientist',
+        photo              => 'http://shh.supersecret.army.mil/bbanner.gif',
+        birthday           => '19700414',
+        timezone           => 'UTC-7',
+        phones             => [
             {   type      => ['work'],
                 number    => '651-290-1234',
                 preferred => 1,

@@ -313,7 +313,6 @@ sub _pre_process_text {
     # FIXME: whats up with the \n stuff???
     my @lines = split "\n", $text;
     return $asData->parse_lines(@lines)->{objects};
-
 }
 
 sub _process_text {

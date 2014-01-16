@@ -5,9 +5,9 @@ use Path::Class;
 use vCard::AddressBook;
 use Encode;
 
-my $in_file = file('t/complete.vcf');
-##my $out_file     = Directory::Scratch->new->touch('.vcard.out.vcf');
-my $out_file     = file('.vcard.out.vcf');
+my $in_file  = file('t/complete.vcf');
+my $out_file = Directory::Scratch->new->touch('.vcard.out.vcf');
+##my $out_file     = file('.vcard.out.vcf');
 my $address_book = vCard::AddressBook->new;
 
 subtest 'load an address book' => sub {
@@ -21,14 +21,18 @@ subtest 'load an address book' => sub {
     my $vcard = $address_book->vcards->[3];
 
     note "simple getters and setters";
-    is $vcard->fullname, 'Bruce Banner, PhD',  'fullname()';
-    is $vcard->title,    'Research Scientist', 'title()';
+    is $vcard->full_name, 'Bruce Banner, PhD',  'full_name()';
+    is $vcard->title,     'Research Scientist', 'title()';
     is $vcard->photo, 'http://shh.supersecret.army.mil/bbanner.gif',
         'photo()';
     is $vcard->birthday, '19700414', 'birthday()';
     is $vcard->timezone, 'UTC-7',    'timezone()';
 
     note "complex getters and setters";
+    is_deeply $vcard->family_names,       ['Banner'], 'family_names()';
+    is_deeply $vcard->given_names,        ['Bruce'],  'given_names()';
+    is_deeply $vcard->honorific_prefixes, ['Dr.'],    'prefixes';
+    is_deeply $vcard->honorific_suffixes, ['PhD'],    'suffixes';
     is_deeply $vcard->phones,    expected_phones(),    'phones()';
     is_deeply $vcard->addresses, expected_addresses(), 'addresses()';
     is_deeply $vcard->email_addresses, expected_email_addresses(),
@@ -37,12 +41,13 @@ subtest 'load an address book' => sub {
 
 subtest 'output address book' => sub {
     my $in_file_string = $in_file->slurp( iomode => '<:encoding(UTF-8)' );
+
     $address_book->load_string($in_file_string);
-
     $address_book->as_file($out_file);
-    is scalar $out_file->slurp, expected_out_file(), 'as_file()';
 
-    #is $address_book->as_string('boop.vcf'), $in_file_string, 'as_string()';
+    my $contents = scalar $out_file->slurp( iomode => '<:encoding(UTF-8)' );
+
+    is $contents, expected_out_file(), 'as_file()';
 
     is scalar @{ $address_book->vcards }, 5, 'created the right # of vcards';
     is ref $_, 'vCard', 'object reference' for @{ $address_book->vcards };
@@ -96,9 +101,9 @@ sub expected_email_addresses {
 }
 
 sub expected_out_file {
-    my $in_file_string = $in_file->slurp();
+    my $in_file_string = $in_file->slurp( iomode => '<:encoding(UTF-8)' );
     return
-          Encode::encode( 'UTF-8', "BEGIN:VCARD\r\nEND:VCARD\r\n" ) x 3
+          "BEGIN:VCARD\r\nEND:VCARD\r\n" x 3
         . $in_file_string
         . $in_file_string;
 }
