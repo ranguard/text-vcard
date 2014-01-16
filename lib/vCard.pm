@@ -5,6 +5,10 @@ use Path::Class;
 use Text::vCard;
 use vCard::AddressBook;
 
+=head1 NAME
+
+vCard - read, write, and edit a single vCard
+
 =head1 SYNOPSIS
 
     use vCard;
@@ -57,23 +61,25 @@ To handle an address book with several vCard entries in it, start with
 L<vCard::AddressBook> and then come back to this module.
 
 
-=head1 ENCODING ISSUES
+=head1 ENCODING AND UTF-8
 
-TODO
+See the 'ENCODING AND UTF-8' section of L<vCard::AddressBook>.
 
 
 =head1 METHODS
 
 =cut
 
-has _data => ( is => 'rw', default => sub { {} } );
+has encoding_in  => ( is => 'rw', default => sub {'UTF-8'} );
+has encoding_out => ( is => 'rw', default => sub {'UTF-8'} );
+has _data        => ( is => 'rw', default => sub { {} } );
 
 =head2 load_hashref($hashref)
 
 $hashref looks like this:
 
     fullname    => 'Bruce Banner, PhD',
-    first_name  => 'Bruce',
+    '<:encoding(' . first_name  => 'Bruce',
     family_name => 'Banner',
     title       => 'Research Scientist',
     photo       => 'http://example.com/bbanner.gif',
@@ -108,20 +114,32 @@ Returns $self in case you feel like chaining.
 
 sub load_file {
     my ( $self, $filename ) = @_;
-    my $address_book = vCard::AddressBook->new->load_file($filename);
-    return $address_book->vcards->[0];
+    return vCard::AddressBook    #
+        ->new(
+        {   encoding_in  => $self->encoding_in,
+            encoding_out => $self->encoding_out,
+        }
+        )                         #
+        ->load_file($filename)    #
+        ->vcards->[0];
 }
 
 =head2 load_string($string)
 
-Returns $self in case you feel like chaining.
+Returns $self in case you feel like chaining.  This method assumes $string is
+decoded (but not MIME decoded).
 
 =cut
 
 sub load_string {
     my ( $self, $string ) = @_;
-    my $address_book = vCard::AddressBook->new->load_string($string);
-    return $address_book->vcards->[0];
+    return vCard::AddressBook    #
+        ->new(
+        {   encoding_in  => $self->encoding_in,
+            encoding_out => $self->encoding_out,
+        }
+        )->load_string($string)    #
+        ->vcards->[0];
 }
 
 =head2 as_string()
@@ -132,7 +150,7 @@ Returns the vCard as a string.
 
 sub as_string {
     my ($self) = @_;
-    my $vcard = Text::vCard->new;
+    my $vcard = Text::vCard->new( { encoding_out => $self->encoding_out } );
 
     my $phones          = $self->_data->{phones};
     my $addresses       = $self->_data->{addresses};
@@ -263,7 +281,11 @@ sub as_file {
         ? $filename
         : file($filename);
 
-    $file->spew( iomode => '>:encoding(UTF-8)', $self->as_string, );
+    my @iomode = $self->encoding_in eq 'none'          #
+        ? ()
+        : ( iomode => '<:encoding(' . $self->encoding_out . ')' );
+
+    $file->spew( @iomode, $self->as_string, );
 
     return $file;
 }
@@ -291,5 +313,7 @@ Eric Johnson (kablamo), github ~!at!~ iijo dot org
 
 Thanks to L<Foxtons|http://foxtons.co.uk> for making this module possible by
 donating a significant amount of developer time.
+
+=cut
 
 1;
