@@ -59,10 +59,8 @@ interface.
 To handle an address book with several vCard entries in it, start with
 L<vCard::AddressBook> and then come back to this module.
 
-Note that the vCard RFC requires version() and full_name().  It also requires
-at least one of the following: family_name(), given_name(), other_names(),
-honorific_prefixes(), or honorific_suffixes().  This module does not check or
-warn if these conditions have not been met.
+Note that the vCard RFC requires version() and full_name().  This module does
+not check or warn if these conditions have not been met.
 
 
 =head1 ENCODING AND UTF-8
@@ -76,7 +74,7 @@ See the 'ENCODING AND UTF-8' section of L<vCard::AddressBook>.
 
 has encoding_in  => ( is => 'rw', default => sub {'UTF-8'} );
 has encoding_out => ( is => 'rw', default => sub {'UTF-8'} );
-has _data        => ( is => 'rw', default => sub { {} } );
+has _data        => ( is => 'rw', default => sub { { version => '4.0' } } );
 
 =head2 load_hashref($hashref)
 
@@ -107,6 +105,7 @@ Returns $self in case you feel like chaining.
 sub load_hashref {
     my ( $self, $hashref ) = @_;
     $self->_data($hashref);
+    $self->_data->{version} = '4.0' unless $self->_data->{version};
     return $self;
 }
 
@@ -171,7 +170,7 @@ sub as_string {
 }
 
 sub _simple_node_types {
-    qw/full_name title photo birthday timezone/;
+    qw/full_name title photo birthday timezone version/;
 }
 
 sub _build_simple_nodes {
@@ -319,7 +318,7 @@ These methods accept and return strings.
 
 =head2 version()
 
-Version number of the vcard.  Defaults to ???
+Version number of the vcard.  Defaults to '4.0'
 
 =head2 full_name()
 
@@ -392,6 +391,7 @@ Accepts/returns an arrayref that looks like:
 
 =cut
 
+sub version            { shift->setget( 'version',            @_ ) }
 sub full_name          { shift->setget( 'full_name',          @_ ) }
 sub family_names       { shift->setget( 'family_names',       @_ ) }
 sub given_names        { shift->setget( 'given_names',        @_ ) }

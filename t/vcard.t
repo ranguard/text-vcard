@@ -68,6 +68,7 @@ done_testing;
 sub expected_vcard {
     my $string = <<EOF;
 BEGIN:VCARD\r
+VERSION:4.0\r
 N:Banner;Bruce;;Dr.;PhD\r
 FN:Bruce Banner\\, PhD\r
 ADR;TYPE=work:;;部队街;Desert Base;New Mexico;55416;USA\r
