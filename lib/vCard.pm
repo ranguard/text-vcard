@@ -394,22 +394,22 @@ Accepts/returns an arrayref that looks like:
 
 =cut
 
-sub version            { shift->setget( 'version',            @_ ) }
-sub full_name          { shift->setget( 'full_name',          @_ ) }
-sub family_names       { shift->setget( 'family_names',       @_ ) }
-sub given_names        { shift->setget( 'given_names',        @_ ) }
-sub other_names        { shift->setget( 'other_names',        @_ ) }
-sub honorific_prefixes { shift->setget( 'honorific_prefixes', @_ ) }
-sub honorific_suffixes { shift->setget( 'honorific_suffixes', @_ ) }
-sub title              { shift->setget( 'title',              @_ ) }
-sub photo              { shift->setget( 'photo',              @_ ) }
-sub birthday           { shift->setget( 'birthday',           @_ ) }
-sub timezone           { shift->setget( 'timezone',           @_ ) }
-sub phones             { shift->setget( 'phones',             @_ ) }
-sub addresses          { shift->setget( 'addresses',          @_ ) }
-sub email_addresses    { shift->setget( 'email_addresses',    @_ ) }
+sub version            { shift->_setget( 'version',            @_ ) }
+sub full_name          { shift->_setget( 'full_name',          @_ ) }
+sub family_names       { shift->_setget( 'family_names',       @_ ) }
+sub given_names        { shift->_setget( 'given_names',        @_ ) }
+sub other_names        { shift->_setget( 'other_names',        @_ ) }
+sub honorific_prefixes { shift->_setget( 'honorific_prefixes', @_ ) }
+sub honorific_suffixes { shift->_setget( 'honorific_suffixes', @_ ) }
+sub title              { shift->_setget( 'title',              @_ ) }
+sub photo              { shift->_setget( 'photo',              @_ ) }
+sub birthday           { shift->_setget( 'birthday',           @_ ) }
+sub timezone           { shift->_setget( 'timezone',           @_ ) }
+sub phones             { shift->_setget( 'phones',             @_ ) }
+sub addresses          { shift->_setget( 'addresses',          @_ ) }
+sub email_addresses    { shift->_setget( 'email_addresses',    @_ ) }
 
-sub setget {
+sub _setget {
     my ( $self, $attr, $value ) = @_;
     $self->_data->{$attr} = $value if $value;
     return $self->_data->{$attr};
