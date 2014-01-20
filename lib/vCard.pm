@@ -16,20 +16,14 @@ vCard - read, write, and edit a single vCard
     # create the object
     my $vcard = vCard->new;
 
-    # there are 3 ways to load vcard data in one fell swoop 
+    # these methods load vCard data
     # (see method documentation for details)
     $vcard->load_file($filename); 
     $vcard->load_string($string); 
     $vcard->load_hashref($hashref); 
 
-    # there are 3 ways to output data in vcard format
-    my $file   = $vcard->as_file($filename); # writes to $filename
-    my $string = $vcard->as_string;          # returns a string
-
     # simple getters/setters
     $vcard->full_name('Bruce Banner, PhD');
-    $vcard->given_name('Bruce');
-    $vcard->family_name('Banner');
     $vcard->title('Research Scientist');
     $vcard->photo('http://example.com/bbanner.gif');
 
@@ -38,14 +32,14 @@ vCard - read, write, and edit a single vCard
         { type => ['work', 'text'], number => '651-290-1234', preferred => 1 },
         { type => ['home'],         number => '651-290-1111' }
     });
-    $vcard->addresses({
-        { type => ['work'], street => 'Main St' },
-        { type => ['home'], street => 'Army St' },
-    });
     $vcard->email_addresses({
         { type => ['work'], address => 'bbanner@ssh.secret.army.mil' },
         { type => ['home'], address => 'bbanner@timewarner.com'      },
     });
+
+    # these methods output data in vCard format
+    my $file   = $vcard->as_file($filename); # writes to $filename
+    my $string = $vcard->as_string;          # returns a string
 
 
 =head1 DESCRIPTION
@@ -376,8 +370,17 @@ Accepts/returns an arrayref that looks like:
 Accepts/returns an arrayref that looks like:
 
   [
-    { type => ['work'], street => 'Main St', preferred => 1 },
-    { type => ['home'], street => 'Army St' },
+    { type => ['work'], street => 'Main St', preferred => 0 },
+    { type      => ['home'], 
+      pobox     => 1234,
+      extended  => 'asdf',
+      street    => 'Army St',
+      city      => 'Desert Base',
+      region    => '',
+      post_code => '',
+      country   => 'USA',
+      preferred => 1,
+    },
   ]
 
 =head2 email_addresses()

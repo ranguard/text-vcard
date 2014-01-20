@@ -8,7 +8,7 @@ use Text::vCard::Addressbook;
 
 =head1 NAME
 
-vCard::AddressBook - read, write, and edit a multiple vCards
+vCard::AddressBook - Read, write, and edit a multiple vCards
 
 =head1 SYNOPSIS
 
@@ -17,24 +17,26 @@ vCard::AddressBook - read, write, and edit a multiple vCards
     # create the object
     my $address_book = vCard::AddressBook->new();
 
+    # these methods load vCard formatted data
     $address_book->load_file('/path/file.vcf');
     $address_book->load_string($string);
 
     my $vcard = $adress_book->add_vcard; # returns a vCard object
     $vcard->full_name('Bruce Banner, PhD');
-    $vcard->family_name('Banner');
-    $vcard->given_name('Bruce');
+    $vcard->family_names(['Banner']);
+    $vcard->given_names(['Bruce']);
     $vcard->email_addresses([
         { type => ['work'], address => 'bbanner@ssh.secret.army.mil' },
         { type => ['home'], address => 'bbanner@timewarner.com'      },
     ]);
 
-    # $address_book->vcards() returns a L<vCard> object
+    # $address_book->vcards() returns a vCard object
     foreach my $vcard ( $address_book->vcards() ) {
         print $vcard->full_name() . "\n";
         print $vcard->email_addresses->[0]->{address} . "\n";
     }
 
+    # these methods output data in vCard format
     my $file   = $address_book->as_file('/path/file.vcf'); # write to a file
     my $string = $address_book->as_string();
 
