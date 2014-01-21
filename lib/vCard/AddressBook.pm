@@ -30,7 +30,7 @@ vCard::AddressBook - Read, write, and edit a multiple vCards
         { type => ['home'], address => 'bbanner@timewarner.com'      },
     ]);
 
-    # $address_book->vcards() returns a vCard object
+    # $address_book->vcards() returns a list of vCard objects
     foreach my $vcard ( $address_book->vcards() ) {
         print $vcard->full_name() . "\n";
         print $vcard->email_addresses->[0]->{address} . "\n";
@@ -46,8 +46,8 @@ vCard::AddressBook - Read, write, and edit a multiple vCards
 A vCard is a digital business card.  L<vCard> and vCard::AddressBook provide an
 API for parsing, editing, and creating vCards.
 
-This module is built on top of L<Text::vCard> and provides a more intuitive user
-interface.  
+This module is built on top of L<Text::vCard> and L<Text::vCard::AddressBook>
+and provides a more intuitive user interface.  
 
 
 =head1 ENCODING AND UTF-8
