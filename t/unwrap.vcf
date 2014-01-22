@@ -1,9 +1,10 @@
 BEGIN:VCARD
-VERSION:4.0
-N:Banner;Bruce;;Dr.;PhD
+VERSION:2.1
+N;CHARSET=utf-8;ENCODING=quoted-printable:mynameisveryveryveryveryveryvery=
+ long
 FN:Bruce Banner\, PhD
-ADR;TYPE=home:;;Main St;Desert Base;New Mexico;55416;USA
-ADR;TYPE=work:;;部队街;Desert Base;New Mexico;55416;USA
+ADR;TYPE=home:;;Hover Valley Mountain Pass Road;Desert Base;New Mexico;5541
+ 6;USA
 BDAY:19700414
 EMAIL;PREF=1;TYPE=work:bbanner.work@example.com
 EMAIL;TYPE=home:bbanner.home@example.com

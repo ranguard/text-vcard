@@ -281,18 +281,31 @@ sub is_type {
 =head2 is_pref();
 
   if ( $node->is_pref() ) {
-      print "Prefered node";
+      print "Preferred node";
   }
 
 This method is the same as is_type (which can take a value of 'pref')
-but it specific to if it is the prefered node. This method is used
+but it specific to if it is the preferred node. This method is used
 to sort when returning lists of nodes.
 
 =cut 
 
+# A preferred node can be indicated in a vcard file 2 ways:
+#
+# 1. As 'PREF=1' which makes $self->{params} look like:
+#   { 1 => 'pref', work => 'type' }
+#
+# 2. As 'TYPE=PREF' which makes $self->{params} look like:
+#   { pref => 'type', work => 'type' }
+#
 sub is_pref {
-    my $self = shift;
-    if ( defined $self->{params} && defined $self->{params}->{'pref'} ) {
+    my $self   = shift;
+    my $params = $self->{params};
+    if (( defined $params ) &&    #
+        ( defined $params->{1} && $params->{1} eq 'pref' ) ||    #
+        ( defined $params->{pref} )
+        )
+    {
         return 1;
     }
     return undef;
@@ -389,7 +402,8 @@ sub group {
 
 =head2 export_data()
 
-NOTE: This method is deprecated and should not be used
+NOTE: This method is deprecated and should not be used.  It will be removed in
+a later version.
 
   my $value = $node->export_data();
 
@@ -497,6 +511,12 @@ sub _newline {
     return Encode::encode( $self->{encoding_out}, "\r\n" );
 }
 
+sub _decode_string {
+    my ( $self, $string ) = @_;
+    return $string if $self->{encoding_out} eq 'none';
+    return Encode::decode( $self->{encoding_out}, $string );
+}
+
 sub _encode_string {
     my ( $self, $string ) = @_;
     return $string if $self->{encoding_out} eq 'none';
@@ -527,7 +547,6 @@ sub _encode_list {
 sub _wrap {
     my ( $self, $key, $value ) = @_;
 
-    #PHOTO;ENCODING=b;TYPE=x-evolution-unknown:R0lGODlhlgAyALMPAAAAAP9BAP////9
     return $self->_wrap_naively( $key, $value )
         unless $self->{encoding_out} eq 'UTF-8';
 
@@ -561,20 +580,13 @@ sub _wrap_utf8 {
     # begin with a " "
     my $first_max = $max + 1;
 
-    #use v5.10.1;
-    #say "length: " . $gcs->length;
-
     while ( $start <= $gcs->length ) {
         my $len = 1;
-
-        #say $start;
 
         while ( ( $start + $len ) <= $gcs->length ) {
 
             my $line = $gcs->substr( $start, $len );
             my $bytes = bytes::length( $line->as_string );
-
-            #say "len: $len    bytes: " . $bytes;
 
             # is this a good place to line wrap?
             if ( $first_max && $bytes <= $first_max ) {
@@ -602,14 +614,13 @@ sub _wrap_utf8 {
             last;
         }
 
-        #say ">> start: $start,  len: $len,  length: " . $gcs->length;
         $first_max = undef;
     }
 
     return join $newline, @wrapped_lines;
 }
 
-# BUG: This will fail to line wrap properly for wide characters.  The problem
+# This will fail to line wrap properly for wide characters.  The problem
 # is it naively wraps lines by counting the number of characters but the vcard
 # spec wants us to wrap after 75 octets (bytes).  However clever vCard readers
 # may be able to deal with this.
@@ -625,7 +636,7 @@ sub _wrap_naively {
     return Text::Wrap::wrap( $first_prefix, $prefix, $value );
 }
 
-sub _mime_encode {
+sub _encode {
     my ( $self, $value ) = @_;
 
     if ( $self->is_type('q') or $self->is_type('quoted-printable') ) {
@@ -659,9 +670,10 @@ sub _mime_encode {
 # 2. Encode::encode() values
 # 3. MIME encode() values
 # 4. wrap lines to 75 octets
+# 5. Encode::decode() value
 #
-# assumes there is only ever one MIME::Quoted-Printable field.
-# assumes there is only ever one MIME::Base64 field.
+# Assumes there is only one MIME::Quoted-Printable field for a node.
+# Assumes there is only one MIME::Base64 field for a node.
 #
 # If either of the above assumptions is false, line wrapping may be incorrect.
 # However clever vCard readers may still be able to read vCards with incorrect
@@ -686,10 +698,13 @@ sub as_string {
     my $raw_value = join ';', @field_values;
 
     # MIME::*::encode() value
-    my $value = $self->_mime_encode($raw_value);
+    my $encoded = $self->_encode($raw_value);
 
     # Line wrap everything to 75 octets
-    return $self->_wrap( $key . ":", $value );
+    my $wrapped = $self->_wrap( $key . ":", $encoded );
+
+    # Decode everything
+    return $self->_decode_string($wrapped);
 }
 
 # Because we have autoload
@@ -722,17 +737,16 @@ If a node has a param of 'quoted-printable' then the
 value is escaped (basically converting Hex return into \r\n
 as far as I can see).
 
-=head2 EXPORT
-
-None by default.
-
 =head1 AUTHOR
 
 Leo Lapworth, LLAP@cuckoo.org
+Eric Johnson (kablamo), github ~!at!~ iijo dot org
 
 =head1 SEE ALSO
 
-L<Text::vCard> L<Text::vCard::Addressbook>
+L<Text::vCard> L<Text::vCard::Addressbook>,
+L<vCard> L<vCard>,
+L<vCard::AddressBook> L<vCard::AddressBook>,
 
 =cut
 

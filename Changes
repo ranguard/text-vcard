@@ -1,5 +1,19 @@
 Revision history for Perl extension Text::vCard.
 
+3.0 Tue Jan 21 15:25:40 GMT 2014
+    - Major changes!
+    - Initial release of vCard and vCard::AddressBook
+    - Fix line unwrapping when reading vcards
+    - Rewrote Text::vCard::Node->as_string()
+    - Rewrote Text::vCard::AddressBook->export()
+    - Redo the way that encoding and decoding works
+    - Correctly wrap utf8 encoded strings
+    - Fix encoding issues with MIME::Base64 and MIME::QuotedPrint
+    - Do a better job escaping and unescaping '\', ';', and ','
+    - Fix for writing vcards with ORG values
+    - Fix to remove extra semi colon when writing vcards
+    - Version defaults to 4.0 when using the new vCard library
+
 2.13 Thu 20 Dec 2012 19:34:44 GMT
     - Under the newer combined RFC6350 - every END:VCARD must 
       be followed by \r\n (including last one)- reported by ysth
