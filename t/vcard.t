@@ -23,6 +23,16 @@ subtest 'simple getters' => sub {
     }
 };
 
+subtest 'photo' => sub {
+    $vcard->photo( $hashref->{photo} );
+    is ref( $vcard->photo ), 'URI::http', 'returns a URI::http object';
+
+    $vcard->photo( URI->new( $hashref->{photo} ) );
+    is ref( $vcard->photo ), 'URI::http', 'returns a URI::http object';
+
+    is $vcard->photo, $hashref->{photo}, 'photo';
+};
+
 subtest 'complex getters' => sub {
     is_deeply $vcard->family_names,       ['Banner'], 'family_names()';
     is_deeply $vcard->given_names,        ['Bruce'],  'given_names()';
