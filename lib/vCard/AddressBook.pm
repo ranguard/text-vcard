@@ -164,6 +164,7 @@ sub _create_vcards {
 
         $self->_copy_simple_nodes( $text_vcard => $vcard );
         $self->_copy_name( $text_vcard => $vcard );
+        $self->_copy_photo( $text_vcard => $vcard );
         $self->_copy_phones( $text_vcard => $vcard );
         $self->_copy_addresses( $text_vcard => $vcard );
         $self->_copy_email_addresses( $text_vcard => $vcard );
@@ -184,6 +185,11 @@ sub _copy_simple_nodes {
             $vcard->$node_type( $text_vcard->$node_type );
         }
     }
+}
+
+sub _copy_photo {
+    my ( $self, $text_vcard, $vcard ) = @_;
+    $vcard->photo( URI->new( $text_vcard->photo ) );
 }
 
 sub _copy_name {

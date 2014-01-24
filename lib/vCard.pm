@@ -4,6 +4,7 @@ use Moo;
 use Path::Class;
 use Text::vCard;
 use vCard::AddressBook;
+use URI;
 
 =head1 NAME
 
@@ -99,7 +100,13 @@ Returns $self in case you feel like chaining.
 sub load_hashref {
     my ( $self, $hashref ) = @_;
     $self->_data($hashref);
-    $self->_data->{version} = '4.0' unless $self->_data->{version};
+
+    $self->_data->{version} = '4.0'
+        unless $self->_data->{version};
+
+    $self->_data->{photo} = URI->new( $self->_data->{photo} )
+        unless ref $self->_data->{photo} =~ /^URI/;
+
     return $self;
 }
 
@@ -324,7 +331,10 @@ A person's position or job.
 
 =head2 photo()
 
-This should be a link. TODO: handle binary image
+This should be a link. Accepts a string or a URI object.  This method
+always returns a L<URI> object. 
+
+TODO: handle binary images using the data uri schema
 
 =head2 birthday()
 
@@ -411,7 +421,12 @@ sub email_addresses    { shift->_setget( 'email_addresses',    @_ ) }
 
 sub _setget {
     my ( $self, $attr, $value ) = @_;
+
+    $value = URI->new($value)
+        if $value && $attr eq 'photo' && ref $value =~ /^URI/;
+
     $self->_data->{$attr} = $value if $value;
+
     return $self->_data->{$attr};
 }
 

@@ -25,6 +25,7 @@ subtest 'load an address book' => sub {
     is $vcard->title,     'Research Scientist', 'title()';
     is $vcard->photo, 'http://shh.supersecret.army.mil/bbanner.gif',
         'photo()';
+    is ref $vcard->photo, 'URI::http', 'photo() returns a URI::http obj';
     is $vcard->birthday, '19700414', 'birthday()';
     is $vcard->timezone, 'UTC-7',    'timezone()';
 
