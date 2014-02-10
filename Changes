@@ -1,5 +1,8 @@
 Revision history for Perl extension Text::vCard.
 
+3.01 Mon 10 Feb 11:52:00 2014
+	- Try fix Win32 (kablamo)
+
 3.0 Tue Jan 21 15:25:40 GMT 2014
     - Major changes!
     - Initial release of vCard and vCard::AddressBook
