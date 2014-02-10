@@ -513,9 +513,12 @@ sub as_string {
             sort map { uc $_ } keys %{ $self->{nodes} };
     }
 
+    # 'perldoc perlport' says using \r\n is wrong and confusing for a few
+    # reasons but mainly because the value of \n is different on different
+    # operating systems.  It recommends \x0D\x0A instead.
+    my $newline = "\x0D\x0A";
     my $begin   = 'BEGIN:VCARD';
     my $end     = 'END:VCARD';
-    my $newline = "\r\n";
 
     my @lines = ($begin);
     for my $k (@k) {

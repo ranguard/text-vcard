@@ -19,7 +19,7 @@ my $vcf = $adbk->export();
 
 like( $vcf, qr/TYPE=work/, 'export() - added type def' );
 
-my @lines = split( "\r\n", $vcf );
+my @lines = split( "\x0D\x0A", $vcf );    # \x0D\x0A == \r\n
 
 is( $lines[0],       'BEGIN:VCARD', 'export() - First line correct' );
 is( $lines[$#lines], 'END:VCARD',   'export() - Last line correct' );
@@ -39,7 +39,7 @@ my @data = (
     'FN:T-firstname T-surname',
     'END:VCARD',
 );
-@lines = split( "\r\n", $adbk->export() );
+@lines = split( "\x0D\x0A", $adbk->export() );    # \x0D\x0A == \r\n
 is_deeply(
     [ sort @lines ],
     [ sort @data ],
@@ -58,7 +58,8 @@ is_deeply(
     is $ab->export, '', 'export empty addressbook';
     my $vcard = $ab->add_vcard;
     isa_ok $vcard, 'Text::vCard';
-    like $ab->export, qr{^BEGIN:VCARD\s+END:VCARD\r\n$}, 'single empty vcard';
+    like $ab->export, qr{^BEGIN:VCARD\s+END:VCARD\x0D\x0A$},
+        'single empty vcard';
     $vcard->fullname('Foo Bar');
     $vcard->EMAIL('foo@bar.com');
     my $node = $vcard->add_node(

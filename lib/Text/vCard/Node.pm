@@ -490,10 +490,14 @@ sub _params {
 #
 # Don't escape anything if this is a base64 node.  Escaping only applies to
 # strings not binary values.
+#
+# 'perldoc perlport' says using \r\n is wrong and confusing for a few reasons
+# but mainly because the value of \n is different on different operating
+# systems.  It recommends \x0D\x0A instead.
 sub _escape {
     my ( $self, $val ) = @_;
     return $val if ( $self->is_type('b') or $self->is_type('base64') );
-    $val =~ s/(\r\n|\r|\n)/\n/g;
+    $val =~ s/(\x0D\x0A|\x0D|\x0A)/\x0A/g;
     $val =~ s/([,;|])/\\$1/g;
     return $val;
 }
@@ -505,10 +509,14 @@ sub _escape_list {
 
 # The vCard RFC says new lines must be \r\n
 # See http://tools.ietf.org/search/rfc6350#section-3.2
+#
+# 'perldoc perlport' says using \r\n is wrong and confusing for a few reasons
+# but mainly because the value of \n is different on different operating
+# systems.  It recommends \x0D\x0A instead.
 sub _newline {
     my ($self) = @_;
-    return "\r\n" if $self->{encoding_out} eq 'none';
-    return Encode::encode( $self->{encoding_out}, "\r\n" );
+    return "\x0D\x0A" if $self->{encoding_out} eq 'none';
+    return Encode::encode( $self->{encoding_out}, "\x0D\x0A" );
 }
 
 sub _decode_string {
