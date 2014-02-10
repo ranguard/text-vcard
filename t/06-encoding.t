@@ -30,7 +30,7 @@ my $a = $vcard->get(
     }
 )->[0];
 is( $a->street(),
-    "Software Development\r\n333 West River Park Drive",
+    "Software Development\x0D\x0A333 West River Park Drive",
     'Match on street'
 );
 is( $a->city(), 'Provo', 'Match on city' );

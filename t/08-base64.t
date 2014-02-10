@@ -43,7 +43,7 @@ CEX1MLtQoeSeUu1A+G777W/EuKONx8+Q/EI/Ko8ijS+quHwb0+PQPPLP+xQkKJRMWQqSn3RS5ZLj
 s2AKDlGmMiX541N5vpV0yflln3o6tQafZGpJ1vxcdQVmo1bxyZqagD//nek6BtyTWxRFPz3Jz4Gc
 wQthJChAPz1wTljBy1ry1KX8KRBTbekgn5IVMBKSik6Q4iAG2wJACCqqTVC5UwrpxKavnMOCb2Ah
 PkKIlDsZglCDCuH+1oRAQKHQhfEzijLWAKdjMHGEvHCOm+43RQJu0AWCwmIAxVFCExiSioJpupZm
-upisN4DxLye0lBrXyEYPRAAAOw==' . "\n";
+upisN4DxLye0lBrXyEYPRAAAOw==' . "\x0A";
 my $base64_image_decoded = MIME::Base64::decode($base64_image);
 is $photo->value, $base64_image_decoded, 'compare decoded values';
 

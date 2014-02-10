@@ -104,7 +104,7 @@ sub expected_email_addresses {
 sub expected_out_file {
     my $in_file_string = $in_file->slurp( iomode => '<:encoding(UTF-8)' );
     return
-          "BEGIN:VCARD\r\nVERSION:4.0\r\nEND:VCARD\r\n" x 3
+          "BEGIN:VCARD\x0D\x0AVERSION:4.0\x0D\x0AEND:VCARD\x0D\x0A" x 3
         . $in_file_string
         . $in_file_string;
 }

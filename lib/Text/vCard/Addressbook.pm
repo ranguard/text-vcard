@@ -269,10 +269,14 @@ sub _pre_process_text {
         #
         # No longer needed in version 3.0:
         # http://tools.ietf.org/html/rfc2426 point (5)
+        #
+        # 'perldoc perlport' says using \r\n is wrong and confusing for a few
+        # reasons but mainly because the value of \n is different on different
+        # operating systems.  It recommends \x0D\x0A instead.
 
         my $out;
         my $inside = 0;
-        foreach my $line ( split( "\r\n", $text ) ) {
+        foreach my $line ( split( "\x0D\x0A", $text ) ) {
 
             if ($inside) {
                 if ( $line =~ /=$/ ) {
@@ -286,7 +290,7 @@ sub _pre_process_text {
                 $inside = 1;
                 $line =~ s/=$//;
             }
-            $out .= $line . "\r\n";
+            $out .= $line . "\x0D\x0A";
         }
         $text = $out;
 
@@ -296,8 +300,8 @@ sub _pre_process_text {
     my $asData = Text::vFile::asData->new;
     $asData->preserve_params(1);
 
-    my @lines = split "\r\n", $text;
-    my @lines_with_newlines = map { $_ . "\r\n" } @lines;
+    my @lines = split "\x0D\x0A", $text;
+    my @lines_with_newlines = map { $_ . "\x0D\x0A" } @lines;
     return $asData->parse_lines(@lines_with_newlines)->{objects};
 }
 
