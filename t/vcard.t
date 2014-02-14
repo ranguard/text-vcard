@@ -1,11 +1,10 @@
 use Test::Most;
 
 use Encode;
-use Directory::Scratch;
-use Path::Class;
+use Path::Tiny qw/tempfile path/;
 use vCard;
 
-my $tmp_file = Directory::Scratch->new->touch('.simple.vcf');
+my $tmp_file = tempfile('.simple.vcfXXXX');
 my $hashref  = hashref();
 my $vcard    = vCard->new->load_hashref($hashref);
 
@@ -13,7 +12,7 @@ subtest 'output methods' => sub {
     is $vcard->as_string, expected_vcard(), "as_string()";
     is $vcard->as_file($tmp_file)->stringify, "$tmp_file", "as_file()";
 
-    my $tmp_contents = $tmp_file->slurp( iomode => '<:encoding(UTF-8)' );
+    my $tmp_contents = $tmp_file->slurp_utf8;
     is $tmp_contents, expected_vcard(), "file contents ok";
 };
 
@@ -62,8 +61,8 @@ subtest 'load_file()' => sub {
 };
 
 subtest 'load_string()' => sub {
-    my $tmp_contents = $tmp_file->slurp( iomode => '<:encoding(UTF-8)' );
-    my $vcard3 = vCard->new->load_string($tmp_contents);
+    my $tmp_contents = $tmp_file->slurp_utf8;
+    my $vcard3       = vCard->new->load_string($tmp_contents);
     is ref $vcard3, 'vCard', 'object type is good';
     foreach my $node_type ( vCard->_simple_node_types ) {
         next if $node_type eq 'full_name';
