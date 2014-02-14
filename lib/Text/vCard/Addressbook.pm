@@ -3,7 +3,7 @@ package Text::vCard::Addressbook;
 use Carp;
 use strict;
 use warnings;
-use File::Slurp;
+use Path::Tiny;
 use Text::vFile::asData;
 use Text::vCard;
 
@@ -91,15 +91,17 @@ This method will croak if it is unable to read in any of the files.
 =cut
 
 sub load {
-    my ( $proto, $files, $constructor_args ) = @_;
+    my ( $proto, $filenames, $constructor_args ) = @_;
 
     my $self = __PACKAGE__->new($constructor_args);
 
-    my %encoding = $self->_slurp_encoding;
+    foreach my $filename ( @{$filenames} ) {
 
-    foreach my $file ( @{$files} ) {
-        croak "Unable to read file $file" unless -r $file;
-        $self->import_data( scalar read_file( $file, %encoding ) );
+        croak "Unable to read file $filename" unless -r $filename;
+
+        my $file   = $self->_path($filename);
+        my $string = $file->slurp( $self->_iomode_in );
+        $self->import_data($string);
     }
 
     return $self;
@@ -163,8 +165,9 @@ sub new {
         croak "Unable to read file $conf->{'source_file'}\n"
             unless -r $conf->{'source_file'};
 
-        $conf->{'source_text'}
-            = read_file( $conf->{'source_file'}, $self->_slurp_encoding );
+        my $filename = $conf->{source_file};
+        my $file     = $self->_path($filename);
+        $conf->{source_text} = $file->slurp( $self->_iomode_in );
     }
 
     # Process the text if we have it.
@@ -248,10 +251,19 @@ sub export {
 # The ':encoding()' part does character set and encoding transformations.
 # Without it you are just declaring the stream to be of a certain encoding.
 # See PerlIO, PerlIO::encoding docs.
-sub _slurp_encoding {
+sub _iomode_in {
     my ($self) = @_;
     return () if $self->{encoding_in} eq 'none';
-    return ( binmode => ':encoding(' . $self->{encoding_in} . ')' );
+    return { binmode => ':encoding(' . $self->{encoding_in} . ')' };
+}
+
+# Filename can be a string, a Path::Tiny obj, or a Path::Class obj.
+# Returns a Path::Tiny obj.
+sub _path {
+    my ( $self, $filename ) = @_;
+    return ref $filename eq 'Path::Class::File'    #
+        ? path("$filename")
+        : path($filename);    # works for strings and Path::Tiny objects
 }
 
 # Process a chunk of text, create Text::vCard objects and store in the address book
