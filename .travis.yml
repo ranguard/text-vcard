@@ -1,0 +1,22 @@
+language: perl
+perl:
+  - "5.18"
+  - "5.16"
+  - "5.14"
+  - "5.12"
+  - "5.10"
+
+before_install:
+   - cpanm --quiet --notest --skip-satisfied Dist::Zilla
+   - "dzil authordeps | grep -vP '[^\\w:]' | xargs -n 5 -P 10 cpanm --quiet --notest --skip-satisfied"
+   - "dzil listdeps   | grep -vP '[^\\w:]' | cpanm --verbose --skip-satisfied"
+
+script:
+  - dzil smoke --release --author
+
+notifications:
+  email:
+    recipients:
+      - llap@cpan.org
+    on_success: change
+    on_failure: always
