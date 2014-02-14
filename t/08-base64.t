@@ -3,7 +3,7 @@
 use Test::More;
 use lib qw(./lib);
 use MIME::Base64;
-use Path::Class;
+use Path::Tiny;
 
 BEGIN { use_ok('Text::vCard::Addressbook'); }
 
@@ -51,15 +51,14 @@ my $photo_value = MIME::Base64::encode( $photo->value );
 is $photo_value, $base64_image, 'compare encoded values';
 
 # $vcard->as_string returns a decoded string.
-# slurp( iomode => '<:encoding(UTF-8)' ) returns a decoded string
-my $original_vcard
-    = file('t/base64.vcf')->slurp( iomode => '<:encoding(UTF-8)' );
+# slurp_utf8() returns a decoded string
+my $original_vcard = path('t/base64.vcf')->slurp_utf8;
 is $vcard->as_string, $original_vcard,
     'as_string() output is the same as the input';
 
 # Uncomment these lines to view the gif and inspect the new and original images
 # visually.
-#file('/tmp/victoly_original.gif')->spew($base64_image_decoded);
-#file('/tmp/victoly_new.gif')->spew( $photo->value );
+#path('/tmp/victoly_original.gif')->spew($base64_image_decoded);
+#path('/tmp/victoly_new.gif')->spew( $photo->value );
 
 done_testing;

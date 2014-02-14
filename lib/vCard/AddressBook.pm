@@ -1,7 +1,7 @@
 package vCard::AddressBook;
 use Moo;
+
 use vCard;
-use Path::Class;
 use Carp;
 use Text::vCard;
 use Text::vCard::Addressbook;
@@ -84,6 +84,8 @@ has encoding_in  => ( is => 'rw', default => sub {'UTF-8'} );
 has encoding_out => ( is => 'rw', default => sub {'UTF-8'} );
 has vcards       => ( is => 'rw', default => sub { [] } );
 
+with 'vCard::Role::FileIO';
+
 =head2 add_vcard()
 
 Creates a new vCard object and adds it to the address book.  Returns a L<vCard>
@@ -112,15 +114,10 @@ chained.
 sub load_file {
     my ( $self, $filename ) = @_;
 
-    my $file = ref $filename eq 'Path::Class::File'    #
-        ? $filename
-        : file($filename);
+    my $file   = $self->_path($filename);
+    my $string = $file->slurp( $self->_iomode_in );
 
-    my @iomode = $self->encoding_in eq 'none'          #
-        ? ()
-        : ( iomode => '<:encoding(' . $self->encoding_in . ')' );
-
-    $self->load_string( scalar $file->slurp(@iomode) );
+    $self->load_string($string);
 
     return $self;
 }
@@ -264,23 +261,14 @@ sub _copy_email_addresses {
 =head2 as_file($filename)
 
 Write all the vCards to $filename.  Files are written as UTF-8 by default.
-Returns a L<Path::Class::File> object if successful.  Dies if not successful.
+Dies if not successful.
 
 =cut
 
 sub as_file {
     my ( $self, $filename ) = @_;
-
-    my $file = ref $filename eq 'Path::Class::File'    #
-        ? $filename
-        : file($filename);
-
-    my @iomode = $self->encoding_out eq 'none'         #
-        ? ()
-        : ( iomode => '>:encoding(' . $self->encoding_out . ')' );
-
-    $file->spew( @iomode, $self->as_string, );
-
+    my $file = $self->_path($filename);
+    $file->spew( $self->_iomode_out, $self->as_string );
     return $file;
 }
 

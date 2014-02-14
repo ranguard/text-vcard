@@ -1,13 +1,12 @@
 use Test::Most;
 
-use Directory::Scratch;
-use Path::Class;
+use Path::Tiny qw/path tempfile/;
 use vCard::AddressBook;
 use Encode;
 
-my $in_file  = file('t/complete.vcf');
-my $out_file = Directory::Scratch->new->touch('.vcard.out.vcf');
-##my $out_file     = file('.vcard.out.vcf');
+my $in_file  = path('t/complete.vcf');
+my $out_file = tempfile('.vcard.out.vcfXXXX');
+##my $out_file     = path('.vcard.out.vcf');
 my $address_book = vCard::AddressBook->new;
 
 subtest 'load an address book' => sub {
@@ -41,12 +40,12 @@ subtest 'load an address book' => sub {
 };
 
 subtest 'output address book' => sub {
-    my $in_file_string = $in_file->slurp( iomode => '<:encoding(UTF-8)' );
+    my $in_file_string = $in_file->slurp_utf8;
 
     $address_book->load_string($in_file_string);
     $address_book->as_file($out_file);
 
-    my $contents = scalar $out_file->slurp( iomode => '<:encoding(UTF-8)' );
+    my $contents = $out_file->slurp_utf8;
 
     is $contents, expected_out_file(), 'as_file()';
 
@@ -102,7 +101,7 @@ sub expected_email_addresses {
 }
 
 sub expected_out_file {
-    my $in_file_string = $in_file->slurp( iomode => '<:encoding(UTF-8)' );
+    my $in_file_string = $in_file->slurp_utf8;
     return
           "BEGIN:VCARD\x0D\x0AVERSION:4.0\x0D\x0AEND:VCARD\x0D\x0A" x 3
         . $in_file_string

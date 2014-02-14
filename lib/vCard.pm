@@ -1,7 +1,7 @@
 package vCard;
 use Moo;
 
-use Path::Class;
+use Path::Tiny;
 use Text::vCard;
 use vCard::AddressBook;
 use URI;
@@ -70,6 +70,8 @@ See the 'ENCODING AND UTF-8' section of L<vCard::AddressBook>.
 has encoding_in  => ( is => 'rw', default => sub {'UTF-8'} );
 has encoding_out => ( is => 'rw', default => sub {'UTF-8'} );
 has _data        => ( is => 'rw', default => sub { { version => '4.0' } } );
+
+with 'vCard::Role::FileIO';
 
 =head2 load_hashref($hashref)
 
@@ -293,23 +295,14 @@ sub _build_email_address_nodes {
 
 Write data in vCard format to $filename.
 
-Returns a L<Path::Class::File> object if successful.  Dies if not successful.
+Dies if not successful.
 
 =cut
 
 sub as_file {
     my ( $self, $filename ) = @_;
-
-    my $file = ref $filename eq 'Path::Class::File'    #
-        ? $filename
-        : file($filename);
-
-    my @iomode = $self->encoding_out eq 'none'         #
-        ? ()
-        : ( iomode => '>:encoding(' . $self->encoding_out . ')' );
-
-    $file->spew( @iomode, $self->as_string, );
-
+    my $file = $self->_path($filename);
+    $file->spew( $self->_iomode_out, $self->as_string );
     return $file;
 }
 
