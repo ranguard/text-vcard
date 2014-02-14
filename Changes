@@ -1,7 +1,10 @@
 Revision history for Perl extension Text::vCard.
 
+3.02 Fri 14 Feb 18:35:55 2014
+    - Try fix Win32, switch File::Slurp to Path::Tiny (kablamo)
+
 3.01 Mon 10 Feb 11:52:00 2014
-	- Try fix Win32 (kablamo)
+    - Try fix Win32 (kablamo)
 
 3.0 Tue Jan 21 15:25:40 GMT 2014
     - Major changes!
