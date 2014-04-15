@@ -51,26 +51,42 @@ subtest 'complex getters' => sub {
     is_deeply $emails->[1]->{type}, ['home'], 'home email address';
 };
 
-subtest 'load_file()' => sub {
+subtest 'load_file() with chaining' => sub {
     my $vcard2 = vCard->new->load_file($tmp_file);
-    is ref $vcard2, 'vCard', 'object type is good';
-    foreach my $node_type ( vCard->_simple_node_types ) {
-        next if $node_type eq 'full_name';
-        is $vcard2->$node_type, $hashref->{$node_type}, $node_type;
-    }
+    test_simple_node_types($vcard2);
 };
 
-subtest 'load_string()' => sub {
+subtest 'load_file() w/o chaining' => sub {
+    my $vcard2 = vCard->new;
+    $vcard2->load_file($tmp_file);
+    test_simple_node_types($vcard2);
+};
+
+subtest 'load_string() with chaining' => sub {
     my $tmp_contents = $tmp_file->slurp_utf8;
-    my $vcard3       = vCard->new->load_string($tmp_contents);
-    is ref $vcard3, 'vCard', 'object type is good';
-    foreach my $node_type ( vCard->_simple_node_types ) {
-        next if $node_type eq 'full_name';
-        is $vcard3->$node_type, $hashref->{$node_type}, $node_type;
-    }
+    my $vcard3 = vCard->new->load_string($tmp_contents);
+    test_simple_node_types($vcard3);
+};
+
+subtest 'load_string() w/o chaining' => sub {
+    my $tmp_contents = $tmp_file->slurp_utf8;
+    my $vcard3 = vCard->new;
+    $vcard3->load_string($tmp_contents);
+    test_simple_node_types($vcard3);
 };
 
 done_testing;
+
+sub test_simple_node_types {
+    my ($vcard) = @_;
+
+    is ref $vcard, 'vCard', 'object type is good';
+
+    foreach my $node_type ( vCard->_simple_node_types ) {
+        next if $node_type eq 'full_name';
+        is $vcard->$node_type, $hashref->{$node_type}, $node_type;
+    }
+}
 
 # everything below this line is test data
 
