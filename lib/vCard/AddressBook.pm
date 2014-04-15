@@ -197,11 +197,11 @@ sub _copy_name {
 
     my ($node) = $text_vcard->get('n');
 
-    $vcard->family_names(       [ $node->family ] );
-    $vcard->given_names(        [ $node->given ] );
-    $vcard->other_names(        [ $node->middle ] );
-    $vcard->honorific_prefixes( [ $node->prefixes ] );
-    $vcard->honorific_suffixes( [ $node->suffixes ] );
+    $vcard->family_names(       [ $node->family   || () ] );
+    $vcard->given_names(        [ $node->given    || () ] );
+    $vcard->other_names(        [ $node->middle   || () ] );
+    $vcard->honorific_prefixes( [ $node->prefixes || () ] );
+    $vcard->honorific_suffixes( [ $node->suffixes || () ] );
 }
 
 sub _copy_phones {

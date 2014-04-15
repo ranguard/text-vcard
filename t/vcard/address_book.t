@@ -30,10 +30,11 @@ subtest 'load an address book' => sub {
     is $vcard->timezone, 'UTC-7',    'timezone()';
 
     note "complex getters and setters";
-    is_deeply $vcard->family_names,       ['Banner'], 'family_names()';
-    is_deeply $vcard->given_names,        ['Bruce'],  'given_names()';
-    is_deeply $vcard->honorific_prefixes, ['Dr.'],    'prefixes';
-    is_deeply $vcard->honorific_suffixes, ['PhD'],    'suffixes';
+    is_deeply $vcard->family_names,       ['Banner'],  'family_names()';
+    is_deeply $vcard->given_names,        ['Bruce'],   'given_names()';
+    is_deeply $vcard->other_names,        [],          'other_names()';
+    is_deeply $vcard->honorific_prefixes, ['Dr.'],     'prefixes';
+    is_deeply $vcard->honorific_suffixes, ['PhD'],     'suffixes';
     is_deeply $vcard->phones,    expected_phones(),    'phones()';
     is_deeply $vcard->addresses, expected_addresses(), 'addresses()';
     is_deeply $vcard->email_addresses, expected_email_addresses(),
