@@ -75,6 +75,14 @@ subtest 'load_string() w/o chaining' => sub {
     test_simple_node_types($vcard3);
 };
 
+# \r\n must be used as line endings.  This is required by the RFC.
+subtest 'load_string() w/no carriage returns' => sub {
+    my $string = raw_vcard();
+    $string =~ s/\r//g;
+    throws_ok { vCard->new->load_string($string) } qr/ERROR/, 
+        'caught exception for a string with no carriage returns';
+};
+
 done_testing;
 
 sub test_simple_node_types {
@@ -90,8 +98,8 @@ sub test_simple_node_types {
 
 # everything below this line is test data
 
-sub expected_vcard {
-    my $string = <<EOF;
+sub raw_vcard {
+    return <<EOF;
 BEGIN:VCARD\r
 VERSION:4.0\r
 N:Banner;Bruce;;Dr.;PhD\r
@@ -108,8 +116,10 @@ TITLE:Research Scientist\r
 TZ:UTC-7\r
 END:VCARD\r
 EOF
+}
 
-    return Encode::decode( 'UTF-8', $string );
+sub expected_vcard {
+    return Encode::decode( 'UTF-8', raw_vcard() );
 }
 
 sub hashref {

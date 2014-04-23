@@ -131,7 +131,17 @@ decoded (but not MIME decoded).  Returns $self so the method can be chained.
 
 sub load_string {
     my ( $self, $string ) = @_;
+
+    die <<EOS
+ERROR: Either there is no END in this vCard or there is a problem with the line
+endings.  Note that the vCard RFC requires line endings delimited by \\r\\n
+regardless of your operating system.  Windows :crlf mode will strip out the \\r
+so don't use that.
+EOS
+        unless $string =~ m/\r\n/m;
+    
     $self->_create_vcards($string);
+
     return $self;
 }
 
