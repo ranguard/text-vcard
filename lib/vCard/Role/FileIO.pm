@@ -1,4 +1,5 @@
 package vCard::Role::FileIO;
+
 use Moo::Role;
 use Path::Tiny;
 

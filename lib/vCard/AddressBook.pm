@@ -1,4 +1,5 @@
 package vCard::AddressBook;
+
 use Moo;
 
 use vCard;
@@ -47,7 +48,7 @@ A vCard is a digital business card.  L<vCard> and vCard::AddressBook provide an
 API for parsing, editing, and creating vCards.
 
 This module is built on top of L<Text::vCard> and L<Text::vCard::AddressBook>
-and provides a more intuitive user interface.  
+and provides a more intuitive user interface.
 
 
 =head1 ENCODING AND UTF-8
@@ -56,11 +57,11 @@ and provides a more intuitive user interface.
 
 The 'encoding_in' and 'encoding_out' constructor parameters allow you to read
 and write vCard files with any encoding.  Examples of valid values are
-'UTF-8', 'Latin1', and 'none'.  
+'UTF-8', 'Latin1', and 'none'.
 
 Both parameters default to 'UTF-8' and this should just work for the vast
 majority of people.  The latest vCard RFC 6350 only allows UTF-8 as an encoding
-so most people should not need to use either parameter. 
+so most people should not need to use either parameter.
 
 =head2 MIME encodings
 
@@ -139,7 +140,7 @@ regardless of your operating system.  Windows :crlf mode will strip out the \\r
 so don't use that.
 EOS
         unless $string =~ m/\r\n/m;
-    
+
     $self->_create_vcards($string);
 
     return $self;
