@@ -1,5 +1,9 @@
 Revision history for Perl extension Text::vCard.
 
+3.03 Fri 25 Apr 2014 19:23:43
+    - Better error msg for vcards w/o proper line endings (kablamo)
+    - Bug fix for names. +test (kablamo)
+
 3.02 Fri 14 Feb 18:35:55 2014
     - Try fix Win32, switch File::Slurp to Path::Tiny (kablamo)
 
@@ -21,7 +25,7 @@ Revision history for Perl extension Text::vCard.
     - Version defaults to 4.0 when using the new vCard library
 
 2.13 Thu 20 Dec 2012 19:34:44 GMT
-    - Under the newer combined RFC6350 - every END:VCARD must 
+    - Under the newer combined RFC6350 - every END:VCARD must
       be followed by \r\n (including last one)- reported by ysth
     - Fix for tests, should now work under Perl 5.17.6 - Ron Savage
 
@@ -63,7 +67,7 @@ Revision history for Perl extension Text::vCard.
     - added 'moniker' and marked 'name' as depreciated
 
 2.02 Sat Mar 15 17:15:16 GMT 2008
-    - http://rt.cpan.org/Ticket/Display.html?id=34044 
+    - http://rt.cpan.org/Ticket/Display.html?id=34044
       Clean up tests so they pass in perl 5.10
       thanks to Neil Williams
 
@@ -111,9 +115,9 @@ Revision history for Perl extension Text::vCard.
 1.91
     - Doc bug, said 'tels', should have been 'tel'.
 
-1.9 
+1.9
     - removed import() from docs as not used now
-    - changed Node so excepts data with less than field order elements 
+    - changed Node so excepts data with less than field order elements
       e.g. N, accepts 'Jon;Smith', As well as 'Jon;Smith;Dr;' this means
       we work better according to the RFC
     - ORGs' 'unit' method requires and returns an array ref as it is
@@ -128,7 +132,7 @@ Revision history for Perl extension Text::vCard.
 
 1.6 Wed 13th Oct 2004
     - removed import() and made anonsub again
-    - removed version() as was conflicting with $VERSION, 
+    - removed version() as was conflicting with $VERSION,
       info can be accessed through other methods in anycase
 
 1.5 Wed  Oct 6th 2004
