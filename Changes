@@ -1,5 +1,8 @@
 Revision history for Perl extension Text::vCard.
 
+3.04 Tue 29 Apr 2014 20:21:52
+    - Try a fix for Win32 (kablamo)
+
 3.03 Fri 25 Apr 2014 19:23:43
     - Better error msg for vcards w/o proper line endings (kablamo)
     - Bug fix for names. +test (kablamo)
