@@ -254,7 +254,7 @@ sub export {
 sub _iomode_in {
     my ($self) = @_;
     return () if $self->{encoding_in} eq 'none';
-    return { binmode => ':encoding(' . $self->{encoding_in} . ')' };
+    return { binmode => ':raw:encoding(' . $self->{encoding_in} . ')' };
 }
 
 # Filename can be a string, a Path::Tiny obj, or a Path::Class obj.
