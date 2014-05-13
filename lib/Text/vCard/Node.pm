@@ -466,7 +466,7 @@ sub _params {
 
     $t{CHARSET} = [ lc $self->{encoding_out} ]
         if $self->{encoding_out} ne 'none'
-        && $self->{encoding_out} ne 'UTF-8'
+        && $self->{encoding_out} !~ /UTF-8/i
         && !$self->is_type('b')
         && !$self->is_type('base64');
 
@@ -556,7 +556,7 @@ sub _wrap {
     my ( $self, $key, $value ) = @_;
 
     return $self->_wrap_naively( $key, $value )
-        unless $self->{encoding_out} eq 'UTF-8';
+        unless $self->{encoding_out} =~ /UTF-8/i;
 
     if ( $self->is_type('q') or $self->is_type('quoted-printable') ) {
         ## See the Quoted-Printable RFC205
