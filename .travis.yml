@@ -8,6 +8,7 @@ perl:
 
 install:
    - cpanm --quiet --notest --skip-satisfied Dist::Zilla
+   - cpanm Test::NoTabs
    - "dzil authordeps | grep -vP '[^\\w:]' | cpanm --verbose --notest --skip-satisfied"
    - "dzil listdeps   | grep -vP '[^\\w:]' | cpanm --verbose --skip-satisfied"
 
