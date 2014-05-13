@@ -101,6 +101,15 @@ sub load {
 
         my $file   = $self->_path($filename);
         my $string = $file->slurp( $self->_iomode_in );
+
+        die <<EOS
+ERROR: Either there is no END in this vCard or there is a problem with the line
+endings.  Note that the vCard RFC requires line endings delimited by \\r\\n
+regardless of your operating system.  Windows :crlf mode will strip out the \\r
+so don't use that.
+EOS
+            unless $string =~ m/\r\n/m;
+
         $self->import_data($string);
     }
 
@@ -253,7 +262,7 @@ sub export {
 # See PerlIO, PerlIO::encoding docs.
 sub _iomode_in {
     my ($self) = @_;
-    return () if $self->{encoding_in} eq 'none';
+    return { binmode => ':raw' } if $self->{encoding_in} eq 'none';
     return { binmode => ':raw:encoding(' . $self->{encoding_in} . ')' };
 }
 
