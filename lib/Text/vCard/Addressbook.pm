@@ -12,7 +12,7 @@ use base qw(Text::vFile::asData);
 
 =head1 NAME
 
-Text::vCard::Addressbook - a package to parse, edit and create multiple vCards (RFC 2426) 
+Text::vCard::Addressbook - Parse, edit, and create multiple vCards (RFC 2426) 
 
 =head1 WARNING
 

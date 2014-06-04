@@ -79,7 +79,7 @@ map { push( @simple, lc($_) ) } @simple;
 
 =head1 NAME
 
-Text::vCard - a package to edit and create a single vCard (RFC 2426)
+Text::vCard - Edit and create a vCard (RFC 2426)
 
 =head1 WARNING
 

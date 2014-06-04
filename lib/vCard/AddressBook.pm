@@ -9,7 +9,7 @@ use Text::vCard::Addressbook;
 
 =head1 NAME
 
-vCard::AddressBook - Read, write, and edit a multiple vCards
+vCard::AddressBook - Read, write, and edit multiple vCards
 
 =head1 SYNOPSIS
 
