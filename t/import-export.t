@@ -34,7 +34,7 @@ foreach my $filename (qw|latin1.vcf|) {
     my $address_book = Text::vCard::Addressbook->load( [$in_file],
         { encoding_in => 'none', encoding_out => 'none' } );
     my $vcard            = $address_book->vcards->[0];
-    my $expected_content = $in_file->slurp();
+    my $expected_content = $in_file->slurp_raw();
     my $actual_content   = $vcard->as_string();
 
     is $actual_content, $expected_content, 'vCard->as_string()';
