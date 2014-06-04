@@ -9,7 +9,7 @@ use URI;
 
 =head1 NAME
 
-vCard - Read, write, and edit a vCard
+vCard - Read, write, and edit vCards
 
 =head1 SYNOPSIS
 
