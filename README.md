@@ -14,6 +14,7 @@ vCard - Read, write, and edit vCards
     $vcard->load_file($filename); 
     $vcard->load_string($string); 
     $vcard->load_hashref($hashref); 
+
     # simple getters/setters
     $vcard->full_name('Bruce Banner, PhD');
     $vcard->title('Research Scientist');
@@ -33,8 +34,6 @@ vCard - Read, write, and edit vCards
     my $file   = $vcard->as_file($filename); # writes to $filename
     my $string = $vcard->as_string;          # returns a string
 
-
-
 # DESCRIPTION
 
 A vCard is a digital business card.  vCard and [vCard::AddressBook](https://metacpan.org/pod/vCard::AddressBook) provide an
@@ -49,13 +48,9 @@ To handle an address book with several vCard entries in it, start with
 Note that the vCard RFC requires version() and full\_name().  This module does
 not check or warn if these conditions have not been met.
 
-
-
 # ENCODING AND UTF-8
 
 See the 'ENCODING AND UTF-8' section of [vCard::AddressBook](https://metacpan.org/pod/vCard::AddressBook).
-
-
 
 # METHODS
 
@@ -128,8 +123,6 @@ TODO: handle binary images using the data uri schema
 ## birthday()
 
 ## timezone()
-
-
 
 # COMPLEX GETTERS/SETTERS
 

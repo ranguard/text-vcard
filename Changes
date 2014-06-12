@@ -1,5 +1,9 @@
 Revision history for Perl extension Text::vCard.
 
+3.06 Thu 12 Jun 2014 19:55:51 BST
+    - Fixed Text::vCard::Node->add_types() (kablamo)
+    - Fix/guess for tests failing on windows (kablamo)
+
 3.05 Tue 13 May 2014 18:04:30 BST
     - Another win attempt to fix (kablamo)
     - Get travis working! (kablamo)
