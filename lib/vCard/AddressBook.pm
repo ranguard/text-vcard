@@ -22,7 +22,7 @@ vCard::AddressBook - Read, write, and edit vCard address books
     $address_book->load_file('/path/file.vcf');
     $address_book->load_string($string);
 
-    my $vcard = $adress_book->add_vcard; # returns a vCard object
+    my $vcard = $address_book->add_vcard; # returns a vCard object
     $vcard->full_name('Bruce Banner, PhD');
     $vcard->family_names(['Banner']);
     $vcard->given_names(['Bruce']);
@@ -31,8 +31,8 @@ vCard::AddressBook - Read, write, and edit vCard address books
         { type => ['home'], address => 'bbanner@timewarner.com'      },
     ]);
 
-    # $address_book->vcards() returns a list of vCard objects
-    foreach my $vcard ( $address_book->vcards() ) {
+    # $address_book->vcards() returns an arrayref of vCard objects
+    foreach my $vcard (@{ $address_book->vcards() }) {
         print $vcard->full_name() . "\n";
         print $vcard->email_addresses->[0]->{address} . "\n";
     }
