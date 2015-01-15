@@ -21,14 +21,14 @@ vCard - Read, write, and edit vCards
     $vcard->photo('http://example.com/bbanner.gif');
 
     # complex getters/setters
-    $vcard->phones({
+    $vcard->phones([
         { type => ['work', 'text'], number => '651-290-1234', preferred => 1 },
         { type => ['home'],         number => '651-290-1111' }
-    });
-    $vcard->email_addresses({
+    ]);
+    $vcard->email_addresses([
         { type => ['work'], address => 'bbanner@ssh.secret.army.mil' },
         { type => ['home'], address => 'bbanner@timewarner.com'      },
-    });
+    ]);
 
     # these methods output data in vCard format
     my $file   = $vcard->as_file($filename); # writes to $filename
