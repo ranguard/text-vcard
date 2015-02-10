@@ -16,7 +16,7 @@ install:
    - "dzil listdeps   | grep -vP '[^\\w:]' | cpanm --verbose --skip-satisfied"
 
 script:
-    - dzil smoke --release --author && cover -teest -report coveralls
+    - dzil smoke --release --author && cover -test -report coveralls
 
 notifications:
   email:
