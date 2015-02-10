@@ -6,6 +6,9 @@ perl:
   - "5.12"
   - "5.10"
 
+before_install:
+    cpanm -n Devel::Cover::Report::Coveralls
+
 install:
    - cpanm --quiet --notest --skip-satisfied Dist::Zilla
    - cpanm Test::NoTabs
@@ -13,7 +16,7 @@ install:
    - "dzil listdeps   | grep -vP '[^\\w:]' | cpanm --verbose --skip-satisfied"
 
 script:
-  - dzil smoke --release --author
+    - dzil smoke --release --author && cover -teest -report coveralls
 
 notifications:
   email:
