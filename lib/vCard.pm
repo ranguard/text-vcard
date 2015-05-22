@@ -179,7 +179,7 @@ sub as_string {
 }
 
 sub _simple_node_types {
-    qw/full_name title photo birthday timezone version/;
+    qw/full_name title photo birthday timezone version org sound uid url/;
 }
 
 sub _build_simple_nodes {
