@@ -18,7 +18,16 @@ my $vcard = $address_book->vcards->[0];
 my $expected_content = $in_file->slurp_utf8;
 my $actual_content   = $vcard->as_string();
 
-is $actual_content, $expected_content, 'vCard->as_string()';
+# the order in the vcard keys is not preserved so we wil test the only the wrapped lines
+my $N    =  qr(/(N;CH[^\r]\r\n(?:[ \t][^\r]*\r\n)*)/s);
+my $ADR  =  qr(/(ADR;[^\r]\r\n(?:[ \t][^\r]*\r\n)*)/s);
+my $NOTE =  qr(/(NOTE[^\r]\r\n(?:[ \t][^\r]*\r\n)*)/s);
+
+
+is $actual_content =~ $N,$expected_content =~ $N, 'vCard->as_string() N ?';
+is $actual_content =~ $ADR,$expected_content =~ $ADR, 'vCard->as_string() ADR key?';
+is $actual_content =~ $NOTE,$expected_content =~ $NOTE, 'vCard->as_string() NOTE key?';
+
 is $address_book->export(), $actual_content, 'Addressbook->export()';
 
 done_testing;
