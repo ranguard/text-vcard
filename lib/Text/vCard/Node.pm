@@ -578,8 +578,8 @@ sub _wrap {
 sub _wrap_utf8 {
     my ( $self, $key, $value, $max, $newline ) = @_;
 
-    my $gcs = Unicode::GCString->new( $key . $value );
-    return $key . $value if $gcs->length <= $max;
+    my $gcs = Unicode::GCString->new(Encode::decode('UTF-8', $key . $value));
+    return $key . $value if bytes::length( $gcs->as_string ) <= $max;
 
     my $start = 0;
     my @wrapped_lines;
@@ -611,14 +611,14 @@ sub _wrap_utf8 {
 
             # wrap the line here
             $line = $gcs->substr( $start, $len - 1 )->as_string;
-            push @wrapped_lines, $line;
+            push @wrapped_lines, Encode::encode('UTF-8',$line);
             $start += $len - 1;
             last;
         }
 
         if ( ( $start + $len - 1 ) >= $gcs->length ) {
             my $line = $gcs->substr( $start, $len - 1 )->as_string;
-            push @wrapped_lines, $line;
+            push @wrapped_lines, Encode::encode('UTF-8',$line);
             last;
         }
 
