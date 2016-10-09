@@ -1,5 +1,8 @@
 Revision history for Perl extension Text::vCard.
 
+3.08 Sun  9 Oct 2016 21:56:23 BST
+    - Enconde/decode the key value pair to UTF-8 solves (jluis)
+
 3.07 Thu 15 Jan 2015 21:44:21 GMT
     - POD fixes (kablamo)
 
