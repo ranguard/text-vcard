@@ -408,21 +408,32 @@ Accepts/returns an arrayref that looks like:
 
 =cut
 
-sub version            { shift->_setget( 'version',            @_ ) }
-sub full_name          { shift->_setget( 'full_name',          @_ ) }
-sub family_names       { shift->_setget( 'family_names',       @_ ) }
-sub given_names        { shift->_setget( 'given_names',        @_ ) }
-sub other_names        { shift->_setget( 'other_names',        @_ ) }
-sub honorific_prefixes { shift->_setget( 'honorific_prefixes', @_ ) }
-sub honorific_suffixes { shift->_setget( 'honorific_suffixes', @_ ) }
-sub title              { shift->_setget( 'title',              @_ ) }
-sub photo              { shift->_setget( 'photo',              @_ ) }
-sub birthday           { shift->_setget( 'birthday',           @_ ) }
-sub timezone           { shift->_setget( 'timezone',           @_ ) }
-sub phones             { shift->_setget( 'phones',             @_ ) }
-sub addresses          { shift->_setget( 'addresses',          @_ ) }
-sub email_addresses    { shift->_setget( 'email_addresses',    @_ ) }
-sub organization       { shift->_setget( 'organization',       @_ ) }
+sub version             { shift->_setget( 'version',            @_ ) }
+sub full_name           { shift->_setget( 'full_name',          @_ ) }
+sub family_names        { shift->_setget( 'family_names',       @_ ) }
+sub given_names         { shift->_setget( 'given_names',        @_ ) }
+sub other_names         { shift->_setget( 'other_names',        @_ ) }
+sub honorific_prefixes  { shift->_setget( 'honorific_prefixes', @_ ) }
+sub honorific_suffixes  { shift->_setget( 'honorific_suffixes', @_ ) }
+sub title               { shift->_setget( 'title',              @_ ) }
+sub photo               { shift->_setget( 'photo',              @_ ) }
+sub birthday            { shift->_setget( 'birthday',           @_ ) }
+sub timezone            { shift->_setget( 'timezone',           @_ ) }
+sub phones              { shift->_setget( 'phones',             @_ ) }
+sub addresses           { shift->_setget( 'addresses',          @_ ) }
+sub email_addresses     { shift->_setget( 'email_addresses',    @_ ) }
+sub organization        { shift->_setget( 'organization',       @_ ) }
+sub role                { shift->_setget( 'role',       @_ ) }
+sub logo                { shift->_setget( 'logo',       @_ ) }
+sub categories          { shift->_setget( 'categories',       @_ ) }
+sub note                { shift->_setget( 'note',       @_ ) }
+sub prodid              { shift->_setget( 'prodid',       @_ ) }
+sub rev                 { shift->_setget( 'rev',       @_ ) }
+sub sound               { shift->_setget( 'sound',       @_ ) }
+sub uid                 { shift->_setget( 'uid',       @_ ) }
+sub url                 { shift->_setget( 'url',       @_ ) }
+sub key                 { shift->_setget( 'key',       @_ ) }
+sub source              { shift->_setget( 'source',       @_ ) }
 
 sub _setget {
     my ( $self, $attr, $value ) = @_;
