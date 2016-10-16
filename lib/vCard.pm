@@ -2,6 +2,7 @@ package vCard;
 
 use Moo;
 
+use Carp;
 use Path::Tiny;
 use Text::vCard;
 use vCard::AddressBook;
@@ -170,6 +171,7 @@ sub as_string {
 
     $self->_build_simple_nodes( $vcard, $self->_data );
     $self->_build_name_node( $vcard, $self->_data );
+    $self->_build_org_node( $vcard, $self->_data->{org}  ) if $self->_data->{org};
     $self->_build_phone_nodes( $vcard, $phones ) if $phones;
     $self->_build_address_nodes( $vcard, $addresses ) if $addresses;
     $self->_build_email_address_nodes( $vcard, $email_addresses )
@@ -179,7 +181,8 @@ sub as_string {
 }
 
 sub _simple_node_types {
-    qw/full_name title photo birthday timezone version/;
+    qw/full_name title photo birthday timezone version role logo categories note prodid rev sound uid url key source /;
+    #geo, too?
 }
 
 sub _build_simple_nodes {
@@ -196,6 +199,19 @@ sub _build_simple_nodes {
     }
 }
 
+sub _build_complex_node {
+    my ( $self, $vcard, $node_type, $data ) = @_;
+    croak '$data must be HASHREF' unless ref $data eq 'HASH';
+    $vcard->add_node( { node_type => $node_type, data => [ $data ] } );
+}
+
+sub _build_org_node {
+    my ( $self, $vcard, $data ) = @_;
+    
+    my $value = join ';', @{ $data || [] };
+    $self->_build_complex_node( $vcard, 'ORG', { value => $value } );
+}
+
 sub _build_name_node {
     my ( $self, $vcard, $data ) = @_;
 
@@ -205,7 +221,8 @@ sub _build_name_node {
     $value .= ';' . join ',', @{ $data->{honorific_prefixes} || [] };
     $value .= ';' . join ',', @{ $data->{honorific_suffixes} || [] };
 
-    $vcard->add_node( { node_type => 'N', data => [ { value => $value } ] } )
+
+    $self->_build_complex_node( $vcard, 'N', { value => $value } )
         if $value ne ';;;;';
 }
 
@@ -215,8 +232,8 @@ sub _build_phone_nodes {
     foreach my $phone (@$phones) {
 
         # TODO: better error handling
-        die "'number' attr missing from 'phones'" unless $phone->{number};
-        die "'type' attr in 'phones' should be an arrayref"
+        croak "'number' attr missing from 'phones'" unless $phone->{number};
+        croak "'type' attr in 'phones' should be an arrayref"
             if ( $phone->{type} && ref( $phone->{type} ) ne 'ARRAY' );
 
         my $type      = $phone->{type} || [];
@@ -227,11 +244,7 @@ sub _build_phone_nodes {
         push @$params, { type => $_ } foreach @$type;
         push @$params, { pref => $preferred } if $preferred;
 
-        $vcard->add_node(
-            {   node_type => 'TEL',
-                data      => [ { params => $params, value => $number } ],
-            }
-        );
+        $self->_build_complex_node( $vcard, 'TEL', { params => $params, value => $number } );
     }
 }
 
@@ -240,7 +253,7 @@ sub _build_address_nodes {
 
     foreach my $address (@$addresses) {
 
-        die "'type' attr in 'addresses' should be an arrayref"
+        croak "'type' attr in 'addresses' should be an arrayref"
             if ( $address->{type} && ref( $address->{type} ) ne 'ARRAY' );
 
         my $type = $address->{type} || [];
@@ -259,11 +272,7 @@ sub _build_address_nodes {
             $address->{post_code} || '',
             $address->{country}   || '';
 
-        $vcard->add_node(
-            {   node_type => 'ADR',
-                data      => [ { params => $params, value => $value } ],
-            }
-        );
+        $self->_build_complex_node( $vcard, 'ADR', { params => $params, value => $value } );
     }
 }
 
@@ -273,9 +282,9 @@ sub _build_email_address_nodes {
     foreach my $email_address (@$email_addresses) {
 
         # TODO: better error handling
-        die "'address' attr missing from 'email_addresses'"
+        croak "'address' attr missing from 'email_addresses'"
             unless $email_address->{address};
-        die "'type' attr in 'email_addresses' should be an arrayref"
+        croak "'type' attr in 'email_addresses' should be an arrayref"
             if ( $email_address->{type}
             && ref( $email_address->{type} ) ne 'ARRAY' );
 
@@ -289,11 +298,7 @@ sub _build_email_address_nodes {
         # TODO: better error handling
         my $value = $email_address->{address};
 
-        $vcard->add_node(
-            {   node_type => 'EMAIL',
-                data      => [ { params => $params, value => $value } ],
-            }
-        );
+        $self->_build_complex_node( $vcard, 'EMAIL', { params => $params, value => $value } );
     }
 }
 
@@ -403,20 +408,32 @@ Accepts/returns an arrayref that looks like:
 
 =cut
 
-sub version            { shift->_setget( 'version',            @_ ) }
-sub full_name          { shift->_setget( 'full_name',          @_ ) }
-sub family_names       { shift->_setget( 'family_names',       @_ ) }
-sub given_names        { shift->_setget( 'given_names',        @_ ) }
-sub other_names        { shift->_setget( 'other_names',        @_ ) }
-sub honorific_prefixes { shift->_setget( 'honorific_prefixes', @_ ) }
-sub honorific_suffixes { shift->_setget( 'honorific_suffixes', @_ ) }
-sub title              { shift->_setget( 'title',              @_ ) }
-sub photo              { shift->_setget( 'photo',              @_ ) }
-sub birthday           { shift->_setget( 'birthday',           @_ ) }
-sub timezone           { shift->_setget( 'timezone',           @_ ) }
-sub phones             { shift->_setget( 'phones',             @_ ) }
-sub addresses          { shift->_setget( 'addresses',          @_ ) }
-sub email_addresses    { shift->_setget( 'email_addresses',    @_ ) }
+sub version             { shift->_setget( 'version',            @_ ) }
+sub full_name           { shift->_setget( 'full_name',          @_ ) }
+sub family_names        { shift->_setget( 'family_names',       @_ ) }
+sub given_names         { shift->_setget( 'given_names',        @_ ) }
+sub other_names         { shift->_setget( 'other_names',        @_ ) }
+sub honorific_prefixes  { shift->_setget( 'honorific_prefixes', @_ ) }
+sub honorific_suffixes  { shift->_setget( 'honorific_suffixes', @_ ) }
+sub title               { shift->_setget( 'title',              @_ ) }
+sub photo               { shift->_setget( 'photo',              @_ ) }
+sub birthday            { shift->_setget( 'birthday',           @_ ) }
+sub timezone            { shift->_setget( 'timezone',           @_ ) }
+sub phones              { shift->_setget( 'phones',             @_ ) }
+sub addresses           { shift->_setget( 'addresses',          @_ ) }
+sub email_addresses     { shift->_setget( 'email_addresses',    @_ ) }
+sub organization        { shift->_setget( 'organization',       @_ ) }
+sub role                { shift->_setget( 'role',       @_ ) }
+sub logo                { shift->_setget( 'logo',       @_ ) }
+sub categories          { shift->_setget( 'categories',       @_ ) }
+sub note                { shift->_setget( 'note',       @_ ) }
+sub prodid              { shift->_setget( 'prodid',       @_ ) }
+sub rev                 { shift->_setget( 'rev',       @_ ) }
+sub sound               { shift->_setget( 'sound',       @_ ) }
+sub uid                 { shift->_setget( 'uid',       @_ ) }
+sub url                 { shift->_setget( 'url',       @_ ) }
+sub key                 { shift->_setget( 'key',       @_ ) }
+sub source              { shift->_setget( 'source',       @_ ) }
 
 sub _setget {
     my ( $self, $attr, $value ) = @_;
