@@ -181,7 +181,7 @@ sub as_string {
 }
 
 sub _simple_node_types {
-    qw/full_name title photo birthday timezone version role logo categories note prodid rev sound uid url key source /;
+    qw/full_name title photo birthday timezone version/;
     #geo, too?
 }
 
@@ -423,17 +423,6 @@ sub phones              { shift->_setget( 'phones',             @_ ) }
 sub addresses           { shift->_setget( 'addresses',          @_ ) }
 sub email_addresses     { shift->_setget( 'email_addresses',    @_ ) }
 sub organization        { shift->_setget( 'organization',       @_ ) }
-sub role                { shift->_setget( 'role',               @_ ) }
-sub logo                { shift->_setget( 'logo',               @_ ) }
-sub categories          { shift->_setget( 'categories',         @_ ) }
-sub note                { shift->_setget( 'note',               @_ ) }
-sub prodid              { shift->_setget( 'prodid',             @_ ) }
-sub rev                 { shift->_setget( 'rev',                @_ ) }
-sub sound               { shift->_setget( 'sound',              @_ ) }
-sub uid                 { shift->_setget( 'uid',                @_ ) }
-sub url                 { shift->_setget( 'url',                @_ ) }
-sub key                 { shift->_setget( 'key',                @_ ) }
-sub source              { shift->_setget( 'source',             @_ ) }
 
 sub _setget {
     my ( $self, $attr, $value ) = @_;
