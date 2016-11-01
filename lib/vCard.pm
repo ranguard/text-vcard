@@ -165,24 +165,25 @@ sub as_string {
     my ($self) = @_;
     my $vcard = Text::vCard->new( { encoding_out => $self->encoding_out } );
 
+    my $organizations   = $self->_data->{organizations};
     my $phones          = $self->_data->{phones};
     my $addresses       = $self->_data->{addresses};
     my $email_addresses = $self->_data->{email_addresses};
 
     $self->_build_simple_nodes( $vcard, $self->_data );
     $self->_build_name_node( $vcard, $self->_data );
-    $self->_build_org_node( $vcard, $self->_data->{org}  ) if $self->_data->{org};
+    $self->_build_org_node( $vcard, $org ) if $organizations;
     $self->_build_phone_nodes( $vcard, $phones ) if $phones;
     $self->_build_address_nodes( $vcard, $addresses ) if $addresses;
-    $self->_build_email_address_nodes( $vcard, $email_addresses )
-        if $email_addresses;
+     $self->_build_email_address_nodes( $vcard, $email_addresses )
+    if $email_addresses;
 
     return $vcard->as_string;
 }
 
 sub _simple_node_types {
-    qw/full_name title photo birthday timezone version/;
-    #geo, too?
+    qw( version full_name title photo birthday timezone );
+    # version MUST be at first line of the vCards.
 }
 
 sub _build_simple_nodes {
@@ -206,10 +207,27 @@ sub _build_complex_node {
 }
 
 sub _build_org_node {
-    my ( $self, $vcard, $data ) = @_;
-    
-    my $value = join ';', @{ $data || [] };
-    $self->_build_complex_node( $vcard, 'ORG', { value => $value } );
+    my ( $self, $vcard, $organizations ) = @_;
+
+    foreach my $org (@$organizations) {
+
+        # TODO: better error handling
+        croak "'value' attr missing from 'organizations'" unless $org->{value};
+        croak "'type' attr in 'organizations' should be an arrayref"
+        if ( $org->{type} && ref( $org->{type} ) ne 'ARRAY' );
+
+        my $type      = $org->{type} || [];
+        my $preferred = $org->{preferred};
+        my $value    = $org->{value} || [];
+
+        my $params = [];
+        push @$params, { type => $_ } foreach @$type;
+        push @$params, { pref => $preferred } if $preferred;
+
+        my $value = join ';', grep{ s/([,;\\])/\\$1/sg } @$value;
+        $self->_build_complex_node( $vcard, 'ORG', { params => $params, value => $value } );
+    }
+
 }
 
 sub _build_name_node {
@@ -406,6 +424,14 @@ Accepts/returns an arrayref that looks like:
     { type => ['home'], address => 'bbanner@timewarner.com', preferred => 1 },
   ]
 
+=head2 organizations()
+
+ Accepts/returns an arrayref that looks like:
+ [
+    { type => ['work'], value => [ 'ABC, Inc.','North American Division','Marketing' ] },
+    { type => ['work'], value => ['Bubba Gump Shrimp Co.'], preferred => 1 },
+ ]
+
 =cut
 
 sub version             { shift->_setget( 'version',            @_ ) }
@@ -422,7 +448,7 @@ sub timezone            { shift->_setget( 'timezone',           @_ ) }
 sub phones              { shift->_setget( 'phones',             @_ ) }
 sub addresses           { shift->_setget( 'addresses',          @_ ) }
 sub email_addresses     { shift->_setget( 'email_addresses',    @_ ) }
-sub organization        { shift->_setget( 'organization',       @_ ) }
+sub organizations       { shift->_setget( 'organizations',      @_ ) }
 
 sub _setget {
     my ( $self, $attr, $value ) = @_;
