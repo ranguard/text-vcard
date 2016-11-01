@@ -185,6 +185,15 @@ Accepts/returns an arrayref that looks like:
       { type => ['home'], address => 'bbanner@timewarner.com', preferred => 1 },
     ]
 
+##head2 organizations()
+
+Accepts/returns an arrayref that looks like:
+
+    [
+        { type => ['work'], value => [ 'ABC, Inc.','North American Division','Marketing' ] },
+        { type => ['work'], value => ['Bubba Gump Shrimp Co.'], preferred => 1 },
+    ]
+
 # AUTHOR
 
 Eric Johnson (kablamo), github ~!at!~ iijo dot org
