@@ -207,6 +207,7 @@ sub _build_complex_node {
 }
 
 sub _build_org_node {
+
     my ( $self, $vcard, $organizations ) = @_;
 
     foreach my $org (@$organizations) {
@@ -227,7 +228,6 @@ sub _build_org_node {
         $value = join ';', grep{ s/([\,\;\\])/\\$1/sg } @$value;
         $self->_build_complex_node( $vcard, 'ORG', { params => $params, value => $value } );
     }
-
 }
 
 sub _build_name_node {
