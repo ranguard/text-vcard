@@ -185,7 +185,7 @@ Accepts/returns an arrayref that looks like:
       { type => ['home'], address => 'bbanner@timewarner.com', preferred => 1 },
     ]
 
-##head2 organizations()
+## organizations()
 
 Accepts/returns an arrayref that looks like:
 

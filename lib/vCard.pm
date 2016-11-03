@@ -172,7 +172,7 @@ sub as_string {
 
     $self->_build_simple_nodes( $vcard, $self->_data );
     $self->_build_name_node( $vcard, $self->_data );
-    $self->_build_org_node( $vcard, $org ) if $organizations;
+    $self->_build_org_node( $vcard, $organizations ) if $organizations;
     $self->_build_phone_nodes( $vcard, $phones ) if $phones;
     $self->_build_address_nodes( $vcard, $addresses ) if $addresses;
      $self->_build_email_address_nodes( $vcard, $email_addresses )
@@ -218,13 +218,13 @@ sub _build_org_node {
 
         my $type      = $org->{type} || [];
         my $preferred = $org->{preferred};
-        my $value    = $org->{value} || [];
+        my $value     = $org->{value} || [];
 
         my $params = [];
         push @$params, { type => $_ } foreach @$type;
         push @$params, { pref => $preferred } if $preferred;
 
-        my $value = join ';', grep{ s/([,;\\])/\\$1/sg } @$value;
+        $value = join ';', grep{ s/([\,\;\\])/\\$1/sg } @$value;
         $self->_build_complex_node( $vcard, 'ORG', { params => $params, value => $value } );
     }
 
