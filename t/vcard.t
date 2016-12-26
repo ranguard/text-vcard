@@ -107,6 +107,7 @@ FN:Bruce Banner\\, PhD\r
 ADR;TYPE=work:;;部队街;Desert Base;New Mexico;55416;USA\r
 ADR;TYPE=home:;;Main St;Desert Base;New Mexico;55416;USA\r
 BDAY:19700414\r
+ORG:Bubba Gump Shrimp Co.\r
 EMAIL;PREF=1;TYPE=work:bbanner.work\@example.com\r
 EMAIL;TYPE=home:bbanner.home\@example.com\r
 PHOTO:http://shh.supersecret.army.mil/bbanner.gif\r
@@ -131,6 +132,7 @@ sub hashref {
         title              => 'Research Scientist',
         photo              => 'http://shh.supersecret.army.mil/bbanner.gif',
         birthday           => '19700414',
+        organization       => 'Bubba Gump Shrimp Co.',
         timezone           => 'UTC-7',
         phones             => [
             {   type      => ['work'],
