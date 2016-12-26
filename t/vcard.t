@@ -107,9 +107,9 @@ FN:Bruce Banner\\, PhD\r
 ADR;TYPE=work:;;部队街;Desert Base;New Mexico;55416;USA\r
 ADR;TYPE=home:;;Main St;Desert Base;New Mexico;55416;USA\r
 BDAY:19700414\r
-ORG:Bubba Gump Shrimp Co.\r
 EMAIL;PREF=1;TYPE=work:bbanner.work\@example.com\r
 EMAIL;TYPE=home:bbanner.home\@example.com\r
+ORG:Bubba Gump Shrimp Co.\r
 PHOTO:http://shh.supersecret.army.mil/bbanner.gif\r
 TEL;PREF=1;TYPE=work:651-290-1234\r
 TEL;TYPE=cell:651-290-1111\r
