@@ -132,7 +132,7 @@ sub hashref {
         title              => 'Research Scientist',
         photo              => 'http://shh.supersecret.army.mil/bbanner.gif',
         birthday           => '19700414',
-        #organizations      => ['Bubba Gump Shrimp Co.'],
+        organizations      => ['Bubba Gump Shrimp Co.'],
         timezone           => 'UTC-7',
         phones             => [
             {   type      => ['work'],
