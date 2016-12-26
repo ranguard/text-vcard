@@ -225,7 +225,7 @@ sub _build_org_node {
         push @$params, { type => $_ } foreach @$type;
         push @$params, { pref => $preferred } if $preferred;
 
-        $value = join ';', grep{ s/([\,\;\\])/\\$1/sg } @$value;
+        $value =~ s/([,;\\])/\\$1/sg;
         $self->_build_complex_node( $vcard, 'ORG', { params => $params, value => $value } );
     }
 }
