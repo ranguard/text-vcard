@@ -191,7 +191,7 @@ Accepts/returns an arrayref that looks like:
 
     [
       { type => ['work'], value => [ 'ABC, Inc.','North American Division','Marketing' ] },
-      { type => ['work'], value => ['Bubba Gump Shrimp Co.'], preferred => 1 },
+      { type => ['work'], value => 'Bubba Gump Shrimp Co.', preferred => 1 },
     ]
 
 
