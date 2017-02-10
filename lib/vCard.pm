@@ -451,6 +451,7 @@ sub phones              { shift->_setget( 'phones',             @_ ) }
 sub addresses           { shift->_setget( 'addresses',          @_ ) }
 sub email_addresses     { shift->_setget( 'email_addresses',    @_ ) }
 sub organizations       { shift->_setget( 'organizations',      @_ ) }
+sub org                 { shift->_setget( 'organizations',      @_ ) }
 
 sub _setget {
     my ( $self, $attr, $value ) = @_;
