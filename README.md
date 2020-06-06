@@ -11,9 +11,9 @@ vCard - Read, write, and edit vCards
 
     # these methods load vCard data
     # (see method documentation for details)
-    $vcard->load_file($filename); 
-    $vcard->load_string($string); 
-    $vcard->load_hashref($hashref); 
+    $vcard->load_file($filename);
+    $vcard->load_string($string);
+    $vcard->load_hashref($hashref);
 
     # simple getters/setters
     $vcard->full_name('Bruce Banner, PhD');
@@ -40,7 +40,7 @@ A vCard is a digital business card.  vCard and [vCard::AddressBook](https://meta
 API for parsing, editing, and creating vCards.
 
 This module is built on top of [Text::vCard](https://metacpan.org/pod/Text::vCard).  It provides a more intuitive user
-interface.  
+interface.
 
 To handle an address book with several vCard entries in it, start with
 [vCard::AddressBook](https://metacpan.org/pod/vCard::AddressBook) and then come back to this module.
@@ -99,7 +99,7 @@ Dies if not successful.
 
 # SIMPLE GETTERS/SETTERS
 
-These methods accept and return strings.  
+These methods accept and return strings.
 
 ## version()
 
@@ -107,7 +107,7 @@ Version number of the vcard.  Defaults to '4.0'
 
 ## full\_name()
 
-A person's entire name as they would like to see it displayed.  
+A person's entire name as they would like to see it displayed.
 
 ## title()
 
@@ -116,7 +116,7 @@ A person's position or job.
 ## photo()
 
 This should be a link. Accepts a string or a URI object.  This method
-always returns a [URI](https://metacpan.org/pod/URI) object. 
+always returns a [URI](https://metacpan.org/pod/URI) object.
 
 TODO: handle binary images using the data uri schema
 
@@ -164,15 +164,16 @@ Accepts/returns an arrayref that looks like:
 
     [
       { type => ['work'], street => 'Main St', preferred => 0 },
-      { type      => ['home'], 
-        pobox     => 1234,
-        extended  => 'asdf',
-        street    => 'Army St',
-        city      => 'Desert Base',
-        region    => '',
-        post_code => '',
-        country   => 'USA',
-        preferred => 1,
+      { type                    => ['home'],
+        pobox                   => 1234,
+        extended                => 'asdf',
+        street                  => 'Army St',
+        city                    => 'Desert Base',
+        region                  => '',
+        post_code               => '',
+        country                 => 'USA',
+        preferred               => 1,
+        google_contacts_address => '1234\nasdf\nArmy St\nDesert Base\nUSA',
       },
     ]
 
