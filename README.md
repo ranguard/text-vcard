@@ -172,8 +172,8 @@ Accepts/returns an arrayref that looks like:
         region                  => '',
         post_code               => '',
         country                 => 'USA',
-        preferred               => 1,
         google_contacts_address => '1234\nasdf\nArmy St\nDesert Base\nUSA',
+        preferred               => 1,
       },
     ]
 
