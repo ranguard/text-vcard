@@ -310,8 +310,8 @@ names.
   vCard Spec    Alias           Methods on object
   ----------    ----------      -----------------
   N             name (depreciated as conflicts with rfc, use moniker)
-  N             moniker            'family','given','middle','prefixes','suffixes'
-  ADR           addresses       'po_box','extended','street','city','region','post_code','country'
+  N             moniker         'family','given','middle','prefixes','suffixes'
+  ADR           addresses       'po_box','extended','street','city','region','post_code','country','google_contacts_address'
   GEO                           'lat','long'
   TEL           phones
   LABELS
@@ -330,6 +330,9 @@ names.
   $addresses->[0]->is_type('fax');
   $addresses->[0]->add_types('home');
   $addresses->[0]->remove_types('work');
+
+The `google_contacts_address` is an element that is not specified in the rfc6350 standard for vCard but
+is appended to address nodes when exporting vCards from Google Contacts.
 
 =head2 get_group()
 
