@@ -18,7 +18,7 @@ my @default_field = qw(value);
 %lookup = (
     'ADR' => [
         'po_box', 'extended',  'street', 'city',
-        'region', 'post_code', 'country', 'google_contacts_address'
+        'region', 'post_code', 'country', 'label'
     ],
     'N'   => [ 'family', 'given', 'middle', 'prefixes', 'suffixes' ],
     'GEO' => [ 'lat',    'long' ],
@@ -311,7 +311,7 @@ names.
   ----------    ----------      -----------------
   N             name (depreciated as conflicts with rfc, use moniker)
   N             moniker         'family','given','middle','prefixes','suffixes'
-  ADR           addresses       'po_box','extended','street','city','region','post_code','country','google_contacts_address'
+  ADR           addresses       'po_box','extended','street','city','region','post_code','country','label'
   GEO                           'lat','long'
   TEL           phones
   LABELS
@@ -330,9 +330,6 @@ names.
   $addresses->[0]->is_type('fax');
   $addresses->[0]->add_types('home');
   $addresses->[0]->remove_types('work');
-
-The `google_contacts_address` is an element that is not specified in the rfc6350 standard for vCard but
-is appended to address nodes when exporting vCards from Google Contacts.
 
 =head2 get_group()
 
