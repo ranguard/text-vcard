@@ -9,8 +9,24 @@ perl:
   - "5.12"
   - "5.10"
   - "5.8"
- 
+
+env:
+  global:
+    - builddir=./build-CI
+    - stableperl=5.20
+    - RELEASE_TESTING=1
+    - AUTOMATED_TESTING=1
+    - EXTENDED_TESTING=1
+    - AUTHOR_TESTING=1
+
+before_install:
+  - perlbrew list
+  - "perlbrew exec --with $stableperl 'cpanm --quiet --notest Dist::Zilla'"
+  - "perlbrew exec --with $stableperl 'dzil authordeps | cpanm --quiet --notest'"
+  - "perlbrew exec --with $stableperl 'dzil build --in $builddir'"
+
 install:
+   - '(cd $builddir && cpanm --quiet --notest --installdeps .)'
    - cpanm --quiet --notest --skip-satisfied Dist::Zilla
    - cpanm Test::NoTabs
    - "dzil authordeps | grep -vP '[^\\w:]' | cpanm --verbose --notest --skip-satisfied"
