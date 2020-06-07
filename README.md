@@ -36,16 +36,16 @@ vCard - Read, write, and edit vCards
 
 # DESCRIPTION
 
-A vCard is a digital business card.  vCard and [vCard::AddressBook](https://metacpan.org/pod/vCard::AddressBook) provide an
+A vCard is a digital business card. vCard and [vCard::AddressBook](https://metacpan.org/pod/vCard::AddressBook) provide an
 API for parsing, editing, and creating vCards.
 
-This module is built on top of [Text::vCard](https://metacpan.org/pod/Text::vCard).  It provides a more intuitive user
+This module is built on top of [Text::vCard](https://metacpan.org/pod/Text::vCard). It provides a more intuitive user
 interface.
 
 To handle an address book with several vCard entries in it, start with
 [vCard::AddressBook](https://metacpan.org/pod/vCard::AddressBook) and then come back to this module.
 
-Note that the vCard RFC requires version() and full\_name().  This module does
+Note that the vCard RFC requires version() and full_name(). This module does
 not check or warn if these conditions have not been met.
 
 # ENCODING AND UTF-8
@@ -54,9 +54,9 @@ See the 'ENCODING AND UTF-8' section of [vCard::AddressBook](https://metacpan.or
 
 # METHODS
 
-## load\_hashref($hashref)
+## load_hashref(\$hashref)
 
-$hashref should look like this:
+\$hashref should look like this:
 
     full_name    => 'Bruce Banner, PhD',
     given_names  => ['Bruce'],
@@ -76,24 +76,24 @@ $hashref should look like this:
         { type => ['home'], address => 'bbanner@timewarner.com' },
     ],
 
-Returns $self in case you feel like chaining.
+Returns \$self in case you feel like chaining.
 
-## load\_file($filename)
+## load_file(\$filename)
 
-Returns $self in case you feel like chaining.
+Returns \$self in case you feel like chaining.
 
-## load\_string($string)
+## load_string(\$string)
 
 Returns $self in case you feel like chaining.  This method assumes $string is
 decoded (but not MIME decoded).
 
-## as\_string()
+## as_string()
 
 Returns the vCard as a string.
 
-## as\_file($filename)
+## as_file(\$filename)
 
-Write data in vCard format to $filename.
+Write data in vCard format to \$filename.
 
 Dies if not successful.
 
@@ -103,9 +103,9 @@ These methods accept and return strings.
 
 ## version()
 
-Version number of the vcard.  Defaults to '4.0'
+Version number of the vcard. Defaults to '4.0'
 
-## full\_name()
+## full_name()
 
 A person's entire name as they would like to see it displayed.
 
@@ -113,9 +113,13 @@ A person's entire name as they would like to see it displayed.
 
 A person's position or job.
 
+## nickname()
+
+A person's nickname.
+
 ## photo()
 
-This should be a link. Accepts a string or a URI object.  This method
+This should be a link. Accepts a string or a URI object. This method
 always returns a [URI](https://metacpan.org/pod/URI) object.
 
 TODO: handle binary images using the data uri schema
@@ -128,26 +132,26 @@ TODO: handle binary images using the data uri schema
 
 These methods accept and return array references rather than simple strings.
 
-## family\_names()
+## family_names()
 
 Accepts/returns an arrayref of family names (aka surnames).
 
-## given\_names()
+## given_names()
 
 Accepts/returns an arrayref.
 
-## other\_names()
+## other_names()
 
-Accepts/returns an arrayref of names which don't qualify as family\_names or
-given\_names.
+Accepts/returns an arrayref of names which don't qualify as family_names or
+given_names.
 
-## honorific\_prefixes()
+## honorific_prefixes()
 
-Accepts/returns an arrayref.  eg `[ 'Dr.' ]`
+Accepts/returns an arrayref. eg `[ 'Dr.' ]`
 
-## honorific\_suffixes()
+## honorific_suffixes()
 
-Accepts/returns an arrayref.  eg `[ 'Jr.', 'MD' ]`
+Accepts/returns an arrayref. eg `[ 'Jr.', 'MD' ]`
 
 ## phones()
 
@@ -177,7 +181,7 @@ Accepts/returns an arrayref that looks like:
       },
     ]
 
-## email\_addresses()
+## email_addresses()
 
 Accepts/returns an arrayref that looks like:
 

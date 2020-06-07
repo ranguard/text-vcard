@@ -333,6 +333,10 @@ A person's entire name as they would like to see it displayed.
 
 A person's position or job.
 
+=head2 nickname()
+
+A person's nickname.
+
 =head2 photo()
 
 This should be a link. Accepts a string or a URI object.  This method
