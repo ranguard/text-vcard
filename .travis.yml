@@ -27,7 +27,7 @@ install:
    - "dzil listdeps   | grep -vP '[^\\w:]' | cpanm --verbose --skip-satisfied"
 
 script:
-  - dzil smoke --release --author
+  - "perlbrew exec --with $stableperl 'dzil smoke --release --author'"
 
 notifications:
   email:
