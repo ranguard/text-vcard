@@ -21,8 +21,7 @@ before_install:
   - "perlbrew exec --with $stableperl 'dzil build --in $builddir'"
 
 install:
-   - cpanm --quiet --notest --installdeps
-   - cpanm --quiet --notest --skip-satisfied Dist::Zilla
+   - cpanm --quiet --notest --installdeps --skip-satisfied Dist::Zilla
    - cpanm Test::NoTabs
    - "dzil authordeps | grep -vP '[^\\w:]' | cpanm --verbose --notest --skip-satisfied"
    - "dzil listdeps   | grep -vP '[^\\w:]' | cpanm --verbose --skip-satisfied"
