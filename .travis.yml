@@ -9,15 +9,25 @@ perl:
   - "5.12"
   - "5.10"
   - "5.8"
- 
+
+env:
+  global:
+    - stableperl=5.20
+
+before_install:
+  - perlbrew list
+  - "perlbrew exec --with $stableperl 'cpanm --quiet --notest Dist::Zilla'"
+  - "perlbrew exec --with $stableperl 'dzil authordeps | cpanm --quiet --notest'"
+  - "perlbrew exec --with $stableperl 'dzil build --in $builddir'"
+
 install:
-   - cpanm --quiet --notest --skip-satisfied Dist::Zilla
+   - cpanm --quiet --notest --installdeps --skip-satisfied Dist::Zilla
    - cpanm Test::NoTabs
    - "dzil authordeps | grep -vP '[^\\w:]' | cpanm --verbose --notest --skip-satisfied"
    - "dzil listdeps   | grep -vP '[^\\w:]' | cpanm --verbose --skip-satisfied"
 
 script:
-  - dzil smoke --release --author
+  - "perlbrew exec --with $stableperl 'dzil smoke --release --author'"
 
 notifications:
   email:
