@@ -18,7 +18,7 @@ my @default_field = qw(value);
 %lookup = (
     'ADR' => [
         'po_box', 'extended',  'street', 'city',
-        'region', 'post_code', 'country'
+        'region', 'post_code', 'country', 'label'
     ],
     'N'   => [ 'family', 'given', 'middle', 'prefixes', 'suffixes' ],
     'GEO' => [ 'lat',    'long' ],
@@ -94,11 +94,11 @@ a more intuitive user interface.  Please try those modules first.
 
 =head1 DESCRIPTION
 
-A vCard is an electronic business card. 
+A vCard is an electronic business card.
 
 This package is for a single vCard (person / record / set of address
 information). It provides an API to editing and creating vCards, or supplied
-a specific piece of the Text::vFile::asData results it generates a vCard 
+a specific piece of the Text::vFile::asData results it generates a vCard
 with that content.
 
 You should really use L<Text::vCard::Addressbook> as this handles creating
@@ -233,7 +233,7 @@ The following method is a convenience wrapper for accessing simple elements.
 
 If multiple elements match, then only the first is returned.  If the object
 isn't found, or doesn't have a simple value, then undef is returned.
- 
+
 The argument type may be ommitted, it can be a scalar, or it can be an
 array reference if multiple types are selected.
 
@@ -291,27 +291,27 @@ names.
   BDAY                    birthday
   MAILER
   TZ                      timezone
-  TITLE 
-  ROLE 
-  NOTE 
-  PRODID 
-  REV 
-  SORT-STRING 
+  TITLE
+  ROLE
+  NOTE
+  PRODID
+  REV
+  SORT-STRING
   UID
-  URL 
+  URL
   CLASS
   EMAIL
   NICKNAME
   PHOTO
   version (lowercase only)
-  
+
 =head2 more complex vCard nodes
 
   vCard Spec    Alias           Methods on object
   ----------    ----------      -----------------
   N             name (depreciated as conflicts with rfc, use moniker)
-  N             moniker            'family','given','middle','prefixes','suffixes'
-  ADR           addresses       'po_box','extended','street','city','region','post_code','country'
+  N             moniker         'family','given','middle','prefixes','suffixes'
+  ADR           addresses       'po_box','extended','street','city','region','post_code','country','label'
   GEO                           'lat','long'
   TEL           phones
   LABELS
@@ -343,7 +343,7 @@ names.
 This method takes one or two arguments. The group name
 (accessable on any node object by using $node->group() - not
 all nodes will have a group, indeed most vcards do not seem
-to use it) and optionally the types of node you with to 
+to use it) and optionally the types of node you with to
 have returned.
 
 Either an array or array reference is returned depending
@@ -424,7 +424,7 @@ this method in your code:
 
 This has not been tested yet.
 
-=cut 
+=cut
 
 sub get_lookup {
     my $self = shift;

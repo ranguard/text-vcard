@@ -4,7 +4,7 @@ use strict;
 
 use lib qw(./lib);
 
-use Test::More tests => 31;
+use Test::More tests => 32;
 use Data::Dumper;
 
 # Check we can load module
@@ -139,6 +139,8 @@ is( $vcard->email(), undef,
 is( $vcard->email('n.e@body.com'),
     'n.e@body.com', 'autogen methods - new value set' );
 
+is( $vcard->nickname('T-Nickname'),
+    'T-Nickname', 'autogen methods - new value set' );
 is( $vcard->birthday('new bd'), 'new bd', 'autogen added with alias' );
 
 ######

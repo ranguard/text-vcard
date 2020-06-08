@@ -1,6 +1,5 @@
 use Test::Most;
 
-use Directory::Scratch;
 use Path::Tiny;
 use vCard;
 

@@ -181,7 +181,7 @@ sub as_string {
 }
 
 sub _simple_node_types {
-    qw/full_name title photo birthday timezone version/;
+    qw/full_name nickname title photo birthday timezone version/;
     #geo, too?
 }
 
@@ -333,6 +333,10 @@ A person's entire name as they would like to see it displayed.
 
 A person's position or job.
 
+=head2 nickname()
+
+A person's nickname.
+
 =head2 photo()
 
 This should be a link. Accepts a string or a URI object.  This method
@@ -413,6 +417,7 @@ sub full_name           { shift->_setget( 'full_name',          @_ ) }
 sub family_names        { shift->_setget( 'family_names',       @_ ) }
 sub given_names         { shift->_setget( 'given_names',        @_ ) }
 sub other_names         { shift->_setget( 'other_names',        @_ ) }
+sub nickname            { shift->_setget( 'nickname',           @_ ) }
 sub honorific_prefixes  { shift->_setget( 'honorific_prefixes', @_ ) }
 sub honorific_suffixes  { shift->_setget( 'honorific_suffixes', @_ ) }
 sub title               { shift->_setget( 'title',              @_ ) }
