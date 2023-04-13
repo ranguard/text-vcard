@@ -47,7 +47,7 @@ vCard::AddressBook - Read, write, and edit vCard address books
 A vCard is a digital business card.  L<vCard> and vCard::AddressBook provide an
 API for parsing, editing, and creating vCards.
 
-This module is built on top of L<Text::vCard> and L<Text::vCard::AddressBook>
+This module is built on top of L<Text::vCard> and L<Text::vCard::Addressbook>
 and provides a more intuitive user interface.
 
 
